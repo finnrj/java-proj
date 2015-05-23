@@ -1,6 +1,6 @@
 package euler;
 
-import static euler.Utils.factorial;
+import static euler.util.Utils.factorial;
 
 import java.util.HashMap;
 import java.util.Map;

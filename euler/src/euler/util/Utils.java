@@ -1,8 +1,9 @@
-package euler;
+package euler.util;
 
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.LongPredicate;
@@ -14,12 +15,22 @@ public class Utils {
 
 	public static LongStream getPrimes(LongPredicate filterCondition)
 			throws IOException {
-		try (Stream<String> lines = Files.lines(Paths.get(".", "primes1.txt"))) {
+		try (Stream<String> lines = Files.lines(Paths.get(".", "docs/primes1.txt"))) {
 			return Arrays
 					.stream(
 							lines.map(l -> l.trim()).filter(l -> !l.isEmpty()).skip(1)
 									.collect(Collectors.joining(" ")).split("\\s+"))
 					.mapToLong(Long::valueOf).filter(filterCondition);
+		}
+	}
+
+	public static int[] readNumberTriangle(Path path) throws IOException {
+		try (Stream<String> lines = Files.lines(path)) {
+			return Arrays
+					.stream(
+							lines.map(l -> l.trim()).collect(Collectors.joining(" "))
+									.split("\\s+")).mapToInt(Integer::valueOf).toArray();
+			// .peek(i -> System.out.println(i))
 		}
 	}
 

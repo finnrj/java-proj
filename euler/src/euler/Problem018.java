@@ -1,9 +1,17 @@
 package euler;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import euler.util.Coordinate;
+import euler.util.Utils;
 
 public class Problem018 {
 
@@ -53,7 +61,17 @@ public class Problem018 {
 		public Cell(long initialValue, Coordinate coordinate) {
 			this.initialValue = initialValue;
 			this.coordinate = coordinate;
-			// System.out.println(this);
+		}
+
+		public int getColumn() {
+			return coordinate.getColumn();
+		}
+
+		public Cell[] filterNeighbours(Collection<Cell> candidates) {
+			int column = getColumn();
+			return candidates.stream()
+					.filter(c -> c.getColumn() == column || c.getColumn() == column + 1)
+					.toArray(Cell[]::new);
 		}
 
 		public void evaluateValue(long pushedValue) {
@@ -72,7 +90,7 @@ public class Problem018 {
 	}
 
 	private class Matrix {
-		private Map<Coordinate, Cell> cells = new HashMap<Coordinate, Cell>();
+		private Map<Integer, List<Cell>> cells = new HashMap<Integer, List<Cell>>();
 		private int rowCount = 0;
 
 		public Matrix(int[] initialValues) {
@@ -83,54 +101,44 @@ public class Problem018 {
 					row += 1;
 					colDiff = i - 1;
 				}
-				Coordinate key = new Coordinate(row, i - colDiff);
-				cells.put(key, new Cell(initialValues[i], key));
+				List<Cell> rowElements = cells.getOrDefault(row, new ArrayList<Cell>());
+				rowElements.add(new Cell(initialValues[i], new Coordinate(row, i
+						- colDiff)));
+				cells.put(row, rowElements);
 			}
 			rowCount = row;
 		}
 
 		public void solve() {
-			for (Coordinate c : cells.keySet()) {
-				if (c.getRow() == 1) {
-					Cell firstCell = cells.get(c);
-					firstCell.evaluateValue(0);
-				}
-			}
+			cells.get(1).get(0).evaluateValue(0);
 
 			for (int i = 1; i < rowCount; i++) {
-				for (Map.Entry<Coordinate, Cell> entry : cells.entrySet()) {
-					Coordinate key = entry.getKey();
-					if (key.getRow() == i) {
-						long value = entry.getValue().getValue();
-						cells.get(new Coordinate(key.getRow() + 1, key.getColumn()))
-								.evaluateValue(value);
-						cells.get(new Coordinate(key.getRow() + 1, key.getColumn() + 1))
-								.evaluateValue(value);
+				for (Cell cell : cells.get(i)) {
+					for (Cell neighbour : cell.filterNeighbours(cells.get(i + 1))) {
+						neighbour.evaluateValue(cell.getValue());
 					}
 				}
 			}
-			for (Coordinate coordinate : cells.keySet()) {
-				if (coordinate.getRow() == rowCount) {
-					System.out.println(cells.get(coordinate));
-				}
+			for (Cell lastRowElement : cells.get(rowCount)) {
+				System.out.println(lastRowElement);
 			}
+			System.out.println("max value = "
+					+ cells.get(rowCount).stream().mapToLong(Cell::getValue).max()
+							.getAsLong());
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		Problem018 p = new Problem018();
 
-		int[] testValues = new int[] { 3, 7, 4, 2, 4, 6, 8, 5, 9, 3 };
-
-		int[] values = new int[] { 75, 95, 64, 17, 47, 82, 18, 35, 87, 10, 20, 4,
-				82, 47, 65, 19, 1, 23, 75, 3, 34, 88, 2, 77, 73, 7, 63, 67, 99, 65, 4,
-				28, 6, 16, 70, 92, 41, 41, 26, 56, 83, 40, 80, 70, 33, 41, 48, 72, 33,
-				47, 32, 37, 16, 94, 29, 53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14, 70,
-				11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57, 91, 71, 52, 38, 17, 14, 91,
-				43, 58, 50, 27, 29, 48, 63, 66, 4, 68, 89, 53, 67, 30, 73, 16, 69, 87,
-				40, 31, 4, 62, 98, 27, 23, 9, 70, 98, 73, 93, 38, 53, 60, 4, 23 };
-
-		Matrix matrix = p.new Matrix(values);
-		matrix.solve();
+		Path smallTriangle = Paths.get(".", "docs/p018_small.txt");
+		Path largeTriangle = Paths.get(".", "docs/p018_large.txt");
+		Path reallyLargeTriangle = Paths.get(".", "docs/p067_triangle.txt");
+		for (Path path : Arrays.asList(smallTriangle, largeTriangle,
+				reallyLargeTriangle)) {
+			System.out.println(path);
+			p.new Matrix(Utils.readNumberTriangle(path)).solve();
+			System.out.println();
+		}
 	}
 }

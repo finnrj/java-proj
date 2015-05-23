@@ -1,9 +1,6 @@
 package euler;
 
-import java.io.IOException;
-import java.util.function.LongPredicate;
 import java.util.function.LongSupplier;
-import java.util.stream.LongStream;
 
 public class Problem007 {
 
@@ -17,7 +14,7 @@ public class Problem007 {
 		return smallestDivisor((candidate == 2) ? 3 : candidate + 2, target);
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		new LongSupplier() {
 			long seed = 2;
 
@@ -29,10 +26,10 @@ public class Problem007 {
 			}
 		};
 
-		LongPredicate isPrime = n -> smallestDivisor(2, n) == n;
+		// LongPredicate isPrime = n -> smallestDivisor(2, n) == n;
 		// long start = System.currentTimeMillis();
-//		LongStream.generate(primeCandidates).filter(isPrime).limit(10_001)
-//				.forEach(n -> System.out.println(n));
+		// LongStream.generate(primeCandidates).filter(isPrime).limit(10_001)
+		// .forEach(n -> System.out.println(n));
 		// System.out.println(System.currentTimeMillis() - start);
 
 		// try (Stream<String> lines = Files.lines(Paths.get(".", "primes1.txt"))) {
