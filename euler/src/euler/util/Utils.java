@@ -5,7 +5,9 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
@@ -40,4 +42,16 @@ public class Utils {
 				.reduce(BigInteger.ONE, (bi1, bi2) -> bi1.multiply(bi2));
 		return result;
 	}
+
+	public static List<Integer> factorize(Integer n) {
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		int max = (n % 2 == 0) ? n / 2 : (n + 1) / 2;
+		for (int i = 1; i <= max; i++) {
+			if (n % i == 0) {
+				result.add(i);
+			}
+		}
+		return result;
+	}
+
 }
