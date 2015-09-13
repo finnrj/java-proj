@@ -5,11 +5,11 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.LongPredicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.IntStream.Builder;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -43,15 +43,18 @@ public class Utils {
 		return result;
 	}
 
-	public static List<Integer> factorize(Integer n) {
-		ArrayList<Integer> result = new ArrayList<Integer>();
-		int max = (n % 2 == 0) ? n / 2 : (n + 1) / 2;
-		for (int i = 1; i <= max; i++) {
+	public static IntStream factorize(Integer n) {
+		Builder builder = IntStream.builder().add(1);
+		int max = (int) Math.floor(Math.sqrt(n));
+		for (int i = 2; i <= max; i++) {
 			if (n % i == 0) {
-				result.add(i);
+				builder.add(i);
+				int div = n / i;
+				if (div != i) {
+					builder.add(n / i);
+				}
 			}
 		}
-		return result;
+		return builder.build().sorted();
 	}
-
 }

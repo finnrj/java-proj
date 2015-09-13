@@ -1,7 +1,7 @@
 package euler;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import euler.util.Utils;
 
@@ -9,19 +9,22 @@ public class Problem012 {
 	// triangle number with more than 500 factors
 
 	public static void main(String[] args) {
-		List<Integer> factors = new ArrayList<Integer>();
+		IntStream factors = IntStream.of();
+		long factorsCount = 0;
 		int counter = 0;
 		int sum = 0;
-		int max = 0;
-		while (factors.size() <= 500) {
+		long max = 0;
+		while (factorsCount <= 500) {
 			counter++;
 			sum += counter;
 			factors = Utils.factorize(sum);
-			if (factors.size() > max) {
-				max = factors.size();
+			factorsCount = factors.count();
+			if (factorsCount > max) {
+				max = factorsCount;
 				System.out.println("new max: " + max);
 			}
 		}
-		System.out.println(sum + ", " + factors);
+		System.out.println(sum + ", "
+				+ Utils.factorize(sum).boxed().collect(Collectors.toList()));
 	}
 }
