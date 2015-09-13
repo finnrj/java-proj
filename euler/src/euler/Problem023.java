@@ -15,14 +15,17 @@ public class Problem023 {
 				.filter(n -> Utils.factorize(n).sum() > n).collect(Collectors.toList());
 	}
 
-	private static Predicate<Integer> isAbundantPairSumPredicate = candidate -> abundantNumbers
-			.stream().map(n -> abundantNumbers.contains(candidate - n))
-			.reduce(Boolean::logicalOr).get();
+	private static Predicate<Integer> isAbundantPairSum = candidate -> abundantNumbers
+			.stream()
+			.filter(n -> candidate > n && abundantNumbers.contains(candidate - n))
+			.findAny().isPresent();
 
 	public static void main(String[] args) {
+		// Instant start = Instant.now();
 		List<Integer> nonAbundantPairSum = Stream.iterate(1, n -> n + 1).limit(max)
-				.filter(isAbundantPairSumPredicate.negate())
-				.collect(Collectors.toList());
+				.filter(isAbundantPairSum.negate()).collect(Collectors.toList());
+		// System.out.println(Duration.between(start, Instant.now()));
+
 		System.out.println(abundantNumbers);
 		System.out.println("size:" + nonAbundantPairSum.size() + ", "
 				+ nonAbundantPairSum);
