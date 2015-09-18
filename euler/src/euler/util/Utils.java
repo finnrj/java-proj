@@ -26,6 +26,11 @@ public class Utils {
 		}
 	}
 
+	public static Boolean isPrime(long candidate) throws IOException {
+		LongPredicate identical = prime -> prime == candidate;
+		return getPrimes(identical).count() == 1;
+	}
+
 	public static int[] readNumberTriangle(Path path) throws IOException {
 		try (Stream<String> lines = Files.lines(path)) {
 			return Arrays
