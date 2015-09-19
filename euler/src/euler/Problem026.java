@@ -1,16 +1,60 @@
 package euler;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.AbstractMap;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Problem026 {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
+		// iterativeSolution();
+		// iterativeAsStreamSolution();
 
+		IntStream
+				.range(1, 1000)
+				.filter(i -> 1000 % i != 0)
+				.mapToObj(
+						e -> {
+							IntStream limited = IntStream.iterate(1, n -> (n * 10) % e)
+									.limit(2 * e);
+							Map<Integer, Long> collectMap = limited.boxed().collect(
+									Collectors.groupingBy(UnaryOperator.<Integer> identity(),
+											Collectors.counting()));
+							return String.format("%d, period length: %d", e, collectMap
+									.values().stream().filter(c -> c > 1).count());
+						}).forEach(System.out::println);
+	}
+
+	private static void iterativeAsStreamSolution() {
+		Stream<AbstractMap.SimpleEntry<Integer, String>> fractions = IntStream
+				.range(1, 1000)
+				.filter(i -> 1000 % i != 0)
+				.mapToObj(
+						i -> new AbstractMap.SimpleEntry<Integer, String>(i, BigDecimal.ONE
+								.divide(new BigDecimal(i), 10000, RoundingMode.UP)
+								.multiply(
+										new BigDecimal((i < 10) ? 10 : (i < 100) ? 100 : 1000))
+								.toString().substring(4)));
+		fractions
+				.map(
+						e -> {
+							int foundPeriod = IntStream
+									.rangeClosed(1, 1000)
+									.filter(
+											i -> e.getValue().subSequence(0, i)
+													.equals(e.getValue().subSequence(i, 2 * i)))
+									.findAny().orElse(-1);
+							return String.format("%d, period length: %d", e.getKey(),
+									foundPeriod);
+						}).forEach(System.out::println);
+	}
+
+	private static void iterativeSolution() {
 		for (int i = 1; i < 1000; i++) {
 			BigDecimal divide = BigDecimal.ONE.divide(new BigDecimal(i), 10000,
 					RoundingMode.UP);
@@ -42,28 +86,5 @@ public class Problem026 {
 				}
 			}
 		}
-
-		Stream<AbstractMap.SimpleEntry<Integer, String>> fractions = IntStream
-				.range(1, 1000)
-				.filter(i -> 1000 % i != 0)
-				.mapToObj(
-						i -> new AbstractMap.SimpleEntry<Integer, String>(i, BigDecimal.ONE
-								.divide(new BigDecimal(i), 10000, RoundingMode.UP)
-								.multiply(
-										new BigDecimal((i < 10) ? 10 : (i < 100) ? 100 : 1000))
-								.toString().substring(4)));
-		fractions
-				.map(
-						e -> {
-							int foundPeriod = IntStream
-									.rangeClosed(1, 1000)
-									.filter(
-											i -> e.getValue().subSequence(0, i)
-													.equals(e.getValue().subSequence(i, 2 * i)))
-									.findAny().orElse(-1);
-							return String.format("%d, period length: %d", e.getKey(),
-									foundPeriod);
-						}).forEach(System.out::println);
-		;
 	}
 }
