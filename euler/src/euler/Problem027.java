@@ -1,6 +1,5 @@
 package euler;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.AbstractMap;
@@ -39,10 +38,10 @@ public class Problem027 {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		Instant start = Instant.now();
 
-		LongStream allBs = fetchAllBs(1000);
+		Stream<Long> allBs = fetchAllBs(4);
 
 		System.out.println("fetchAllBs                 "
 				+ Duration.between(start, start = Instant.now()));
@@ -90,18 +89,18 @@ public class Problem027 {
 	}
 
 	private static Stream<SimpleImmutableEntry<Long, IntStream>> fetchAsForEachB(
-			LongStream allBs) {
-		return allBs.mapToObj(b -> {
-			IntStream as = IntStream.range(-999, 1000).filter(
-					a -> Utils.isPrime(1 + a * 1 + b)//
-							&& Utils.isPrime(4 + 2 * a + b)//
-							&& Utils.isPrime(9 + 3 * a + b));
+			Stream<Long> allBs) {
+		return allBs.map(b -> {
+			IntStream as = IntStream.range(-999, 1000).filter(a -> a % 2 == 1 //
+					&& Utils.isPrime(1 + a * 1 + b)//
+					&& Utils.isPrime(4 + 2 * a + b)//
+					&& Utils.isPrime(9 + 3 * a + b));
 			return new AbstractMap.SimpleImmutableEntry<Long, IntStream>(b, as);
 		});
 	}
 
-	private static LongStream fetchAllBs(long max) throws IOException {
-		return LongStream.concat(Utils.getPrimes(p -> p < max),
+	private static Stream<Long> fetchAllBs(long max) {
+		return Stream.<Long> concat(Utils.getPrimes(p -> p < max),
 				Utils.getPrimes(p -> p < max).map(p -> -1 * p));
 	}
 }

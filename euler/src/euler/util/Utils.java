@@ -5,8 +5,12 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.TreeSet;
 import java.util.function.LongPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.IntStream.Builder;
@@ -15,7 +19,21 @@ import java.util.stream.Stream;
 
 public class Utils {
 
-	public static LongStream getPrimes(LongPredicate filterCondition)
+	private static TreeSet<Long> primes;
+	static {
+		try (Stream<String> lines = Files.lines(Paths.get(".", "docs/primes1.txt"))) {
+			primes = Arrays
+					.stream(
+							lines.map(l -> l.trim()).filter(l -> !l.isEmpty()).skip(1)
+									.collect(Collectors.joining(" ")).split("\\s+"))
+					.mapToLong(Long::valueOf).boxed()
+					.collect(Collectors.toCollection(TreeSet::new));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	};
+
+	public static LongStream getPrimesFromFile(LongPredicate filterCondition)
 			throws IOException {
 		try (Stream<String> lines = Files.lines(Paths.get(".", "docs/primes1.txt"))) {
 			return Arrays
@@ -26,13 +44,13 @@ public class Utils {
 		}
 	}
 
+	public static Stream<Long> getPrimes(Predicate<Long> filterCondition) {
+		return primes.stream().filter(filterCondition);
+	}
+
 	public static Boolean isPrime(long candidate) {
-		LongPredicate identical = prime -> prime == Math.abs(candidate);
-		try {
-			return getPrimes(identical).count() == 1;
-		} catch (IOException e) {
-			return false;
-		}
+		Predicate<Long> identical = prime -> prime == Math.abs(candidate);
+		return getPrimes(identical).count() == 1;
 	}
 
 	public static int[] readNumberTriangle(Path path) throws IOException {
@@ -65,5 +83,22 @@ public class Utils {
 			}
 		}
 		return builder.build().sorted();
+	}
+
+	public static void main(String[] args) throws IOException {
+		LongPredicate pred = p -> true;
+		Predicate<Long> pre = p -> true;
+
+		Instant start = Instant.now();
+
+		LongStream allBs = getPrimesFromFile(pred).limit(10_000);
+
+		System.out.println("getPrimesFromFile"
+				+ Duration.between(start, start = Instant.now()));
+
+		Stream<Long> allBss = getPrimes(pre).limit(10_000);
+		System.out.println("getPrimes"
+				+ Duration.between(start, start = Instant.now()));
+
 	}
 }
