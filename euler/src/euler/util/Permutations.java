@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -22,6 +23,13 @@ public class Permutations {
 	public static <T> List<T> permutation(long no, List<T> items) {
 		return permutationHelper(no,
 				new LinkedList<>(Objects.requireNonNull(items)), new ArrayList<>());
+	}
+
+	public static <T> List<T> permutation(long no, Stream<T> items) {
+		return permutationHelper(
+				no,
+				new LinkedList<>(Objects.requireNonNull(items.collect(Collectors
+						.toList()))), new ArrayList<>());
 	}
 
 	private static <T> List<T> permutationHelper(long no, LinkedList<T> in,
