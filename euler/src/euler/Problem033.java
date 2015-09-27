@@ -3,6 +3,7 @@ package euler;
 public class Problem033 {
 
 	public static void main(String[] args) {
+
 		for (int b = 9; b > 1; b--) {
 			for (int a = b - 1; a > 0; a--) {
 				for (int x = 1; x < 10; x++) {
