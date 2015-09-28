@@ -24,6 +24,6 @@ public class Problem034 {
 				collector.add(i);
 			}
 		}
-		System.out.println("sum: " + collector.stream().reduce(Integer::sum));
+		System.out.println("sum: " + collector.stream().reduce(Integer::sum).get());
 	}
 }

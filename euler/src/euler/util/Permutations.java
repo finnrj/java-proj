@@ -41,12 +41,15 @@ public class Permutations {
 		return permutationHelper((int) (no % subFactorial), in, out);
 	}
 
+	public static <T> Stream<Stream<T>> of(List<T> items) {
+		return LongStream.range(0, factorial(items.size())).mapToObj(
+				no -> permutation(no, items).stream());
+	}
+
 	@SafeVarargs
 	// Creating a List from an array is safe
 	public static <T> Stream<Stream<T>> of(T... items) {
-		List<T> itemList = Arrays.asList(items);
-		return LongStream.range(0, factorial(items.length)).mapToObj(
-				no -> permutation(no, itemList).stream());
+		return of(Arrays.asList(items));
 	}
 
 }
