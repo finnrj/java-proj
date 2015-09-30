@@ -1,33 +1,30 @@
 package euler;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
+import java.util.stream.IntStream;
 
 import euler.util.Utils;
 
 public class Problem036 {
 
-	private static Long nextRotation(Long number) {
-		String valueOf = String.valueOf(number);
-		return Long.valueOf(valueOf.substring(1) + valueOf.charAt(0));
-	}
-
-	private static LongStream numberRotations(Long number) {
-		String valueOf = String.valueOf(number);
-		return LongStream.iterate(number, n -> nextRotation(n)).limit(
-				valueOf.length());
+	private static String binaryString(int target) {
+		if (target == 0) {
+			return "0";
+		}
+		String result = "";
+		while (target > 0) {
+			result = target % 2 + result;
+			target = target / 2;
+		}
+		return result;
 	}
 
 	public static void main(String[] args) {
-		Integer maximum = 1_000_000;
-		Set<Long> primesSet = Utils.getPrimes(p -> p < maximum).collect(
-				Collectors.toSet());
-		System.out.println(Utils
-				.getPrimes(p -> p < maximum)
+		System.out.println(IntStream
+				.range(1, 1_000_000)
 				.filter(
-						p -> !String.valueOf(p).contains("0")
-								&& numberRotations(p).allMatch(i -> primesSet.contains(i)))
-				.count());
+						i -> Utils.isPalindrome(i) && Utils.isPalindrome(binaryString(i)))
+				.peek(
+						i -> System.out.println(String.format("% 5d = %s", i,
+								binaryString(i)))).sum());
 	}
 }
