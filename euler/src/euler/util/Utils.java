@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
@@ -85,20 +87,35 @@ public class Utils {
 		return builder.build().sorted();
 	}
 
+	public static boolean isPalindrome(String candidate) {
+		List<String> asList = Arrays.asList(candidate.substring(0,
+				candidate.length() / 2).split(""));
+		Collections.reverse(asList);
+		return candidate.endsWith(String.join("", asList));
+	}
+
+	public static boolean isPalindrome(int product) {
+		return isPalindrome(String.valueOf(product));
+	}
+
 	public static void main(String[] args) throws IOException {
+		timePrimeMethods();
+	}
+
+	private static void timePrimeMethods() throws IOException {
 		LongPredicate pred = p -> true;
 		Predicate<Long> pre = p -> true;
 
 		Instant start = Instant.now();
 
-		LongStream allBs = getPrimesFromFile(pred).limit(10_000);
+		getPrimesFromFile(pred).limit(10_000);
 
 		System.out.println("getPrimesFromFile"
 				+ Duration.between(start, start = Instant.now()));
 
-		Stream<Long> allBss = getPrimes(pre).limit(10_000);
+		getPrimes(pre).limit(10_000);
 		System.out.println("getPrimes"
 				+ Duration.between(start, start = Instant.now()));
-
 	}
+
 }
