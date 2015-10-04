@@ -55,6 +55,27 @@ public class Utils {
 		return getPrimes(identical).count() == 1;
 	}
 
+	public static Boolean isPrimeErastothenes(long candidate) {
+		return candidate > 1
+				&& LongStream.rangeClosed(2, (long) Math.sqrt(candidate)).noneMatch(
+						divisor -> candidate % divisor == 0);
+	}
+
+	public static Boolean isPrimeErastothenes(String candidate) {
+		return isPrime(Long.parseLong(candidate));
+	}
+
+	public static boolean isPandigital(Long candidate) {
+		String numbers = "123456789";
+		String candidateString = candidate.toString();
+		int candidateLength = candidateString.length();
+		return candidateLength <= numbers.length()
+				&& candidateString.chars().sorted().boxed()
+						.map(ch -> String.valueOf(Character.getNumericValue(ch)))
+						.collect(Collectors.joining())
+						.equals(numbers.substring(0, candidateLength));
+	}
+
 	public static int[] readNumberTriangle(Path path) throws IOException {
 		try (Stream<String> lines = Files.lines(path)) {
 			return Arrays
@@ -103,6 +124,13 @@ public class Utils {
 	}
 
 	private static void timePrimeMethods() throws IOException {
+		for (long i = 1; i < 100_000; i++) {
+			if (isPandigital(i)) {
+				System.out.println(i);
+			}
+		}
+		System.out.println();
+
 		LongPredicate pred = p -> true;
 		Predicate<Long> pre = p -> true;
 
