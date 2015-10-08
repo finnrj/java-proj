@@ -108,6 +108,23 @@ public class Utils {
 		return builder.build().sorted();
 	}
 
+	public static LongStream primeFactors(Long n) {
+		java.util.stream.LongStream.Builder builder = LongStream.builder();
+		if (isPrime(n)) {
+			return builder.add(n).build();
+		}
+		long max = n / 2;
+		List<Long> primeCandidates = getPrimes(p -> p < max).collect(
+				Collectors.toList());
+		for (Long prime : primeCandidates) {
+			while (n % prime == 0) {
+				builder.add(prime);
+				n = n / prime;
+			}
+		}
+		return builder.build().sorted();
+	}
+
 	public static boolean isPalindrome(String candidate) {
 		List<String> asList = Arrays.asList(candidate.substring(0,
 				candidate.length() / 2).split(""));
