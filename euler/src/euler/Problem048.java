@@ -1,12 +1,11 @@
 package euler;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.stream.Stream;
 
 public class Problem048 {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		String largeString = Stream
 				.iterate(BigInteger.ONE, bi -> bi.add(BigInteger.ONE))
 				.map(bi -> bi.pow(bi.intValue()))
