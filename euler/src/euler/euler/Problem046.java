@@ -1,3 +1,4 @@
+
 package euler;
 
 import java.io.IOException;
@@ -6,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem046 {
 
@@ -15,11 +16,9 @@ public class Problem046 {
 				.map(n -> 2 * n * n).boxed().collect(Collectors.toSet());
 		List<Long> primes = Utils.getPrimesFromFile(p -> p < 10_000).boxed()
 				.collect(Collectors.toList());
-		System.out.println(LongStream
-				.iterate(3, n -> n + 2)
-				.filter(n -> !Utils.isPrime(n))
-				.filter(
-						n -> !primes.stream().filter(p -> p < n)
-								.anyMatch(p -> doubleSquares.contains(n - p))).findFirst());
+		System.out.println(LongStream.iterate(3, n -> n + 2)
+				.filter(n -> !Utils.isPrime(n)).filter(n -> !primes.stream()
+						.filter(p -> p < n).anyMatch(p -> doubleSquares.contains(n - p)))
+				.findFirst());
 	}
 }

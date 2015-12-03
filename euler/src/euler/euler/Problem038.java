@@ -2,7 +2,7 @@ package euler;
 
 import java.util.stream.Collectors;
 
-import euler.util.Permutations;
+import utils.Permutations;
 
 public class Problem038 {
 
@@ -18,11 +18,14 @@ public class Problem038 {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(Permutations.of(1, 2, 3, 4, 5, 6, 7, 8, 9)
-				.map(s -> s.map(i -> i.toString()).collect(Collectors.joining()))
-				.skip(8 * Permutations.factorial(8))
-				.filter(perm -> multipleWithTwo(perm) || multipleWithFour(perm))
-				.peek(System.out::println).max(String::compareTo).get());
+		System.out
+				.println(
+						Permutations.of(1, 2, 3, 4, 5, 6, 7, 8, 9)
+								.map(
+										s -> s.map(i -> i.toString()).collect(Collectors.joining()))
+						.skip(8 * Permutations.factorial(8))
+						.filter(perm -> multipleWithTwo(perm) || multipleWithFour(perm))
+						.peek(System.out::println).max(String::compareTo).get());
 
 	}
 }

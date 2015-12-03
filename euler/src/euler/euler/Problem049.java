@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem049 {
 
@@ -20,8 +20,8 @@ public class Problem049 {
 				long searchedFor = 2 * candidates.get(j) - candidates.get(i);
 				if (candidates.contains(searchedFor)) {
 					System.out.println(candidates);
-					System.out.println(candidates.get(i) + "" + candidates.get(j) + ""
-							+ searchedFor);
+					System.out.println(
+							candidates.get(i) + "" + candidates.get(j) + "" + searchedFor);
 				}
 			}
 		}
@@ -31,8 +31,8 @@ public class Problem049 {
 		Stream<Long> fourDigitPrimes = Utils
 				.getPrimes(p -> p.toString().length() == 4);
 		// System.out.println(Arrays.toString("1487".split("")));
-		fourDigitPrimes.collect(Collectors.groupingBy(Problem049::makeKey))
-				.values().stream().filter(lst -> lst.size() >= 3)
+		fourDigitPrimes.collect(Collectors.groupingBy(Problem049::makeKey)).values()
+				.stream().filter(lst -> lst.size() >= 3)
 				.forEach(lst -> duplicatedDistances(lst));
 	}
 }

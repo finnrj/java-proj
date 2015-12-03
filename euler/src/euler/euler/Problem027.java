@@ -9,7 +9,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem027 {
 
@@ -26,10 +26,9 @@ public class Problem027 {
 
 		@Override
 		public String toString() {
-			return String
-					.format(
-							"n**2 %s%d * n + %d constructs %d primes\ncoefficient product: %d * %d = %d",
-							(b < 0) ? "" : " + ", a, b, n, a, b, a * b);
+			return String.format(
+					"n**2 %s%d * n + %d constructs %d primes\ncoefficient product: %d * %d = %d",
+					(b < 0) ? "" : " + ", a, b, n, a, b, a * b);
 		}
 
 		@Override
@@ -46,7 +45,8 @@ public class Problem027 {
 		System.out.println("fetchAllBs                 "
 				+ Duration.between(start, start = Instant.now()));
 
-		Stream<SimpleImmutableEntry<Long, IntStream>> bWithAs = fetchAsForEachB(allBs);
+		Stream<SimpleImmutableEntry<Long, IntStream>> bWithAs = fetchAsForEachB(
+				allBs);
 		System.out.println("fetchAsForEachB            "
 				+ Duration.between(start, start = Instant.now()));
 
@@ -61,7 +61,7 @@ public class Problem027 {
 
 	private static void findMaximumPrimesGenrated(Stream<Triple> result) {
 		Optional<Triple> max = result
-		// .peek(System.out::println)
+				// .peek(System.out::println)
 				.max(Triple::compareTo);
 		System.out.println(max);
 	}
@@ -69,21 +69,14 @@ public class Problem027 {
 	private static Stream<Triple> findPrimesGenerated(
 			Stream<SimpleImmutableEntry<Long, IntStream>> bWithAs) {
 		Stream<Triple> result = bWithAs.flatMap(b_a -> {
-			return b_a
-					.getValue()
-					.boxed()
-					.map(
-							a -> {
-								SimpleImmutableEntry<Long, Long> firstNonPrime = LongStream
-										.range(0, 75)
-										.boxed()
-										.map(
-												i -> new AbstractMap.SimpleImmutableEntry<Long, Long>(
-														i, i * i + a * i + b_a.getKey()))
-										.filter(i_v -> !Utils.isPrime(i_v.getValue())).findFirst()
-										.get();
-								return new Triple(b_a.getKey(), a, firstNonPrime.getKey());
-							});
+			return b_a.getValue().boxed().map(a -> {
+				SimpleImmutableEntry<Long, Long> firstNonPrime = LongStream.range(0, 75)
+						.boxed()
+						.map(i -> new AbstractMap.SimpleImmutableEntry<Long, Long>(i,
+								i * i + a * i + b_a.getKey()))
+						.filter(i_v -> !Utils.isPrime(i_v.getValue())).findFirst().get();
+				return new Triple(b_a.getKey(), a, firstNonPrime.getKey());
+			});
 		});
 		return result.peek(System.out::println);
 	}
@@ -91,10 +84,11 @@ public class Problem027 {
 	private static Stream<SimpleImmutableEntry<Long, IntStream>> fetchAsForEachB(
 			Stream<Long> allBs) {
 		return allBs.map(b -> {
-			IntStream as = IntStream.range(-999, 1000).filter(a -> a % 2 == 1 //
-					&& Utils.isPrime(1 + a * 1 + b)//
-					&& Utils.isPrime(4 + 2 * a + b)//
-					&& Utils.isPrime(9 + 3 * a + b));
+			IntStream as = IntStream.range(-999, 1000)
+					.filter(a -> a % 2 == 1 //
+							&& Utils.isPrime(1 + a * 1 + b)//
+							&& Utils.isPrime(4 + 2 * a + b)//
+							&& Utils.isPrime(9 + 3 * a + b));
 			return new AbstractMap.SimpleImmutableEntry<Long, IntStream>(b, as);
 		});
 	}

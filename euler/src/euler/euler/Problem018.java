@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import euler.util.Coordinate;
-import euler.util.Utils;
+import utils.Coordinate;
+import utils.Utils;
 
 public class Problem018 {
 
@@ -80,8 +80,8 @@ public class Problem018 {
 
 		@Override
 		public String toString() {
-			return "Cell [coordinate=" + coordinate + ", initialValue="
-					+ initialValue + ", value=" + value + "]";
+			return "Cell [coordinate=" + coordinate + ", initialValue=" + initialValue
+					+ ", value=" + value + "]";
 		}
 
 		public long getValue() {
@@ -102,8 +102,8 @@ public class Problem018 {
 					colDiff = i - 1;
 				}
 				List<Cell> rowElements = cells.getOrDefault(row, new ArrayList<Cell>());
-				rowElements.add(new Cell(initialValues[i], new Coordinate(row, i
-						- colDiff)));
+				rowElements
+						.add(new Cell(initialValues[i], new Coordinate(row, i - colDiff)));
 				cells.put(row, rowElements);
 			}
 			rowCount = row;
@@ -122,9 +122,8 @@ public class Problem018 {
 			for (Cell lastRowElement : cells.get(rowCount)) {
 				System.out.println(lastRowElement);
 			}
-			System.out.println("max value = "
-					+ cells.get(rowCount).stream().mapToLong(Cell::getValue).max()
-							.getAsLong());
+			System.out.println("max value = " + cells.get(rowCount).stream()
+					.mapToLong(Cell::getValue).max().getAsLong());
 		}
 	}
 

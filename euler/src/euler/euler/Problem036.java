@@ -1,8 +1,9 @@
+
 package euler;
 
 import java.util.stream.IntStream;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem036 {
 
@@ -19,12 +20,11 @@ public class Problem036 {
 	}
 
 	public static void main(String[] args) {
-		System.out.println(IntStream
-				.range(1, 1_000_000)
-				.filter(
-						i -> Utils.isPalindrome(i) && Utils.isPalindrome(binaryString(i)))
-				.peek(
-						i -> System.out.println(String.format("% 5d = %s", i,
-								binaryString(i)))).sum());
+		System.out
+				.println(IntStream.range(1, 1_000_000)
+						.filter(i -> Utils.isPalindrome(i)
+								&& Utils.isPalindrome(binaryString(i)))
+				.peek(i -> System.out
+						.println(String.format("% 5d = %s", i, binaryString(i)))).sum());
 	}
 }

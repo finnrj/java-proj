@@ -3,7 +3,7 @@ package euler;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem012 {
 	// triangle number with more than 500 factors
@@ -24,7 +24,7 @@ public class Problem012 {
 				System.out.println("new max: " + max);
 			}
 		}
-		System.out.println(sum + ", "
-				+ Utils.factorize(sum).boxed().collect(Collectors.toList()));
+		System.out.println(
+				sum + ", " + Utils.factorize(sum).boxed().collect(Collectors.toList()));
 	}
 }

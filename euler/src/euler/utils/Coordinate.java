@@ -1,4 +1,4 @@
-package euler.util;
+package utils;
 
 public class Coordinate {
 

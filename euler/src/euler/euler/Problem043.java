@@ -2,7 +2,7 @@ package euler;
 
 import java.util.stream.Collectors;
 
-import euler.util.Permutations;
+import utils.Permutations;
 
 public class Problem043 {
 
@@ -18,14 +18,11 @@ public class Problem043 {
 
 	public static void main(String[] args) {
 		System.out
-				.println(Permutations
-						.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+				.println(Permutations.of(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 						.skip(Permutations.factorial(9))
-						.map(
-								stream -> stream.map(String::valueOf).collect(
-										Collectors.joining()))
-						.filter(Problem043::hasDivisibilityProperty)
-						.peek(System.out::println).mapToLong(Long::parseLong)
-						.reduce(Long::sum).getAsLong());
+						.map(stream -> stream.map(String::valueOf)
+								.collect(Collectors.joining()))
+				.filter(Problem043::hasDivisibilityProperty).peek(System.out::println)
+				.mapToLong(Long::parseLong).reduce(Long::sum).getAsLong());
 	}
 }

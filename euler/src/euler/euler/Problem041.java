@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import euler.util.Permutations;
-import euler.util.Utils;
+import utils.Permutations;
+import utils.Utils;
 
 public class Problem041 {
 	private static List<Integer> numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8,
@@ -38,8 +38,7 @@ public class Problem041 {
 	}
 
 	private static String findSolution(int maxExclusive) {
-		List<String> collect = Permutations
-				.of(numbers.subList(0, maxExclusive))
+		List<String> collect = Permutations.of(numbers.subList(0, maxExclusive))
 				.map(
 						stream -> stream.map(String::valueOf).collect(Collectors.joining()))
 				.filter(Utils::isPrimeErastothenes).collect(Collectors.toList());

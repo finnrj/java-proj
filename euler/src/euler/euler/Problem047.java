@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem047 {
 
@@ -35,22 +35,19 @@ public class Problem047 {
 	}
 
 	private static void fastOne(Instant start) {
-		System.out.println(LongStream
-				.iterate(84333, n -> n + 1)
-				.peek(System.out::println)
-				.filter(
-						n -> LongStream.rangeClosed(n, n + 3).allMatch(
-								Problem047::has4PrimeFactors)).findFirst());
+		System.out
+				.println(LongStream.iterate(84333, n -> n + 1)
+						.peek(System.out::println).filter(n -> LongStream
+								.rangeClosed(n, n + 3).allMatch(Problem047::has4PrimeFactors))
+				.findFirst());
 		System.out.println(Duration.between(Instant.now(), start));
 	}
 
 	private static void slowOne(Instant start) {
-		System.out.println(LongStream
-				.iterate(84333, n -> n + 1)
-				.peek(System.out::println)
-				.filter(
-						n -> LongStream.rangeClosed(n, n + 3).allMatch(
-								Problem047::hasFourPrimeFactors)).findFirst());
+		System.out.println(LongStream.iterate(84333, n -> n + 1)
+				.peek(System.out::println).filter(n -> LongStream.rangeClosed(n, n + 3)
+						.allMatch(Problem047::hasFourPrimeFactors))
+				.findFirst());
 		System.out.println(Duration.between(Instant.now(), start));
 	}
 }

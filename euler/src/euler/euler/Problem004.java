@@ -3,15 +3,15 @@ package euler;
 import java.time.Duration;
 import java.time.Instant;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem004 {
 
 	public static void main(String[] args) {
 		Instant start = Instant.now();
 		solve();
-		System.out.println("solve "
-				+ Duration.between(start, start = Instant.now()));
+		System.out
+				.println("solve " + Duration.between(start, start = Instant.now()));
 	}
 
 	private static void solve() {

@@ -2,7 +2,7 @@ package euler;
 
 import java.io.IOException;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem010 {
 

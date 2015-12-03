@@ -1,11 +1,11 @@
 package euler;
 
-import static euler.util.Utils.factorial;
+import static utils.Utils.factorial;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import euler.util.Coordinate;
+import utils.Coordinate;
 
 public class Problem015 {
 
@@ -25,11 +25,11 @@ public class Problem015 {
 		public Cell(Coordinate coordinate, Matrix matrix) {
 			this.coordinate = coordinate;
 			this.matrix = matrix;
-			rowSuccessor = this.matrix.addCell(new Coordinate(
-					coordinate.getRow() + 1, coordinate.getColumn()));
+			rowSuccessor = this.matrix.addCell(
+					new Coordinate(coordinate.getRow() + 1, coordinate.getColumn()));
 
-			colSuccessor = this.matrix.addCell(new Coordinate(coordinate.getRow(),
-					coordinate.getColumn() + 1));
+			colSuccessor = this.matrix.addCell(
+					new Coordinate(coordinate.getRow(), coordinate.getColumn() + 1));
 
 			rowPredecessor = new Coordinate(coordinate.getRow() - 1,
 					coordinate.getColumn());
@@ -56,7 +56,8 @@ public class Problem015 {
 
 		public void notifyNeighbourValueSet() {
 			if (!hasValue() && rowSuccessor.hasValue() && colSuccessor.hasValue()) {
-				setValue(Math.max(rowSuccessor.getValue() + colSuccessor.getValue(), 1));
+				setValue(
+						Math.max(rowSuccessor.getValue() + colSuccessor.getValue(), 1));
 			}
 		}
 

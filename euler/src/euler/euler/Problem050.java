@@ -1,3 +1,4 @@
+
 package euler;
 
 import java.time.Duration;
@@ -9,13 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import euler.util.Utils;
+import utils.Utils;
 
 public class Problem050 {
 
 	public static void main(String[] args) {
-		List<Long> primes = Utils.getPrimes(p -> p < 1_000_000).collect(
-				Collectors.toList());
+		List<Long> primes = Utils.getPrimes(p -> p < 1_000_000)
+				.collect(Collectors.toList());
 		Set<Long> primesSet = new HashSet<Long>(primes);
 
 		Map<Integer, Long> addititons = new HashMap<Integer, Long>();
