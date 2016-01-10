@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -17,11 +16,23 @@ public class Problem051 {
 
 	public static void main(String[] args) {
 		Long maximum = 1_000_000L;
+		int familySize = 8;
 
-		List<Long> candidates = Utils.getPrimes(p -> p > 10 && p < maximum)
-				.filter(hasRepeatedDigits()).peek(System.out::println)
-				.collect(Collectors.toList());
-		Set<Long> candidateSet = new HashSet<Long>(candidates);
+		Set<Long> candidateSet = new HashSet<Long>(
+				Utils.getPrimes(p -> p > 10 && p < maximum).filter(hasRepeatedDigits())
+						// .peek(System.out::println)
+						.collect(Collectors.toList()));
+		System.out
+				.println(
+						candidateSet.stream()
+								.map(
+										p -> makeFamily(p).stream().filter(candidateSet::contains)
+												.collect(
+														Collectors.toList()))
+								.filter(l -> l.size() == familySize && l.stream()
+										.allMatch(p -> p.toString()
+												.length() == maximum.toString().length() - 1))
+				.collect(Collectors.toSet()));
 	}
 
 	private static Predicate<? super Long> hasRepeatedDigits() {
@@ -40,10 +51,13 @@ public class Problem051 {
 		ArrayList<Long> result = new ArrayList<Long>();
 		for (Map.Entry<Integer, Long> entry : digitByCount.entrySet()) {
 			if (entry.getValue() > 1) {
+				ArrayList<Long> newList = new ArrayList<Long>();
 				for (String replacement : "0123456789".split("")) {
-					result.add(new Long(candidate.toString()
-							.replaceAll(entry.getKey().toString(), replacement)));
+					String newCandidate = candidate.toString()
+							.replaceAll(entry.getKey().toString(), replacement);
+					newList.add(new Long(newCandidate));
 				}
+				result = (newList.size() > result.size()) ? newList : result;
 			}
 		}
 		return result;
