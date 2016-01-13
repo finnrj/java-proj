@@ -33,6 +33,7 @@ public class Problem051 {
 										.allMatch(p -> p.toString()
 												.length() == maximum.toString().length() - 1))
 				.collect(Collectors.toSet()));
+
 	}
 
 	private static Predicate<? super Long> hasRepeatedDigits() {
