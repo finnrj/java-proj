@@ -8,9 +8,5 @@ package euler;
 public class Problem052 {
 
 	public static void main(String[] args) {
-		// for (Integer no : Arrays.asList(53, 54, 55)) {
-		// ProblemDownloader.createProblemFile(no);
-		// }
 	}
-
 }
