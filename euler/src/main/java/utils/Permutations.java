@@ -1,5 +1,6 @@
 package utils;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -14,6 +15,24 @@ public class Permutations {
 	private Permutations() {
 	}
 
+	public static BigInteger factorialBI(int n) {
+		if (n == 0) {
+			return BigInteger.ONE;
+		}
+		return Stream.iterate(BigInteger.ONE, bi -> bi.add(BigInteger.ONE)).limit(n)
+				.reduce(BigInteger.ONE, (b1, b2) -> b1.multiply(b2));
+	}
+
+	public static BigInteger combinationsBI(int from, int choose) {
+		if (from < 0 || choose < 0 || from < choose) {
+			throw new IllegalArgumentException(
+					String.format("from: %d, choose: %d are out of range", from, choose));
+		}
+		BigInteger denominator = factorialBI(choose)
+				.multiply(factorialBI(from - choose));
+		return factorialBI(from).divide(denominator);
+	}
+
 	public static long factorial(int n) {
 		if (n > 20 || n < 0)
 			throw new IllegalArgumentException(n + " is out of range");
@@ -26,10 +45,10 @@ public class Permutations {
 	}
 
 	public static <T> List<T> permutation(long no, Stream<T> items) {
-		return permutationHelper(
-				no,
-				new LinkedList<>(Objects.requireNonNull(items.collect(Collectors
-						.toList()))), new ArrayList<>());
+		return permutationHelper(no,
+				new LinkedList<>(
+						Objects.requireNonNull(items.collect(Collectors.toList()))),
+				new ArrayList<>());
 	}
 
 	private static <T> List<T> permutationHelper(long no, LinkedList<T> in,
@@ -42,8 +61,8 @@ public class Permutations {
 	}
 
 	public static <T> Stream<Stream<T>> of(List<T> items) {
-		return LongStream.range(0, factorial(items.size())).mapToObj(
-				no -> permutation(no, items).stream());
+		return LongStream.range(0, factorial(items.size()))
+				.mapToObj(no -> permutation(no, items).stream());
 	}
 
 	@SafeVarargs
