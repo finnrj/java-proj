@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -197,7 +198,7 @@ public class Problem054 {
 		return result;
 	}
 
-	Predicate<List<Integer>> identicalModulo = is -> is.stream().map(i -> i % 10)
+	Predicate<List<Integer>> sameColor = is -> is.stream().map(i -> i % 10)
 			.distinct().count() == 1;
 
 	Predicate<List<Integer>> sequential = is -> {
@@ -207,16 +208,88 @@ public class Problem054 {
 				&& (int) stats.getAverage() == stats.getMin() + 2;
 	};
 
+	Predicate<List<Integer>> fourOfAKind = is -> {
+		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		return countMap.values().stream().max(Long::compareTo).get() == 4;
+	};
+
+	Predicate<List<Integer>> threeOfAKind = is -> {
+		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		return countMap.size() == 3
+				&& countMap.values().stream().max(Long::compareTo).get() == 3;
+	};
+
+	Predicate<List<Integer>> fullHouse = is -> {
+		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		return countMap.size() == 2
+				&& countMap.values().stream().max(Long::compareTo).get() == 3;
+	};
+
+	Predicate<List<Integer>> twoPairs = is -> {
+		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		return countMap.size() == 3
+				&& countMap.values().stream().max(Long::compareTo).get() == 2;
+	};
+
+	Predicate<List<Integer>> onePair = is -> {
+		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
+				.collect(
+						Collectors.groupingBy(Function.identity(), Collectors.counting()));
+		return countMap.size() == 4;
+	};
+
 	public boolean isRoyalFlush(IntStream hand) {
 		List<Integer> collect = hand.boxed().collect(Collectors.toList());
 		int max = collect.stream().mapToInt(i -> i / 10).max().getAsInt();
-		return identicalModulo.test(collect) && sequential.test(collect)
-				&& max == 14;
+		return sameColor.test(collect) && sequential.test(collect) && max == 14;
 	}
 
 	public boolean isStraightFlush(IntStream hand) {
 		List<Integer> collect = hand.boxed().collect(Collectors.toList());
-		return identicalModulo.test(collect) && sequential.test(collect);
+		return sameColor.test(collect) && sequential.test(collect);
+	}
+
+	public boolean isFourOfAKind(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return fourOfAKind.test(collect);
+	}
+
+	public boolean isFullHouse(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return fullHouse.test(collect);
+	}
+
+	public boolean isFlush(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return sameColor.test(collect);
+	}
+
+	public boolean isStraight(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return sequential.test(collect);
+	}
+
+	public boolean isThreeOfAKind(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return threeOfAKind.test(collect);
+	}
+
+	public boolean isTwoPairs(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return twoPairs.test(collect);
+	}
+
+	public boolean isOnePair(IntStream hand) {
+		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
+		return onePair.test(collect);
 	}
 
 }

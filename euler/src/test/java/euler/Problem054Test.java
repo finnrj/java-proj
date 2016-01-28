@@ -31,17 +31,6 @@ public class Problem054Test {
 				Matchers.contains(71, 23, 51, 33, 140));
 	}
 
-	// * <li><b>High Card</b>: Highest value card.</li>
-	// * <li><b>One Pair</b>: Two cards of the same value.</li>
-	// * <li><b>Two Pairs</b>: Two different pairs.</li>
-	// * <li><b>Three of a Kind</b>: Three cards of the same value.</li>
-	// * <li><b>Straight</b>: All cards are consecutive values.</li>
-	// * <li><b>Flush</b>: All cards of the same suit.</li>
-	// * <li><b>Full House</b>: Three of a kind and a pair.</li>
-	// * <li><b>Four of a Kind</b>: Four cards of the same value.</li>
-	// * <li><b>Straight Flush</b>: All cards are consecutive values of same suit.
-	// * </li>
-
 	@Test
 	public void testIsRoyalFlush() throws Exception {
 		assertThat(problem054.isRoyalFlush(IntStream.of(141, 131, 121, 111, 101)),
@@ -66,4 +55,84 @@ public class Problem054Test {
 				is(false));
 	}
 
+	@Test
+	public void testFourOfAKind() throws Exception {
+		assertThat(problem054.isFourOfAKind(IntStream.of(73, 71, 60, 72, 70)),
+				is(true));
+
+		assertThat(problem054.isFourOfAKind(IntStream.of(73, 71, 72, 80, 70)),
+				is(true));
+
+		assertThat(problem054.isFourOfAKind(IntStream.of(73, 71, 60, 72, 61)),
+				is(false));
+	}
+
+	@Test
+	public void testFullHouse() throws Exception {
+		assertThat(problem054.isFullHouse(IntStream.of(73, 71, 60, 72, 63)),
+				is(true));
+
+		assertThat(problem054.isFullHouse(IntStream.of(73, 51, 60, 72, 63)),
+				is(false));
+	}
+
+	@Test
+	public void testFlush() throws Exception {
+		assertThat(problem054.isFlush(IntStream.of(123, 113, 103, 93, 73)),
+				is(true));
+
+		assertThat(problem054.isFlush(IntStream.of(123, 112, 103, 93, 73)),
+				is(false));
+	}
+
+	@Test
+	public void testStraight() throws Exception {
+		assertThat(problem054.isStraight(IntStream.of(123, 113, 100, 93, 82)),
+				is(true));
+
+		assertThat(problem054.isStraight(IntStream.of(113, 113, 100, 93, 82)),
+				is(false));
+	}
+
+	@Test
+	public void testThreeOfAKind() throws Exception {
+		assertThat(problem054.isThreeOfAKind(IntStream.of(123, 113, 120, 93, 122)),
+				is(true));
+
+		assertThat(problem054.isThreeOfAKind(IntStream.of(123, 113, 120, 121, 122)),
+				is(false));
+
+		assertThat(problem054.isThreeOfAKind(IntStream.of(123, 70, 20, 121, 22)),
+				is(false));
+	}
+
+	@Test
+	public void testTwoPairs() throws Exception {
+		assertThat(problem054.isTwoPairs(IntStream.of(123, 113, 120, 93, 112)),
+				is(true));
+
+		assertThat(problem054.isTwoPairs(IntStream.of(123, 113, 120, 121, 122)),
+				is(false));
+
+		assertThat(problem054.isTwoPairs(IntStream.of(73, 71, 60, 72, 63)),
+				is(false));
+
+		assertThat(problem054.isTwoPairs(IntStream.of(63, 71, 30, 72, 53)),
+				is(false));
+	}
+
+	@Test
+	public void testOnePair() throws Exception {
+		assertThat(problem054.isOnePair(IntStream.of(123, 113, 60, 93, 112)),
+				is(true));
+
+		assertThat(problem054.isOnePair(IntStream.of(123, 113, 120, 93, 112)),
+				is(false));
+
+		assertThat(problem054.isOnePair(IntStream.of(123, 113, 120, 93, 122)),
+				is(false));
+
+		assertThat(problem054.isOnePair(IntStream.of(123, 113, 100, 93, 82)),
+				is(false));
+	}
 }
