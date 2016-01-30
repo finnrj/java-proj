@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -165,7 +165,7 @@ public class Problem054 {
 	private static final Path POKER_PATH = Paths.get("src", "main", "docs",
 			"poker.txt");
 
-	private static List<IntStream> fetchHands() {
+	private static List<List<Integer>> fetchHands() {
 		try (Stream<String> lines = Files.lines(POKER_PATH)) {
 			return lines.filter(line -> !line.isEmpty()).flatMap(Problem054::convert)
 					.collect(Collectors.toList());
@@ -176,18 +176,19 @@ public class Problem054 {
 	}
 
 	public static void main(String[] args) {
-		for (IntStream s : fetchHands()) {
-			System.out.println(s.boxed().collect(Collectors.toList()));
+		for (List<Integer> s : fetchHands()) {
+			System.out.println(s);
 		}
 	}
 
-	public static Stream<IntStream> convert(String hands) {
+	public static Stream<List<Integer>> convert(String hands) {
 		String[] split = hands.split("\\s");
-		IntStream first = Arrays.stream(Arrays.copyOfRange(split, 0, 5))
-				.mapToInt(Problem054::card2Int);
-		IntStream second = Arrays.stream(Arrays.copyOfRange(split, 5, split.length))
-				.mapToInt(Problem054::card2Int);
-		return Stream.<IntStream> of(first, second);
+		List<Integer> first = Arrays.stream(Arrays.copyOfRange(split, 0, 5))
+				.mapToInt(Problem054::card2Int).boxed().collect(Collectors.toList());
+		List<Integer> second = Arrays
+				.stream(Arrays.copyOfRange(split, 5, split.length))
+				.mapToInt(Problem054::card2Int).boxed().collect(Collectors.toList());
+		return Stream.<List<Integer>> of(first, second);
 	}
 
 	private static Integer card2Int(String card) {
@@ -207,6 +208,10 @@ public class Problem054 {
 		return stats.getMax() - stats.getMin() == 4
 				&& (int) stats.getAverage() == stats.getMin() + 2;
 	};
+
+	BiPredicate<List<Integer>, Predicate<Integer>> maxcard = (li,
+			maxTest) -> maxTest
+					.test(li.stream().mapToInt(i -> i / 10).max().getAsInt());
 
 	Predicate<List<Integer>> fourOfAKind = is -> {
 		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
@@ -246,50 +251,40 @@ public class Problem054 {
 		return countMap.size() == 4;
 	};
 
-	public boolean isRoyalFlush(IntStream hand) {
-		List<Integer> collect = hand.boxed().collect(Collectors.toList());
-		int max = collect.stream().mapToInt(i -> i / 10).max().getAsInt();
-		return sameColor.test(collect) && sequential.test(collect) && max == 14;
+	public boolean isRoyalFlush(List<Integer> hand) {
+		return isStraightFlush(hand) && maxcard.test(hand, max -> max == 14);
 	}
 
-	public boolean isStraightFlush(IntStream hand) {
-		List<Integer> collect = hand.boxed().collect(Collectors.toList());
-		return sameColor.test(collect) && sequential.test(collect);
+	public boolean isStraightFlush(List<Integer> hand) {
+		return sameColor.test(hand) && sequential.test(hand);
 	}
 
-	public boolean isFourOfAKind(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return fourOfAKind.test(collect);
+	public boolean isFourOfAKind(List<Integer> hand) {
+		return fourOfAKind.test(hand);
 	}
 
-	public boolean isFullHouse(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return fullHouse.test(collect);
+	public boolean isFullHouse(List<Integer> hand) {
+		return fullHouse.test(hand);
 	}
 
-	public boolean isFlush(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return sameColor.test(collect);
+	public boolean isFlush(List<Integer> hand) {
+		return sameColor.test(hand);
 	}
 
-	public boolean isStraight(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return sequential.test(collect);
+	public boolean isStraight(List<Integer> hand) {
+		return sequential.test(hand);
 	}
 
-	public boolean isThreeOfAKind(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return threeOfAKind.test(collect);
+	public boolean isThreeOfAKind(List<Integer> hand) {
+		return threeOfAKind.test(hand);
 	}
 
-	public boolean isTwoPairs(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return twoPairs.test(collect);
+	public boolean isTwoPairs(List<Integer> hand) {
+		return twoPairs.test(hand);
 	}
 
-	public boolean isOnePair(IntStream hand) {
-		List<Integer> collect = hand.boxed().sorted().collect(Collectors.toList());
-		return onePair.test(collect);
+	public boolean isOnePair(List<Integer> hand) {
+		return onePair.test(hand);
 	}
 
 }
