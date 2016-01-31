@@ -9,11 +9,15 @@ import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import com.google.common.collect.Maps;
+
+import utils.Utils;
 
 /**
  * </div>
@@ -143,6 +147,8 @@ import java.util.stream.Stream;
  */
 public class Problem054 {
 
+	private static final int MAX_SHIFT = 20;
+
 	static Map<String, Integer> colors = new HashMap<String, Integer>();
 
 	static {
@@ -162,6 +168,112 @@ public class Problem054 {
 		rangs.put("T", 10);
 	}
 
+	static Predicate<List<Integer>> sameColor = is -> is.stream().map(i -> i % 10)
+			.distinct().count() == 1;
+
+	static Predicate<List<Integer>> sequential = is -> {
+		IntSummaryStatistics stats = is.stream().mapToInt(i -> i / 10)
+				.summaryStatistics();
+		return stats.getMax() - stats.getMin() == 4
+				&& (int) stats.getAverage() == stats.getMin() + 2;
+	};
+
+	static Predicate<List<Integer>> containsAce = is -> is.stream()
+			.mapToInt(i -> i / 10).max().getAsInt() == 14;
+
+	static Predicate<List<Integer>> royalFlush = sameColor.and(sequential)
+			.and(containsAce);
+
+	static Predicate<List<Integer>> straightFlush = sameColor.and(sequential)
+			.and(containsAce.negate());
+
+	static Predicate<List<Integer>> fourOfAKind = is -> {
+		Map<Integer, Long> countMap = mapToCounts(is);
+		return countMap.values().stream().max(Long::compareTo).get() == 4;
+	};
+
+	static Predicate<List<Integer>> flush = sameColor.and(sequential.negate());
+
+	static Predicate<List<Integer>> straight = sequential.and(sameColor.negate());
+
+	static Predicate<List<Integer>> threeOfAKind = is -> {
+		Map<Integer, Long> countMap = mapToCounts(is);
+		return countMap.size() == 3
+				&& countMap.values().stream().max(Long::compareTo).get() == 3;
+	};
+
+	static Predicate<List<Integer>> fullHouse = is -> {
+		Map<Integer, Long> countMap = mapToCounts(is);
+		return countMap.size() == 2
+				&& countMap.values().stream().max(Long::compareTo).get() == 3;
+	};
+
+	static Predicate<List<Integer>> twoPairs = is -> {
+		Map<Integer, Long> countMap = mapToCounts(is);
+		return countMap.size() == 3
+				&& countMap.values().stream().max(Long::compareTo).get() == 2;
+	};
+
+	static Predicate<List<Integer>> onePair = is -> {
+		Map<Integer, Long> countMap = mapToCounts(is);
+		return countMap.size() == 4;
+	};
+
+	static private Map<Integer, Long> mapToCounts(List<Integer> is) {
+		return is.stream().mapToInt(i -> i / 10).boxed().collect(
+				Collectors.groupingBy(Function.identity(), Collectors.counting()));
+	}
+
+	static Map<Predicate<List<Integer>>, Integer> scores = Maps.newHashMap();
+
+	/* @formatter:off */
+	static {
+		scores.put(onePair,       1 << MAX_SHIFT);
+		scores.put(twoPairs,      2 << MAX_SHIFT);
+		scores.put(threeOfAKind,  3 << MAX_SHIFT);
+		scores.put(straight,      4 << MAX_SHIFT);
+		scores.put(flush,         5 << MAX_SHIFT);
+		scores.put(fullHouse,     6 << MAX_SHIFT);
+		scores.put(fourOfAKind,   7 << MAX_SHIFT);
+		scores.put(straightFlush, 8 << MAX_SHIFT);
+		scores.put(royalFlush,    9 << MAX_SHIFT);
+	}
+	/* @formatter:on */
+
+	static Map<Integer, String> scores2hand = Maps.newHashMap();
+
+	static {
+		scores2hand.put(0, "highest card");
+		scores2hand.put(1, "one pair");
+		scores2hand.put(2, "two pairs");
+		scores2hand.put(3, "three of a kind");
+		scores2hand.put(4, "straight");
+		scores2hand.put(5, "flush");
+		scores2hand.put(6, "full house");
+		scores2hand.put(7, "four of a kind");
+		scores2hand.put(8, "straight flush");
+		scores2hand.put(9, "royal flush");
+	}
+
+	public static void main(String[] args) {
+		List<Integer> convert2Score = convert2Score(fetchHands());
+		int playerOneScore = 0;
+		for (int i = 0; i < convert2Score.size(); i += 2) {
+			Integer player1 = convert2Score.get(i);
+			Integer player2 = convert2Score.get(i + 1);
+			// System.out.println(String.format("scores: %8d, %8d", player1,
+			// player2));
+			System.out.println(
+					String.format("%-15s, %-15s", scores2hand.get(player1 >> MAX_SHIFT),
+							scores2hand.get(player2 >> MAX_SHIFT)));
+			if (player1 > player2) {
+				playerOneScore++;
+			}
+		}
+		System.out
+				.println(String.format("player one wins %d hands", playerOneScore));
+	}
+
 	private static final Path POKER_PATH = Paths.get("src", "main", "docs",
 			"poker.txt");
 
@@ -175,19 +287,15 @@ public class Problem054 {
 		return null;
 	}
 
-	public static void main(String[] args) {
-		for (List<Integer> s : fetchHands()) {
-			System.out.println(s);
-		}
-	}
-
 	public static Stream<List<Integer>> convert(String hands) {
 		String[] split = hands.split("\\s");
 		List<Integer> first = Arrays.stream(Arrays.copyOfRange(split, 0, 5))
-				.mapToInt(Problem054::card2Int).boxed().collect(Collectors.toList());
+				.mapToInt(Problem054::card2Int).sorted().boxed()
+				.collect(Collectors.toList());
 		List<Integer> second = Arrays
 				.stream(Arrays.copyOfRange(split, 5, split.length))
-				.mapToInt(Problem054::card2Int).boxed().collect(Collectors.toList());
+				.mapToInt(Problem054::card2Int).sorted().boxed()
+				.collect(Collectors.toList());
 		return Stream.<List<Integer>> of(first, second);
 	}
 
@@ -199,92 +307,22 @@ public class Problem054 {
 		return result;
 	}
 
-	Predicate<List<Integer>> sameColor = is -> is.stream().map(i -> i % 10)
-			.distinct().count() == 1;
-
-	Predicate<List<Integer>> sequential = is -> {
-		IntSummaryStatistics stats = is.stream().mapToInt(i -> i / 10)
-				.summaryStatistics();
-		return stats.getMax() - stats.getMin() == 4
-				&& (int) stats.getAverage() == stats.getMin() + 2;
-	};
-
-	BiPredicate<List<Integer>, Predicate<Integer>> maxcard = (li,
-			maxTest) -> maxTest
-					.test(li.stream().mapToInt(i -> i / 10).max().getAsInt());
-
-	Predicate<List<Integer>> fourOfAKind = is -> {
-		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
-				.collect(
-						Collectors.groupingBy(Function.identity(), Collectors.counting()));
-		return countMap.values().stream().max(Long::compareTo).get() == 4;
-	};
-
-	Predicate<List<Integer>> threeOfAKind = is -> {
-		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
-				.collect(
-						Collectors.groupingBy(Function.identity(), Collectors.counting()));
-		return countMap.size() == 3
-				&& countMap.values().stream().max(Long::compareTo).get() == 3;
-	};
-
-	Predicate<List<Integer>> fullHouse = is -> {
-		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
-				.collect(
-						Collectors.groupingBy(Function.identity(), Collectors.counting()));
-		return countMap.size() == 2
-				&& countMap.values().stream().max(Long::compareTo).get() == 3;
-	};
-
-	Predicate<List<Integer>> twoPairs = is -> {
-		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
-				.collect(
-						Collectors.groupingBy(Function.identity(), Collectors.counting()));
-		return countMap.size() == 3
-				&& countMap.values().stream().max(Long::compareTo).get() == 2;
-	};
-
-	Predicate<List<Integer>> onePair = is -> {
-		Map<Integer, Long> countMap = is.stream().mapToInt(i -> i / 10).boxed()
-				.collect(
-						Collectors.groupingBy(Function.identity(), Collectors.counting()));
-		return countMap.size() == 4;
-	};
-
-	public boolean isRoyalFlush(List<Integer> hand) {
-		return isStraightFlush(hand) && maxcard.test(hand, max -> max == 14);
+	private static Integer hand2Score(List<Integer> hand) {
+		return scores.getOrDefault(scores.keySet().stream()
+				.filter(p -> p.test(hand) == true).findFirst().orElse(null), 0);
 	}
 
-	public boolean isStraightFlush(List<Integer> hand) {
-		return sameColor.test(hand) && sequential.test(hand);
+	private static Integer cardScores(List<Integer> hand) {
+		Stream<Integer> indices = IntStream.range(0, hand.size()).boxed();
+		Stream<Integer> cards = hand.stream().mapToInt(i -> i / 10).sorted()
+				.boxed();
+		Stream<Integer> zip = Utils.zip(cards, indices, (c, i) -> c << 4 * i);
+		return zip.mapToInt(Integer::intValue).sum();
 	}
 
-	public boolean isFourOfAKind(List<Integer> hand) {
-		return fourOfAKind.test(hand);
+	public static List<Integer> convert2Score(List<List<Integer>> hands) {
+		return hands.stream()
+				.map(hand -> new Integer(hand2Score(hand) + cardScores(hand)))
+				.collect(Collectors.toList());
 	}
-
-	public boolean isFullHouse(List<Integer> hand) {
-		return fullHouse.test(hand);
-	}
-
-	public boolean isFlush(List<Integer> hand) {
-		return sameColor.test(hand);
-	}
-
-	public boolean isStraight(List<Integer> hand) {
-		return sequential.test(hand);
-	}
-
-	public boolean isThreeOfAKind(List<Integer> hand) {
-		return threeOfAKind.test(hand);
-	}
-
-	public boolean isTwoPairs(List<Integer> hand) {
-		return twoPairs.test(hand);
-	}
-
-	public boolean isOnePair(List<Integer> hand) {
-		return onePair.test(hand);
-	}
-
 }

@@ -9,8 +9,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.TreeSet;
+import java.util.function.BiFunction;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -18,6 +23,7 @@ import java.util.stream.IntStream;
 import java.util.stream.IntStream.Builder;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Utils {
 
@@ -163,4 +169,48 @@ public class Utils {
 				.println("getPrimes" + Duration.between(start, start = Instant.now()));
 	}
 
+	/**
+	 * stolen from stack-overflow
+	 */
+	public static <A, B, C> Stream<C> zip(Stream<? extends A> a,
+			Stream<? extends B> b,
+			BiFunction<? super A, ? super B, ? extends C> zipper) {
+		Objects.requireNonNull(zipper);
+		@SuppressWarnings("unchecked")
+		Spliterator<A> aSpliterator = (Spliterator<A>) Objects.requireNonNull(a)
+				.spliterator();
+		@SuppressWarnings("unchecked")
+		Spliterator<B> bSpliterator = (Spliterator<B>) Objects.requireNonNull(b)
+				.spliterator();
+
+		// Zipping looses DISTINCT and SORTED characteristics
+		int both = aSpliterator.characteristics() & bSpliterator.characteristics()
+				& ~(Spliterator.DISTINCT | Spliterator.SORTED);
+		int characteristics = both;
+
+		long zipSize = ((characteristics & Spliterator.SIZED) != 0)
+				? Math.min(aSpliterator.getExactSizeIfKnown(),
+						bSpliterator.getExactSizeIfKnown())
+				: -1;
+
+		Iterator<A> aIterator = Spliterators.iterator(aSpliterator);
+		Iterator<B> bIterator = Spliterators.iterator(bSpliterator);
+		Iterator<C> cIterator = new Iterator<C>() {
+			@Override
+			public boolean hasNext() {
+				return aIterator.hasNext() && bIterator.hasNext();
+			}
+
+			@Override
+			public C next() {
+				return zipper.apply(aIterator.next(), bIterator.next());
+			}
+		};
+
+		Spliterator<C> split = Spliterators.spliterator(cIterator, zipSize,
+				characteristics);
+		return (a.isParallel() || b.isParallel())
+				? StreamSupport.stream(split, true)
+				: StreamSupport.stream(split, false);
+	}
 }
