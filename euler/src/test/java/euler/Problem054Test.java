@@ -3,6 +3,7 @@ package euler;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,8 @@ public class Problem054Test {
 	private List<Integer> straightFlush = Lists.newArrayList(123, 113, 103, 93,
 			83);
 	private List<Integer> fourOfAKind = Lists.newArrayList(73, 71, 60, 72, 70);
+	private List<Integer> fullHouse = Lists.newArrayList(73, 71, 60, 72, 63);
+	private List<Integer> twoPairs = Lists.newArrayList(123, 113, 120, 93, 112);
 
 	@Test
 	public void testConvert() throws Exception {
@@ -71,9 +74,7 @@ public class Problem054Test {
 
 	@Test
 	public void testFullHouse() throws Exception {
-		assertThat(
-				Problem054.fullHouse.test(Lists.newArrayList(73, 71, 60, 72, 63)),
-				is(true));
+		assertThat(Problem054.fullHouse.test(fullHouse), is(true));
 		assertThat(
 				Problem054.fullHouse.test(Lists.newArrayList(73, 51, 60, 72, 63)),
 				is(false));
@@ -115,9 +116,7 @@ public class Problem054Test {
 
 	@Test
 	public void testTwoPairs() throws Exception {
-		assertThat(
-				Problem054.twoPairs.test(Lists.newArrayList(123, 113, 120, 93, 112)),
-				is(true));
+		assertThat(Problem054.twoPairs.test(twoPairs), is(true));
 		assertThat(
 				Problem054.twoPairs.test(Lists.newArrayList(123, 113, 120, 121, 122)),
 				is(false));
@@ -144,13 +143,65 @@ public class Problem054Test {
 	}
 
 	@Test
-	public void testConvert2Score() throws Exception {
+	public void testScoreRoyalFlush() throws Exception {
+		List<List<Integer>> hands = Arrays.asList(royalFlush);
+		List<Integer> expects = Lists.newArrayList(10411194);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+
+	}
+
+	@Test
+	public void testScoreStraightFlush() throws Exception {
+		List<List<Integer>> hands = Arrays.asList(straightFlush);
+		List<Integer> expects = Lists.newArrayList(9222808);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+
+	}
+
+	@Test
+	public void testScoreFourOfAKind() throws Exception {
+		List<List<Integer>> hands = Arrays.asList(fourOfAKind);
+		List<Integer> expects = Lists.newArrayList(7829366);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+	}
+
+	@Test
+	public void testScoreFourOfAKindHighCard() throws Exception {
+		List<Integer> fourOfAKindHighCard = Lists.newArrayList(73, 71, 80, 72, 70);
+		List<List<Integer>> hands = Arrays.asList(fourOfAKindHighCard);
+		List<Integer> expects = Lists.newArrayList(7829368);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+	}
+
+	@Test
+	public void testScoreFullHouse() throws Exception {
+		List<List<Integer>> hands = Arrays.asList(fullHouse);
+		List<Integer> expects = Lists.newArrayList(6780774);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+
+		List<Integer> fullHousePairHighest = Lists.newArrayList(73, 61, 60, 72, 63);
+		hands = Arrays.asList(fullHousePairHighest);
+		expects = Lists.newArrayList(6710903);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+	}
+
+	@Test
+	public void testScoreTwoPairs() throws Exception {
+		List<List<Integer>> hands = Arrays.asList(twoPairs);
+		List<Integer> expects = Lists.newArrayList(2935737);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+
+		List<Integer> twoPairsHighCard = Lists.newArrayList(20, 32, 51, 23, 31);
+		hands = Arrays.asList(twoPairsHighCard);
+		expects = Lists.newArrayList(2306597);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+	}
+
+	@Test
+	public void testScoreHigestCard() throws Exception {
 		List<Integer> highestCard = Lists.newArrayList(20, 32, 51, 103, 141);
-		@SuppressWarnings("unchecked")
-		List<List<Integer>> hands = Lists.newArrayList(royalFlush, straightFlush,
-				fourOfAKind, highestCard);
-		List<Integer> expects = Lists.newArrayList(10411194, 9222808, 7829366,
-				959794);
+		List<List<Integer>> hands = Arrays.asList(highestCard);
+		List<Integer> expects = Lists.newArrayList(959794);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 	}
 

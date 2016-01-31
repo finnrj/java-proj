@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IntSummaryStatistics;
 import java.util.List;
@@ -264,7 +265,8 @@ public class Problem054 {
 			// System.out.println(String.format("scores: %8d, %8d", player1,
 			// player2));
 			System.out.println(
-					String.format("%-15s, %-15s", scores2hand.get(player1 >> MAX_SHIFT),
+					String.format("%-15s %s %-15s", scores2hand.get(player1 >> MAX_SHIFT),
+							(player1 > player2) ? ">" : "<",
 							scores2hand.get(player2 >> MAX_SHIFT)));
 			if (player1 > player2) {
 				playerOneScore++;
@@ -314,8 +316,18 @@ public class Problem054 {
 
 	private static Integer cardScores(List<Integer> hand) {
 		Stream<Integer> indices = IntStream.range(0, hand.size()).boxed();
-		Stream<Integer> cards = hand.stream().mapToInt(i -> i / 10).sorted()
-				.boxed();
+		Map<Integer, Long> mapToCounts = mapToCounts(hand);
+
+		Comparator<? super Integer> handComparator = (o1, o2) -> {
+			Long count1 = mapToCounts.get(o1);
+			Long count2 = mapToCounts.get(o2);
+			if (count1 != count2)
+				return count1.intValue() - count2.intValue();
+			return o1 - o2;
+		};
+
+		Stream<Integer> cards = hand.stream().mapToInt(i -> i / 10).boxed()
+				.sorted(handComparator);
 		Stream<Integer> zip = Utils.zip(cards, indices, (c, i) -> c << 4 * i);
 		return zip.mapToInt(Integer::intValue).sum();
 	}
