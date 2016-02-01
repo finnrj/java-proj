@@ -100,7 +100,9 @@ public class Problem054Test {
 				is(false));
 		assertThat(Problem054.straight.test(royalFlush), is(false));
 		assertThat(Problem054.straight.test(straightFlush), is(false));
-
+		assertThat(
+				Problem054.straight.test(Lists.newArrayList(80, 100, 103, 111, 120)),
+				is(false));
 	}
 
 	@Test

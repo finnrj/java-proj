@@ -176,7 +176,7 @@ public class Problem054 {
 		IntSummaryStatistics stats = is.stream().mapToInt(i -> i / 10)
 				.summaryStatistics();
 		return stats.getMax() - stats.getMin() == 4
-				&& (int) stats.getAverage() == stats.getMin() + 2;
+				&& stats.getAverage() == stats.getMin() + 2;
 	};
 
 	static Predicate<List<Integer>> containsAce = is -> is.stream()
@@ -257,17 +257,12 @@ public class Problem054 {
 	}
 
 	public static void main(String[] args) {
-		List<Integer> convert2Score = convert2Score(fetchHands());
+		List<List<Integer>> fetchHands = fetchHands();
+		List<Integer> convert2Score = convert2Score(fetchHands);
 		int playerOneScore = 0;
 		for (int i = 0; i < convert2Score.size(); i += 2) {
 			Integer player1 = convert2Score.get(i);
 			Integer player2 = convert2Score.get(i + 1);
-			// System.out.println(String.format("scores: %8d, %8d", player1,
-			// player2));
-			System.out.println(
-					String.format("%-15s %s %-15s", scores2hand.get(player1 >> MAX_SHIFT),
-							(player1 > player2) ? ">" : "<",
-							scores2hand.get(player2 >> MAX_SHIFT)));
 			if (player1 > player2) {
 				playerOneScore++;
 			}
