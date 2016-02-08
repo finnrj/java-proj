@@ -4,8 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import com.google.common.collect.Maps;
+
+import utils.Utils;
 
 /**
  * </div>
@@ -52,12 +58,52 @@ import java.util.stream.Stream;
 public class Problem059 {
 
 	public static void main(String[] args) throws IOException {
-		Stream<Character> map = Arrays
+		List<Byte> bytes = Arrays
 				.stream(Files.lines(Paths.get("src", "main", "docs", "cipher.txt"))
 						.collect(Collectors.joining(",")).split(","))
-				.map(Byte::valueOf).map(b -> (char) b.byteValue());
-		// System.out.println(bytes.peek(System.out::println).count());
-		System.out.println(map.map(String::valueOf).collect(Collectors.joining()));
+				.map(s -> Byte.valueOf(s).byteValue()).collect(Collectors.toList());
+		// findEncryptChar(bytes, 0);
+		// findEncryptChar(bytes, 1);
+		// findEncryptChar(bytes, 2);
+		Stream<Byte> encryptChars = Stream.iterate((byte) 103, b -> {
+			switch (b) {
+			case 103:
+				return 111;
+			case 111:
+				return 100;
+			case 100:
+				return 103;
+			default:
+				return 0;
+			}
+		}).limit(bytes.size());
+		String text = Utils.zip(bytes.stream(), encryptChars, (b, e) -> b ^ e)
+				.map(i -> String.valueOf((char) i.intValue()))
+				.collect(Collectors.joining());
+		System.out.println(text);
+		System.out.println(text.chars().sum());
 	}
 
+	private static void findEncryptChar(List<Byte> bytes, int start) {
+		HashMap<Character, Integer> counts = Maps.newHashMap();
+		for (byte i = 97; i < 123; i++) {
+			int fits = 0;
+			for (int j = start; j < bytes.size(); j += 3) {
+				byte byteValue = bytes.get(j).byteValue();
+				int b = i ^ byteValue;
+				if (!(65 <= b && b <= 90 || 97 <= b && b <= 122)) {
+					// System.out.println("misfit: " + b + ", " + (char) b);
+				} else {
+					fits++;
+					// System.out.println(b + ", " + (char) b);
+				}
+			}
+			// System.out
+			// .println("encrypt char: " + i + ", " + (char) i + " fits: " + fits);
+			counts.put(Character.valueOf((char) i), Integer.valueOf(fits));
+		}
+
+		counts.entrySet().stream().sorted((a, b) -> a.getValue() - b.getValue())
+				.collect(Collectors.toList());
+	}
 }
