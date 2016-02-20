@@ -62,6 +62,10 @@ public class Utils {
 		return getPrimes(identical).count() == 1;
 	}
 
+	public static Boolean allPrimeErastothenes(List<Long> candidates) {
+		return candidates.stream().allMatch(Utils::isPrimeErastothenes);
+	}
+
 	public static Boolean isPrimeErastothenes(long candidate) {
 		return candidate > 1
 				&& LongStream.rangeClosed(2, (long) Math.sqrt(candidate))
