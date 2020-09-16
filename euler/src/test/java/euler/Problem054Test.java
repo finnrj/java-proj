@@ -4,26 +4,26 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+public class
+Problem054Test {
 
-public class Problem054Test {
-
-	private List<Integer> royalFlush = Lists.newArrayList(141, 131, 121, 111,
+	private List<Integer> royalFlush = Arrays.asList(141, 131, 121, 111,
 			101);
-	private List<Integer> straightFlush = Lists.newArrayList(123, 113, 103, 93,
+	private List<Integer> straightFlush = Arrays.asList(123, 113, 103, 93,
 			83);
-	private List<Integer> fourOfAKind = Lists.newArrayList(73, 71, 60, 72, 70);
-	private List<Integer> fullHouse = Lists.newArrayList(73, 71, 60, 72, 63);
-	private List<Integer> twoPairs = Lists.newArrayList(123, 113, 120, 93, 112);
+	private List<Integer> fourOfAKind = Arrays.asList(73, 71, 60, 72, 70);
+	private List<Integer> fullHouse = Arrays.asList(73, 71, 60, 72, 63);
+	private List<Integer> twoPairs = Arrays.asList(123, 113, 120, 93, 112);
 
 	@Test
-	public void testConvert() throws Exception {
+	public void testConvert() {
 		String hands = "8C TS KC 9H 4S 7D 2S 5D 3S AC";
 		List<List<Integer>> collect = Problem054.convert(hands)
 				.collect(Collectors.toList());
@@ -34,176 +34,176 @@ public class Problem054Test {
 	}
 
 	@Test
-	public void testIsRoyalFlush() throws Exception {
+	public void testIsRoyalFlush() {
 		assertThat(Problem054.royalFlush.test(royalFlush), is(true));
 
 		assertThat(
-				Problem054.royalFlush.test(Lists.newArrayList(141, 131, 121, 110, 101)),
+				Problem054.royalFlush.test(Arrays.asList(141, 131, 121, 110, 101)),
 				is(false));
 
 		assertThat(
-				Problem054.royalFlush.test(Lists.newArrayList(131, 121, 111, 101, 91)),
+				Problem054.royalFlush.test(Arrays.asList(131, 121, 111, 101, 91)),
 				is(false));
 	}
 
 	@Test
-	public void testStraightFlush() throws Exception {
+	public void testStraightFlush() {
 		assertThat(Problem054.straightFlush.test(straightFlush), is(true));
 
 		assertThat(
-				Problem054.royalFlush.test(Lists.newArrayList(123, 113, 103, 92, 83)),
+				Problem054.royalFlush.test(Arrays.asList(123, 113, 103, 92, 83)),
 				is(false));
 
 		assertThat(Problem054.straightFlush
-				.test(Lists.newArrayList(123, 113, 103, 92, 83)), is(false));
+				.test(Arrays.asList(123, 113, 103, 92, 83)), is(false));
 
 		assertThat(Problem054.straightFlush
-				.test(Lists.newArrayList(123, 113, 103, 93, 73)), is(false));
+				.test(Arrays.asList(123, 113, 103, 93, 73)), is(false));
 	}
 
 	@Test
-	public void testFourOfAKind() throws Exception {
+	public void testFourOfAKind() {
 		assertThat(Problem054.fourOfAKind.test(fourOfAKind), is(true));
 		assertThat(
-				Problem054.fourOfAKind.test(Lists.newArrayList(73, 71, 72, 80, 70)),
+				Problem054.fourOfAKind.test(Arrays.asList(73, 71, 72, 80, 70)),
 				is(true));
 		assertThat(
-				Problem054.fourOfAKind.test(Lists.newArrayList(73, 71, 60, 72, 61)),
+				Problem054.fourOfAKind.test(Arrays.asList(73, 71, 60, 72, 61)),
 				is(false));
 	}
 
 	@Test
-	public void testFullHouse() throws Exception {
+	public void testFullHouse() {
 		assertThat(Problem054.fullHouse.test(fullHouse), is(true));
 		assertThat(
-				Problem054.fullHouse.test(Lists.newArrayList(73, 51, 60, 72, 63)),
+				Problem054.fullHouse.test(Arrays.asList(73, 51, 60, 72, 63)),
 				is(false));
 	}
 
 	@Test
-	public void testFlush() throws Exception {
-		assertThat(Problem054.flush.test(Lists.newArrayList(123, 113, 103, 93, 73)),
+	public void testFlush() {
+		assertThat(Problem054.flush.test(Arrays.asList(123, 113, 103, 93, 73)),
 				is(true));
-		assertThat(Problem054.flush.test(Lists.newArrayList(123, 112, 103, 93, 73)),
+		assertThat(Problem054.flush.test(Arrays.asList(123, 112, 103, 93, 73)),
 				is(false));
 		assertThat(Problem054.flush.test(royalFlush), is(false));
 		assertThat(Problem054.flush.test(straightFlush), is(false));
 	}
 
 	@Test
-	public void testStraight() throws Exception {
+	public void testStraight() {
 		assertThat(
-				Problem054.straight.test(Lists.newArrayList(123, 113, 100, 93, 82)),
+				Problem054.straight.test(Arrays.asList(123, 113, 100, 93, 82)),
 				is(true));
 		assertThat(
-				Problem054.straight.test(Lists.newArrayList(113, 113, 100, 93, 82)),
+				Problem054.straight.test(Arrays.asList(113, 113, 100, 93, 82)),
 				is(false));
 		assertThat(Problem054.straight.test(royalFlush), is(false));
 		assertThat(Problem054.straight.test(straightFlush), is(false));
 		assertThat(
-				Problem054.straight.test(Lists.newArrayList(80, 100, 103, 111, 120)),
+				Problem054.straight.test(Arrays.asList(80, 100, 103, 111, 120)),
 				is(false));
 	}
 
 	@Test
-	public void testThreeOfAKind() throws Exception {
+	public void testThreeOfAKind() {
 		assertThat(Problem054.threeOfAKind
-				.test(Lists.newArrayList(123, 113, 120, 93, 122)), is(true));
+				.test(Arrays.asList(123, 113, 120, 93, 122)), is(true));
 		assertThat(Problem054.threeOfAKind
-				.test(Lists.newArrayList(123, 113, 120, 121, 122)), is(false));
+				.test(Arrays.asList(123, 113, 120, 121, 122)), is(false));
 		assertThat(
-				Problem054.threeOfAKind.test(Lists.newArrayList(123, 70, 20, 121, 22)),
+				Problem054.threeOfAKind.test(Arrays.asList(123, 70, 20, 121, 22)),
 				is(false));
 	}
 
 	@Test
-	public void testTwoPairs() throws Exception {
+	public void testTwoPairs() {
 		assertThat(Problem054.twoPairs.test(twoPairs), is(true));
 		assertThat(
-				Problem054.twoPairs.test(Lists.newArrayList(123, 113, 120, 121, 122)),
+				Problem054.twoPairs.test(Arrays.asList(123, 113, 120, 121, 122)),
 				is(false));
-		assertThat(Problem054.twoPairs.test(Lists.newArrayList(73, 71, 60, 72, 63)),
+		assertThat(Problem054.twoPairs.test(Arrays.asList(73, 71, 60, 72, 63)),
 				is(false));
-		assertThat(Problem054.twoPairs.test(Lists.newArrayList(63, 71, 30, 72, 53)),
+		assertThat(Problem054.twoPairs.test(Arrays.asList(63, 71, 30, 72, 53)),
 				is(false));
 	}
 
 	@Test
-	public void testOnePair() throws Exception {
+	public void testOnePair() {
 		assertThat(
-				Problem054.onePair.test(Lists.newArrayList(123, 113, 60, 93, 112)),
+				Problem054.onePair.test(Arrays.asList(123, 113, 60, 93, 112)),
 				is(true));
 		assertThat(
-				Problem054.onePair.test(Lists.newArrayList(123, 113, 120, 93, 112)),
+				Problem054.onePair.test(Arrays.asList(123, 113, 120, 93, 112)),
 				is(false));
 		assertThat(
-				Problem054.onePair.test(Lists.newArrayList(123, 113, 120, 93, 122)),
+				Problem054.onePair.test(Arrays.asList(123, 113, 120, 93, 122)),
 				is(false));
 		assertThat(
-				Problem054.onePair.test(Lists.newArrayList(123, 113, 100, 93, 82)),
+				Problem054.onePair.test(Arrays.asList(123, 113, 100, 93, 82)),
 				is(false));
 	}
 
 	@Test
-	public void testScoreRoyalFlush() throws Exception {
-		List<List<Integer>> hands = Arrays.asList(royalFlush);
-		List<Integer> expects = Lists.newArrayList(10411194);
+	public void testScoreRoyalFlush() {
+		List<List<Integer>> hands = Collections.singletonList(royalFlush);
+		List<Integer> expects = Collections.singletonList(10411194);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 
 	}
 
 	@Test
-	public void testScoreStraightFlush() throws Exception {
-		List<List<Integer>> hands = Arrays.asList(straightFlush);
-		List<Integer> expects = Lists.newArrayList(9222808);
+	public void testScoreStraightFlush() {
+		List<List<Integer>> hands = Collections.singletonList(straightFlush);
+		List<Integer> expects = Collections.singletonList(9222808);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 
 	}
 
 	@Test
-	public void testScoreFourOfAKind() throws Exception {
-		List<List<Integer>> hands = Arrays.asList(fourOfAKind);
-		List<Integer> expects = Lists.newArrayList(7829366);
+	public void testScoreFourOfAKind() {
+		List<List<Integer>> hands = Collections.singletonList(fourOfAKind);
+		List<Integer> expects = Collections.singletonList(7829366);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 	}
 
 	@Test
-	public void testScoreFourOfAKindHighCard() throws Exception {
-		List<Integer> fourOfAKindHighCard = Lists.newArrayList(73, 71, 80, 72, 70);
-		List<List<Integer>> hands = Arrays.asList(fourOfAKindHighCard);
-		List<Integer> expects = Lists.newArrayList(7829368);
+	public void testScoreFourOfAKindHighCard() {
+		List<Integer> fourOfAKindHighCard = Arrays.asList(73, 71, 80, 72, 70);
+		List<List<Integer>> hands = Collections.singletonList(fourOfAKindHighCard);
+		List<Integer> expects = Collections.singletonList(7829368);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 	}
 
 	@Test
-	public void testScoreFullHouse() throws Exception {
-		List<List<Integer>> hands = Arrays.asList(fullHouse);
-		List<Integer> expects = Lists.newArrayList(6780774);
+	public void testScoreFullHouse() {
+		List<List<Integer>> hands = Collections.singletonList(fullHouse);
+		List<Integer> expects = Collections.singletonList(6780774);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 
-		List<Integer> fullHousePairHighest = Lists.newArrayList(73, 61, 60, 72, 63);
-		hands = Arrays.asList(fullHousePairHighest);
-		expects = Lists.newArrayList(6710903);
-		assertThat(Problem054.convert2Score(hands), is(expects));
-	}
-
-	@Test
-	public void testScoreTwoPairs() throws Exception {
-		List<List<Integer>> hands = Arrays.asList(twoPairs);
-		List<Integer> expects = Lists.newArrayList(2935737);
-		assertThat(Problem054.convert2Score(hands), is(expects));
-
-		List<Integer> twoPairsHighCard = Lists.newArrayList(20, 32, 51, 23, 31);
-		hands = Arrays.asList(twoPairsHighCard);
-		expects = Lists.newArrayList(2306597);
+		List<Integer> fullHousePairHighest = Arrays.asList(73, 61, 60, 72, 63);
+		hands = Collections.singletonList(fullHousePairHighest);
+		expects = Collections.singletonList(6710903);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 	}
 
 	@Test
-	public void testScoreHigestCard() throws Exception {
-		List<Integer> highestCard = Lists.newArrayList(20, 32, 51, 103, 141);
-		List<List<Integer>> hands = Arrays.asList(highestCard);
-		List<Integer> expects = Lists.newArrayList(959794);
+	public void testScoreTwoPairs() {
+		List<List<Integer>> hands = Collections.singletonList(twoPairs);
+		List<Integer> expects = Collections.singletonList(2935737);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+
+		List<Integer> twoPairsHighCard = Arrays.asList(20, 32, 51, 23, 31);
+		hands = Collections.singletonList(twoPairsHighCard);
+		expects = Collections.singletonList(2306597);
+		assertThat(Problem054.convert2Score(hands), is(expects));
+	}
+
+	@Test
+	public void testScoreHigestCard() {
+		List<Integer> highestCard = Arrays.asList(20, 32, 51, 103, 141);
+		List<List<Integer>> hands = Collections.singletonList(highestCard);
+		List<Integer> expects = Collections.singletonList(959794);
 		assertThat(Problem054.convert2Score(hands), is(expects));
 	}
 

@@ -1,10 +1,8 @@
 package euler;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Lists;
 
 import utils.Utils;
 
@@ -34,13 +32,13 @@ public class Problem060 {
 	// [3, 7, 109, 673]
 	// [13, 5197, 5701, 6733, 8389]
 	public static void main(String[] args) {
-		List<List<Integer>> bases = Lists.newArrayList();
+		List<List<Integer>> bases = new ArrayList<>();
 		List<Long> primes = Utils.getPrimes(p -> p < 100_000)
 				.collect(Collectors.toList());
 		int primesCount = primes.size();
 
 		for (int i = 0; i < primesCount - 3; i++) {
-			List<Integer> basis = Lists.newArrayList(i);
+			List<Integer> basis = new ArrayList<>(Collections.singletonList(i));
 			while (!basis.isEmpty()) {
 				Integer last = basis.remove(basis.size() - 1);
 				findFromEndindex(primes, last, basis);
@@ -50,21 +48,19 @@ public class Problem060 {
 				}
 			}
 		}
-		bases.sort((l1, l2) -> l1.size() - l2.size());
-		bases.stream()
-				.forEach(is -> System.out.println(primesFromIndices(primes, is)));
+		bases.sort(Comparator.comparingInt(List::size));
+		bases.forEach(is -> System.out.println(primesFromIndices(primes, is)));
 	}
 
 	private static void printLargeSet(List<Long> primes, List<Integer> basis) {
-		System.out.println(String.format("size = %d, basis= %s", basis.size(),
-				primesFromIndices(primes, basis)));
+		System.out.printf("size = %d, basis= %s%n", basis.size(),
+				primesFromIndices(primes, basis));
 	}
 
 	private static List<Long> primesFromIndices(List<Long> primes,
 			List<Integer> basis) {
-		List<Long> basisList = basis.stream().map(primes::get)
+		return basis.stream().map(primes::get)
 				.collect(Collectors.toList());
-		return basisList;
 	}
 
 	private static void findFromEndindex(List<Long> primes, int endIndex,

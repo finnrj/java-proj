@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import com.google.common.collect.Maps;
-
 import utils.Utils;
 
 /**
@@ -225,7 +223,7 @@ public class Problem054 {
 				Collectors.groupingBy(Function.identity(), Collectors.counting()));
 	}
 
-	static Map<Predicate<List<Integer>>, Integer> scores = Maps.newHashMap();
+	static Map<Predicate<List<Integer>>, Integer> scores = new HashMap();
 
 	/* @formatter:off */
 	static {
@@ -241,7 +239,7 @@ public class Problem054 {
 	}
 	/* @formatter:on */
 
-	static Map<Integer, String> scores2hand = Maps.newHashMap();
+	static Map<Integer, String> scores2hand = new HashMap();
 
 	static {
 		scores2hand.put(0, "highest card");

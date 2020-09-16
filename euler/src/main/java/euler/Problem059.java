@@ -6,10 +6,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.google.common.collect.Maps;
 
 import utils.Utils;
 
@@ -68,13 +67,13 @@ public class Problem059 {
 		Stream<Byte> encryptChars = Stream.iterate((byte) 103, b -> {
 			switch (b) {
 			case 103:
-				return 111;
+				return (byte)111;
 			case 111:
-				return 100;
+				return (byte)100;
 			case 100:
-				return 103;
+				return (byte)103;
 			default:
-				return 0;
+				return (byte)0;
 			}
 		}).limit(bytes.size());
 		String text = Utils.zip(bytes.stream(), encryptChars, (b, e) -> b ^ e)
@@ -85,7 +84,7 @@ public class Problem059 {
 	}
 
 	private static void findEncryptChar(List<Byte> bytes, int start) {
-		HashMap<Character, Integer> counts = Maps.newHashMap();
+		Map<Character, Integer> counts = new HashMap();
 		for (byte i = 97; i < 123; i++) {
 			int fits = 0;
 			for (int j = start; j < bytes.size(); j += 3) {
