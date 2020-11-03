@@ -71,4 +71,8 @@ public class Permutations {
 		return of(Arrays.asList(items));
 	}
 
+	public static void main(String[] args) {
+		System.out.println(Permutations.combinationsBI(5,3));
+	}
+
 }

@@ -91,7 +91,7 @@ import utils.Utils;
 public class Problem061 {
 
     public enum Polygonal {
-        TRIANGLE, SQUARE, PENTAGONAL, HEXAGONAL, HEPTAGONAL, OCTOGONAL;
+        TRIANGLE, SQUARE, PENTAGONAL, HEXAGONAL, HEPTAGONAL, OCTAGONAL;
     }
 
     private static class Node {
@@ -150,14 +150,14 @@ public class Problem061 {
         IntUnaryOperator pentagonalGenerator = n -> (n * (3 * n - 1)) / 2;
         IntUnaryOperator hexagonalGenerator = n -> n * (2 * n - 1);
         IntUnaryOperator heptagonalGenerator = n -> n * (5 * n - 3) / 2;
-        IntUnaryOperator octogonalGenerator = n -> n * (3 * n - 2);
+        IntUnaryOperator octagonalGenerator = n -> n * (3 * n - 2);
 
         // List<Map<String, List<String>>> polygonalMaps = Lists
         Map<Polygonal, Map<String, List<String>>> polygonal2map = Utils
                 .zip(Arrays.stream(Polygonal.values()), Arrays.asList(
                         triangleGenerator, squareGenerator,
                         pentagonalGenerator, hexagonalGenerator, heptagonalGenerator,
-                        octogonalGenerator)
+                        octagonalGenerator)
                         .stream().map(Problem061::collectToMap).collect(Collectors.toList())
                         .stream(), (t, m) -> Pair.of(t, m))
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
