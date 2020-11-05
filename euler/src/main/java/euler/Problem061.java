@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.tuple.Pair;
 
 import utils.Utils;
@@ -100,7 +101,7 @@ public class Problem061 {
         private String value;
         private Node next;
         private StringBuilder accumulator;
-        private ArrayList<Polygonal> excludes;
+        private List<Polygonal> excludes;
 
         public Node(Polygonal type, String key, String value) {
             this.type = type;
@@ -108,11 +109,11 @@ public class Problem061 {
             this.value = value;
             next = null;
             accumulator = null;
-            excludes = (ArrayList<Polygonal>) Arrays.asList(this.type);
+            excludes =  Arrays.asList(this.type);
         }
 
         public void extendAncestors(StringBuilder accumulator,
-                                    ArrayList<Polygonal> predecessors) {
+                                    List<Polygonal> predecessors) {
             excludes.addAll(predecessors);
             this.accumulator = accumulator;
             accumulator.append(String.format("%s%s", key, value));
@@ -132,13 +133,13 @@ public class Problem061 {
         }
 
         public boolean isNextCandidate(String searchValue,
-                                       ArrayList<Polygonal> predecessors) {
+                                       List<Polygonal> predecessors) {
             return key.equalsIgnoreCase(searchValue) && !predecessors.contains(type);
         }
 
         @Override
         public String toString() {
-            return ReflectionToStringBuilder.toString(this);
+            return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
         }
 
     }
@@ -162,15 +163,14 @@ public class Problem061 {
                         .stream(), (t, m) -> Pair.of(t, m))
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-        System.out.println(polygonal2map);
+        polygonal2map.forEach((k,v) -> System.out.println(k + ":" + v));
 
-        List<Node> nodes = Arrays.asList();
+        List<Node> nodes = new ArrayList();
         polygonal2map.forEach((polygonal, map) -> {
             map.entrySet().stream().forEach(e -> e.getValue().stream()
                     .forEach(v -> nodes.add(new Node(polygonal, e.getKey(), v))));
         });
-        System.out.println(nodes);
-
+        nodes.forEach(System.out::println);
     }
 
     private static Map<String, List<String>> collectToMap(
