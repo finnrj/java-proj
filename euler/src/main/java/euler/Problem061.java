@@ -1,15 +1,17 @@
 package euler;
 
-import java.util.*;
-import java.util.function.IntUnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.tuple.Pair;
-
 import utils.Utils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * </div>
@@ -100,48 +102,68 @@ public class Problem061 {
         private String key;
         private String value;
         private Node next;
-        private StringBuilder accumulator;
-        private List<Polygonal> excludes;
+        private List<Polygonal> excludes = new ArrayList<>();
 
         public Node(Polygonal type, String key, String value) {
             this.type = type;
             this.key = key;
             this.value = value;
             next = null;
-            accumulator = null;
-            excludes =  Arrays.asList(this.type);
+            excludes.add(this.type);
         }
 
         public void extendAncestors(StringBuilder accumulator,
                                     List<Polygonal> predecessors) {
             excludes.addAll(predecessors);
-            this.accumulator = accumulator;
+            System.out.println("push !!!");
             accumulator.append(String.format("%s%s", key, value));
-            if (cycleFound()) {
+            System.out.println(accumulator);
+
+            if (cycleFound(accumulator.substring(0, 2))) {
+                System.out.println("cycle found !!!");
                 System.out.println(accumulator.toString());
             }
         }
 
-        private boolean cycleFound() {
+        private boolean cycleFound(String originalKey) {
             return excludes.size() == 6
-                    && value.equalsIgnoreCase(accumulator.substring(0, 2));
+                    && value.equalsIgnoreCase(originalKey);
         }
 
-        public void setNext(Node successor, String originalKey) {
+        public void setNext(Node successor, StringBuilder accumulator) {
             next = successor;
             next.extendAncestors(accumulator, excludes);
         }
 
         public boolean isNextCandidate(String searchValue,
                                        List<Polygonal> predecessors) {
-            return key.equalsIgnoreCase(searchValue) && !predecessors.contains(type);
+            return key.equalsIgnoreCase(searchValue) && !predecessors.contains(type) && predecessors.size() < 6;
+        }
+
+        public void findNext(List<Node> candidates, StringBuilder accumulator) {
+//            System.out.println("node: " + this);
+            if (excludes.size() == 6) {
+                System.out.println("pop, excludes == 6 !!!");
+                accumulator.delete(accumulator.length() - 4, accumulator.length());
+                System.out.println(accumulator);
+                return;
+            }
+
+            List<Node> filtered = candidates.stream().filter(n -> n.isNextCandidate(value, excludes)).collect(Collectors.toList());
+            for (Node node : filtered) {
+                setNext(node, accumulator);
+                node.findNext(candidates, accumulator);
+            }
+            System.out.println("pop, no more candidates !!!");
+            if (accumulator.length() >= 4) {
+                accumulator.delete(accumulator.length() - 4, accumulator.length());
+            }
         }
 
         @Override
         public String toString() {
             return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -163,14 +185,20 @@ public class Problem061 {
                         .stream(), (t, m) -> Pair.of(t, m))
                 .collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
-        polygonal2map.forEach((k,v) -> System.out.println(k + ":" + v));
+//        polygonal2map.forEach((k, v) -> System.out.println(k + ":" + v));
 
         List<Node> nodes = new ArrayList();
         polygonal2map.forEach((polygonal, map) -> {
             map.entrySet().stream().forEach(e -> e.getValue().stream()
                     .forEach(v -> nodes.add(new Node(polygonal, e.getKey(), v))));
         });
-        nodes.forEach(System.out::println);
+//        nodes.forEach(System.out::println);
+
+        for (Node node : nodes) {
+            StringBuilder accumulator = new StringBuilder();
+            accumulator.append(String.format("%s%s", node.key, node.value));
+            node.findNext(nodes, accumulator);
+        }
     }
 
     private static Map<String, List<String>> collectToMap(
