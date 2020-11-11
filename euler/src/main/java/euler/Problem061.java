@@ -1,5 +1,6 @@
 package euler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -115,14 +117,25 @@ public class Problem061 {
         public void extendAncestors(StringBuilder accumulator,
                                     List<Polygonal> predecessors) {
             excludes.addAll(predecessors);
-            System.out.println("push !!!");
-            accumulator.append(String.format("%s%s", key, value));
-            System.out.println(accumulator);
+            push(accumulator);
 
             if (cycleFound(accumulator.substring(0, 2))) {
                 System.out.println("cycle found !!!");
-                System.out.println(accumulator.toString());
+                String cycle = accumulator.toString();
+                System.out.println(cycle);
+                List<Integer> result = new ArrayList<>();
+                while (cycle.length() > 0) {
+                    result.add(Integer.valueOf(cycle.substring(0, 4)));
+                    cycle = cycle.substring(4);
+                }
+                System.out.println(result + ": " + result.stream().mapToInt(Integer::intValue).sum());
             }
+        }
+
+        private void push(StringBuilder accumulator) {
+//            System.out.println("push !!!");
+            accumulator.append(String.format("%s%s", key, value));
+//            System.out.println(accumulator);
         }
 
         private boolean cycleFound(String originalKey) {
@@ -141,11 +154,8 @@ public class Problem061 {
         }
 
         public void findNext(List<Node> candidates, StringBuilder accumulator) {
-//            System.out.println("node: " + this);
             if (excludes.size() == 6) {
-                System.out.println("pop, excludes == 6 !!!");
-                accumulator.delete(accumulator.length() - 4, accumulator.length());
-                System.out.println(accumulator);
+                pop(accumulator, "pop, excludes == 6 !!!");
                 return;
             }
 
@@ -154,10 +164,18 @@ public class Problem061 {
                 setNext(node, accumulator);
                 node.findNext(candidates, accumulator);
             }
-            System.out.println("pop, no more candidates !!!");
-            if (accumulator.length() >= 4) {
-                accumulator.delete(accumulator.length() - 4, accumulator.length());
+            pop(accumulator, "pop, no more candidates !!!");
+        }
+
+        private void pop(StringBuilder accumulator, String reason) {
+            if (accumulator.length() < 4) {
+                return;
             }
+//            System.out.println(reason);
+            accumulator.delete(accumulator.length() - 4, accumulator.length());
+//            System.out.println(accumulator);
+            excludes = new ArrayList<>();
+            excludes.add(type);
         }
 
         @Override
