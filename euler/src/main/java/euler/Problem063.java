@@ -1,5 +1,12 @@
 package euler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
 /**
 *</div> 
 <h2>Powerful digit counts</h2>
@@ -16,8 +23,23 @@ package euler;
 */
 public class Problem063 {
 
-public static void main(String[] args) {
+    static List<Long> exponents (Double exp) {
+        return DoubleStream.iterate(1.0, d -> d < 10, d -> d + 1)
+                .filter(t -> String.valueOf(Math.round(Math.pow(t, exp))).length() == Math.round(exp))
+                .peek(t -> System.out.println(String.format("%2.0f**%2.0f = %10.0f has %2.0f digits", t, exp, Math.pow(t, exp), exp)))
+                .mapToLong(Math::round)
+        .collect(ArrayList::new, (r, e) -> r.add(e), List::addAll);
 
+    }
+
+public static void main(String[] args) {
+    System.out.println(DoubleStream.iterate(1.0, d -> d < 100, d -> d + 1)
+            .mapToObj(Problem063::exponents)
+//            .peek(System.out::println)
+            .mapToInt(List::size)
+    .sum());
+    System.out.println(String.format("%30.0f has %d digits", Math.pow(9,19), String.valueOf(Math.round(Math.pow(9, 19))).length() ));
+    System.out.println(String.format("%30.0f has %d digits", Math.pow(9,20), String.valueOf(Math.round(Math.pow(9, 20))).length()));
 }
 
 }

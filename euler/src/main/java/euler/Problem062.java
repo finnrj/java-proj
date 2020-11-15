@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  * </div>
@@ -29,8 +31,12 @@ public class Problem062 {
 
     public static void main(String[] args) {
         LongUnaryOperator cubes = n -> n * n * n;
-        Map<String, List<Long>> result = LongStream.range(1000L, 9000L).map(cubes).boxed().collect(Collectors.groupingBy(Problem062::tag));
-        result.entrySet().stream().filter(e -> e.getValue().size() >= 5).forEach(System.out::println);
+        LongStream.range(5000L, 8500L).map(cubes)
+                .boxed().collect(Collectors.groupingBy(Problem062::tag))
+                .entrySet().stream().filter(e -> e.getValue().size() >= 5)
+//                .flatMap(e -> e.getValue().stream().map(d -> Math.pow(d, 0.3333333333333)))
+        .forEach(System.out::println);
+
     }
 
 }
