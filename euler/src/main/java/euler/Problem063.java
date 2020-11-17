@@ -23,25 +23,11 @@ import java.util.stream.*;
 <br>
 */
 public class Problem063 {
-
-    static List<Long> exponents (Double exp) {
-        return DoubleStream.iterate(1.0, d -> d < 10, d -> d + 1)
-                .filter(lengthPredicate(exp))
-                .peek(t -> System.out.println(String.format("%2.0f**%2.0f = %10.0f has %2.0f digits", t, exp, Math.pow(t, exp), exp)))
-                .mapToLong(Math::round)
-        .collect(ArrayList::new, (r, e) -> r.add(e), List::addAll);
-
-    }
-
     private static List<BigInteger> bigIntegerExponents(int exp) {
         return Stream.iterate(BigInteger.ONE, bigInteger -> bigInteger.compareTo(BigInteger.TEN) < 0 , bigInteger -> bigInteger.add(BigInteger.ONE))
                 .filter(lengthPredicate(exp))
                 .peek(bi -> System.out.println(String.format("%d**%d = %d has %d digits", bi, exp, bi.pow(exp), exp)))
                 .collect(Collectors.toList());
-    }
-
-    private static DoublePredicate lengthPredicate(Double exp) {
-        return t -> String.valueOf(Math.round(Math.pow(t, exp))).length() == Math.round(exp);
     }
 
     private static Predicate<BigInteger> lengthPredicate(Integer exp) {
@@ -54,8 +40,6 @@ public class Problem063 {
 //            .peek(System.out::println)
             .mapToInt(List::size)
     .sum());
-//    System.out.println(String.format("%30.0f has %d digits", Math.pow(9,19), String.valueOf(Math.round(Math.pow(9, 19))).length() ));
-//    System.out.println(String.format("%30.0f has %d digits", Math.pow(9,20), String.valueOf(Math.round(Math.pow(9, 20))).length()));
 }
 
 }
