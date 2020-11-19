@@ -2,10 +2,13 @@ package euler;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 /**
  * </div>
@@ -321,19 +324,45 @@ import java.util.stream.DoubleStream;
  */
 public class Problem064 {
 
-    public static int extractNext(double target, List<Integer> representation) {
-        int period = bestPeriod(representation);
-        if (period > 0) {
-            return period;
+    public static int extractNextBD(BigDecimal target, List<Integer> representation) {
+        int period = bestPeriodBD(representation);
+        while (period == 0) {
+            int intPart = target.round(new MathContext(1, RoundingMode.FLOOR)).intValue();
+            representation.add(intPart);
+            target = BigDecimal.ONE.divide(target.subtract(BigDecimal.valueOf(intPart)), new MathContext(20, RoundingMode.HALF_DOWN));
+            period = bestPeriodBD(representation);
         }
-        int intPart = (int) Math.floor(target);
-        representation.add(intPart);
-        return extractNext(Math.pow((target - intPart), -1), representation);
+        return period;
     }
 
-    public static int bestPeriod(List<Integer> representation) {
+    public static int extractNext(double target, List<Integer> representation) {
+        int period = bestPeriod(representation);
+        while (period == 0) {
+            target = addNewTargets(target, representation);
+            period = bestPeriod(representation);
+        }
+        return period;
+//        int intPart = (int) Math.floor(target);
+//        representation.add(intPart);
+//        return extractNext(Math.pow((target - intPart), -1), representation);
+    }
+
+    private static double addNewTargets(double target, List<Integer> representation) {
+        for (int i = 0; i < 10; i++) {
+            int intPart = (int) Math.floor(target);
+            representation.add(intPart);
+            target = Math.pow((target - intPart), -1);
+        }
+        return target;
+    }
+
+    public static int bestPeriodBD(List<Integer> representation) {
         if (representation.size() < 11) {
             return 0;
+        }
+        if (representation.size() > 300) {
+            System.out.println(representation);
+            return -1;
         }
 
         String repString = representation.stream()
@@ -354,19 +383,51 @@ public class Problem064 {
         return 0;
     }
 
+    public static int bestPeriod(List<Integer> representation) {
+        if (representation.size() < 11) {
+            return 0;
+        }
+        System.out.println(representation);
+        String repString = representation.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining())
+                .substring(1);
+        int max = repString.length() / 2;
+        for (int i = 1; i <= max; i++) {
+            String candidatePeriod = repString.substring(0, i);
+            String rest = repString;
+            while (rest.startsWith(candidatePeriod)) {
+                rest = StringUtils.removeStart(rest, candidatePeriod);
+            }
+            if (rest.isEmpty() || rest.length() < candidatePeriod.length()) {
+                return candidatePeriod.length();
+            }
+        }
+        return 0;
+    }
+
 
     public static void main(String[] args) {
-        int max = 10_000;
-        long res = DoubleStream.iterate(2.0, d -> d <= max, d -> d + 1)
-//                .filter(d -> d != 38.0 && d != 43.0)
-                .peek(System.out::println)
-                .map(d -> Math.pow(d, 0.5))
-                .filter(d -> Math.floor(d) != d)
-                .mapToInt(d -> extractNext(d, new ArrayList<>()))
+        long max = 100;
+//        long res = DoubleStream.iterate(2.0, d -> d <= max, d -> d + 1)
+////                .filter(d -> Math.floor(d) < d)
 //                .peek(System.out::println)
+//                .map(d -> Math.pow(d, 0.5))
+////                .peek(System.out::println)
+//                .filter(d -> Math.floor(d) != d)
+//                .mapToInt(d -> extractNext(d, new ArrayList<>()))
+////                .peek(System.out::println)
+//                .filter(i -> (i % 2) == 1)
+//                .count();
+////                .collect(ArrayList::new, List::add, List::addAll);
+        long res = Stream.iterate(BigDecimal.valueOf(2), bd -> bd.compareTo(BigDecimal.valueOf(max)) < 0, bi -> bi.add(BigDecimal.ONE))
+                .peek(bd -> System.out.print(bd + ": "))
+                .map(bd -> bd.sqrt(MathContext.DECIMAL64))
+                .filter(bd -> bd.stripTrailingZeros().scale() > 0)
+                .mapToInt(bd -> extractNextBD(bd, new ArrayList<>()))
+                .peek(System.out::println)
                 .filter(i -> (i % 2) == 1)
                 .count();
-//                .collect(ArrayList::new, List::add, List::addAll);
 
         System.out.println(String.format("for N <= %d the count of odd periods = %s", max, res));
     }
