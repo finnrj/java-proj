@@ -327,12 +327,18 @@ public class Problem064 {
     public static int extractNextBD(BigDecimal target, List<Integer> representation) {
         int period = bestPeriodBD(representation);
         while (period == 0) {
-            int intPart = target.round(new MathContext(1, RoundingMode.FLOOR)).intValue();
-            if(intPart == 0) {
-                System.out.println("strange things happening: " + target + ", " + representation);
-            }
-            representation.add(intPart);
-            target = BigDecimal.ONE.divide(target.subtract(BigDecimal.valueOf(intPart)), new MathContext(20, RoundingMode.HALF_DOWN));
+//            int intPart = target.round(new MathContext(0, RoundingMode.FLOOR)).intValue();
+            BigDecimal intPart = target.setScale(0, RoundingMode.FLOOR);
+            representation.add(intPart.intValue());
+            BigDecimal diff = target.subtract(intPart).setScale(20, RoundingMode.HALF_DOWN);
+//            if(diff.compareTo(BigDecimal.ONE) > 0 ) {
+//                System.out.println("strange things happening: " + target + ", " + representation);
+//            System.out.println(target.setScale(0, RoundingMode.FLOOR));
+//                System.out.println("int part: " + intPart);
+//                System.out.println("diff: " + diff);
+//            }
+            target = BigDecimal.ONE.divide(diff, new MathContext(20, RoundingMode.HALF_DOWN));
+
             period = bestPeriodBD(representation);
         }
         return period;
@@ -340,7 +346,7 @@ public class Problem064 {
 
 
     public static int bestPeriodBD(List<Integer> representation) {
-        if (representation.size() < 11) {
+        if (representation.size() < 20) {
             return 0;
         }
         if (representation.size() > 300) {
@@ -363,12 +369,13 @@ public class Problem064 {
                 return candidatePeriod.length();
             }
         }
+//        System.out.println(representation);
         return 0;
     }
 
 
     public static void main(String[] args) {
-        long max = 40;
+        long max = 101;
         long res = Stream.iterate(BigDecimal.valueOf(2), bd -> bd.compareTo(BigDecimal.valueOf(max)) < 0, bi -> bi.add(BigDecimal.ONE))
                 .peek(bd -> System.out.print(bd + ": "))
                 .map(bd -> bd.sqrt(MathContext.DECIMAL64))
