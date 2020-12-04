@@ -1,12 +1,14 @@
 package euler;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -323,6 +325,77 @@ import java.util.stream.Stream;
  * <br>
  */
 public class Problem064 {
+
+    public static class Fraction {
+        private long nominator, denominator;
+
+        public Fraction(long nominator, long denominator) {
+            this.nominator = nominator;
+            this.denominator = denominator;
+            reduce();
+        }
+
+        public static Fraction of( long n, long d) {
+            return new Fraction(n,d);
+        }
+
+        public long getNominator() {
+            return nominator;
+        }
+
+        public long getDenominator() {
+            return denominator;
+        }
+
+        final private void reduce() {
+            long a = nominator;
+            long b = denominator;
+            while (a != b) {
+                if (a>b) {
+                    a -= b;
+                } else {
+                    b -= a;
+                }
+            }
+            this.nominator /= a;
+            this.denominator /= b;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Fraction fraction = (Fraction) o;
+            return nominator == fraction.nominator && denominator == fraction.denominator;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(nominator, denominator);
+        }
+
+        @Override
+        public String toString() {
+            return String.format(" %d/%d", nominator, denominator);
+        }
+
+        public long integerPart() {
+            return nominator/denominator;
+        }
+
+        public Fraction inverse() {
+            return new Fraction(denominator, nominator);
+        }
+
+        public Pair<Long, Fraction> parts () {
+            long ip = integerPart();
+            if(ip == 0) {
+                return Pair.of(Long.valueOf(ip), of(nominator,denominator));
+            }
+            return Pair.of(Long.valueOf(ip), new Fraction( nominator - ip * denominator,denominator));
+        }
+
+    }
 
     public static int extractNextBD(BigDecimal target, List<Integer> representation) {
         int period = bestPeriodBD(representation);
