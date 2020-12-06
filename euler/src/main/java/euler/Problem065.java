@@ -1,5 +1,7 @@
 package euler;
 
+import utils.Utils;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -244,34 +246,33 @@ public class Problem065 {
 
     private static List<Integer> multiplicatators = generateExpConvergence(100).boxed().collect(Collectors.toList());
 
-    private static List<BigInteger> generateNominators(int idx, List<BigInteger> accumulator) {
+    private static void generateNominators(List<BigInteger> memoization, int idx) {
         if (idx == 0) {
             BigInteger value = BigInteger.valueOf(multiplicatators.get(0));
-            accumulator.add(idx, value);
+            memoization.add(idx, value);
         } else if (idx == 1) {
             BigInteger value = BigInteger.valueOf(multiplicatators.get(idx))
-                    .multiply(accumulator.get(idx - 1))
+                    .multiply(memoization.get(idx - 1))
                     .add(BigInteger.ONE);
-            accumulator.add(idx, value);
+            memoization.add(idx, value);
         } else {
             BigInteger value = BigInteger.valueOf(multiplicatators.get(idx))
-                    .multiply(accumulator.get(idx - 1))
-                    .add(accumulator.get(idx - 2));
-            accumulator.add(idx, value);
+                    .multiply(memoization.get(idx - 1))
+                    .add(memoization.get(idx - 2));
+            memoization.add(idx, value);
         }
-        return accumulator;
     }
-
 
     public static void main(String[] args) {
-        System.out.println(Problem065.multiplicatators);
-        List<BigInteger> accumulator = new ArrayList<>();
+        List<BigInteger> memoization = new ArrayList<>();
         IntStream.iterate(0, idx -> idx < multiplicatators.size(), idx -> idx + 1)
-                .mapToObj(idx -> generateNominators(idx, accumulator)).forEach(System.out::println);
-//                .map(i -> String.valueOf(i).chars().map(Character::getNumericValue).sum())
-//                .boxed().collect(Collectors.toList()));
+                .collect(() -> memoization, Problem065::generateNominators, List::addAll)
+                .stream()
+                .peek(System.out::println)
+                .map(Utils::sumOfDigits)
+                .forEach(System.out::println);
+    }
 //        6963524437876961749120273824619538346438023188214475670667
 //        sum = 272
-    }
 
 }

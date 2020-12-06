@@ -169,8 +169,7 @@ public class Utils {
 				"getPrimesFromFile" + Duration.between(start, start = Instant.now()));
 
 		getPrimes(pre).limit(10_000);
-		System.out
-				.println("getPrimes" + Duration.between(start, start = Instant.now()));
+		System.out.println("getPrimes" + Duration.between(start, start = Instant.now()));
 	}
 
 	/**
@@ -217,4 +216,24 @@ public class Utils {
 				? StreamSupport.stream(split, true)
 				: StreamSupport.stream(split, false);
 	}
+	public static BigInteger sumOfDigits(int target) {
+		return sumOfDigits(BigInteger.valueOf(target));
+	}
+
+	public static BigInteger sumOfDigits(long target) {
+		return sumOfDigits(BigInteger.valueOf(target));
+	}
+
+	public static BigInteger sumOfDigits(BigInteger target) {
+		return sumOfDigits(target, BigInteger.ZERO);
+	}
+
+	private static BigInteger sumOfDigits(BigInteger target, BigInteger accumulator) {
+		if (target == BigInteger.ZERO) {
+			return accumulator;
+		}
+		BigInteger[] parts = target.divideAndRemainder(BigInteger.TEN);
+		return sumOfDigits(parts[0], accumulator.add(parts[1]));
+	}
+
 }
