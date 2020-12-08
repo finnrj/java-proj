@@ -1,6 +1,9 @@
 package euler;
 
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * </div>
@@ -24,10 +27,51 @@ import java.util.stream.IntStream;
  */
 public class Problem066 {
 
-    public static void main(String[] args) {
-        IntStream.iterate(2, val -> val <= 1000, i -> i + 1)
-                .filter(val -> !Problem064Cheated.isSquare(val))
-                .forEach(System.out::println);
+    static List<Integer> factors = IntStream.iterate(2, val -> val <= 1000, i -> i + 1)
+            .filter(val -> !Problem064Cheated.isSquare(val))
+            .boxed()
+            .collect(Collectors.toList());
+
+    static List<Long> targets = LongStream.iterate(0, value -> value <= 10_000, value -> value + 1)
+            .map(value -> value * value)
+            .boxed()
+            .collect(Collectors.toList());
+
+    static Set<Long> targetSet = new HashSet<>(targets);
+
+    public static void mapSolutions(int idx, Map<Integer, Long> mapping) {
+        for (int i = 0; i < idx; i++) {
+            Long targetMinusOne = targets.get(idx) - 1;
+            for (Integer actualFactor: factors) {
+                if (mapping.containsKey(actualFactor)) {
+                    continue;
+                }
+                if ((targetMinusOne) % actualFactor != 0) {
+                    continue;
+                }
+                long dividend = (targetMinusOne) / actualFactor;
+                if (dividend <= 0) {
+                    break;
+                }
+                if (targetSet.contains(dividend)) {
+                    mapping.put(actualFactor, targetMinusOne + 1);
+                }
+            }
+        }
     }
 
+    public static void main(String[] args) {
+        HashMap<Integer, Long> mapping = new HashMap<>();
+        for (int i = 0; i < 10_000; i++) {
+            mapSolutions(i, mapping);
+        }
+        System.out.println("size: " + mapping.size());
+        Long max = mapping.values().stream().max(Long::compare).orElse(-1L);
+        System.out.println("max: " + max);
+        mapping.entrySet().stream().filter(e -> e.getValue() == max)
+                .forEach(System.out::println);
+//        size: 439
+//        max: 96059601
+//        29=96059601
+    }
 }
