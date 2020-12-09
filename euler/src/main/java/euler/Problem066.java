@@ -1,9 +1,11 @@
 package euler;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 /**
  * </div>
@@ -27,51 +29,108 @@ import java.util.stream.LongStream;
  */
 public class Problem066 {
 
-    static List<Integer> factors = IntStream.iterate(2, val -> val <= 1000, i -> i + 1)
-            .filter(val -> !Problem064Cheated.isSquare(val))
-            .boxed()
+//    static List<Integer> factors = IntStream.iterate(2, val -> val <= 1000, i -> i + 1)
+//            .filter(val -> !Problem064Cheated.isSquare(val))
+//            .boxed()
+//            .collect(Collectors.toList());
+//
+//    static List<Long> targets = LongStream.iterate(0, value -> value <= 10_000, value -> value + 1)
+//            .map(value -> value * value)
+//            .boxed()
+//            .collect(Collectors.toList());
+
+    static List<BigInteger> factorsBI = Stream.iterate(BigInteger.TWO,
+            bi -> bi.compareTo(BigInteger.valueOf(1_000)) < 0, bi -> bi.add(BigInteger.ONE))
+            .filter(bi -> !Problem064Cheated.isSquare(bi))
             .collect(Collectors.toList());
 
-    static List<Long> targets = LongStream.iterate(0, value -> value <= 10_000, value -> value + 1)
-            .map(value -> value * value)
-            .boxed()
+    static List<BigInteger> targetsBI = Stream.iterate(BigInteger.TWO,
+            bi -> bi.compareTo(BigInteger.valueOf(100_000)) < 0, bi -> bi.add(BigInteger.ONE))
+            .map(value -> value.multiply(value))
             .collect(Collectors.toList());
 
-    static Set<Long> targetSet = new HashSet<>(targets);
+//    static Set<Long> targetSet = new HashSet<>(targets);
 
-    public static void mapSolutions(int idx, Map<Integer, Long> mapping) {
+    static Set<BigInteger> targetSetBI = new HashSet<>(targetsBI);
+
+//    public static void mapSolutions(int idx, Map<Integer, Long> mapping) {
+//        for (int i = 0; i < idx; i++) {
+//            Long targetMinusOne = targets.get(idx) - 1;
+//            for (Integer actualFactor: factors) {
+//                if (mapping.containsKey(actualFactor)) {
+//                    continue;
+//                }
+//                if ((targetMinusOne) % actualFactor != 0) {
+//                    continue;
+//                }
+//                long dividend = (targetMinusOne) / actualFactor;
+//                if (dividend <= 0) {
+//                    break;
+//                }
+//                if (targetSet.contains(dividend)) {
+//                    mapping.put(actualFactor, targetMinusOne + 1);
+//                }
+//            }
+//        }
+//    }
+
+    public static void mapSolutionsBI(int idx, Map<BigInteger, BigInteger> mapping) {
         for (int i = 0; i < idx; i++) {
-            Long targetMinusOne = targets.get(idx) - 1;
-            for (Integer actualFactor: factors) {
+            BigInteger targetMinusOne = targetsBI.get(idx).add(BigInteger.valueOf(-1)) ;
+            for (BigInteger actualFactor: factorsBI) {
+                if(mapping.size() == factorsBI.size()) {
+                    return;
+                }
                 if (mapping.containsKey(actualFactor)) {
                     continue;
                 }
-                if ((targetMinusOne) % actualFactor != 0) {
+                BigInteger[] parts = targetMinusOne.divideAndRemainder(actualFactor);
+//                System.out.println(targetMinusOne + "/" + actualFactor);
+//                System.out.println(parts[0] + "," + parts[1]);
+                if (parts[1].compareTo(BigInteger.ZERO) != 0) {
                     continue;
                 }
-                long dividend = (targetMinusOne) / actualFactor;
-                if (dividend <= 0) {
+                BigInteger quotient = parts[0];
+                if (quotient.signum() <= 0) {
                     break;
                 }
-                if (targetSet.contains(dividend)) {
-                    mapping.put(actualFactor, targetMinusOne + 1);
+                if (targetSetBI.contains(quotient)) {
+                    BigInteger value = targetMinusOne.add(BigInteger.ONE);
+                    mapping.put(actualFactor, value);
+//                    System.out.println(String.format("mapping %d : %d", actualFactor, value));
+                    System.out.println(String.format("mapping size %d ", mapping.size()));
                 }
             }
         }
     }
 
     public static void main(String[] args) {
-        HashMap<Integer, Long> mapping = new HashMap<>();
-        for (int i = 0; i < 10_000; i++) {
-            mapSolutions(i, mapping);
-        }
-        System.out.println("size: " + mapping.size());
-        Long max = mapping.values().stream().max(Long::compare).orElse(-1L);
-        System.out.println("max: " + max);
-        mapping.entrySet().stream().filter(e -> e.getValue() == max)
-                .forEach(System.out::println);
+//        HashMap<Integer, Long> mapping = new HashMap<>();
+//        for (int i = 0; i < 10_000; i++) {
+//            mapSolutions(i, mapping);
+//        }
+//        System.out.println("size: " + mapping.size());
+//        Long max = mapping.values().stream().max(Long::compare).orElse(-1L);
+//        System.out.println("max: " + max);
+//        mapping.entrySet().stream().filter(e -> e.getValue() == max)
+//                .forEach(System.out::println);
 //        size: 439
 //        max: 96059601
 //        29=96059601
+
+//        System.out.println(factorsBI.size());
+//        System.out.println(factorsBI.subList(0,100));
+//        System.out.println(targetsBI.size());
+//        System.out.println(targetsBI.subList(0,100));
+        HashMap<BigInteger, BigInteger> mappingBI = new HashMap<>();
+        System.out.println(String.format("factor count: %d", factorsBI.size()));
+        for (int i = 0; i < targetsBI.size(); i++) {
+            mapSolutionsBI(i, mappingBI);
+        }
+        System.out.println("size: " + mappingBI.size());
+        BigInteger max = mappingBI.values().stream().max(BigInteger::compareTo).orElse(BigInteger.valueOf(-1));
+        System.out.println("max: " + max);
+        mappingBI.entrySet().stream().filter(e -> e.getValue() == max)
+                .forEach(System.out::println);
     }
 }

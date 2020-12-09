@@ -378,5 +378,13 @@ public class Problem064Cheated {
         int y = sqrt(x);
         return y * y == x;
     }
+
+    public static boolean isSquare(BigInteger x) {
+        if (x.signum() == -1)
+            return false;
+        BigInteger y = sqrt(x);
+        return (y.multiply(y)).compareTo(x) == 0;
+    }
+
 }
 
