@@ -1,11 +1,14 @@
 package euler;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 import java.util.stream.Stream;
+
+import static euler.Problem064Cheated.isSquare;
+import static euler.Problem064Cheated.sqrt;
 
 /**
  * </div>
@@ -28,109 +31,67 @@ import java.util.stream.Stream;
  * <br>
  */
 public class Problem066 {
+    // solved using the Chakravala Method https://en.wikipedia.org/wiki/Chakravala_method
+    public static record Triple(BigInteger x, BigInteger y, BigInteger k) {}
 
-//    static List<Integer> factors = IntStream.iterate(2, val -> val <= 1000, i -> i + 1)
-//            .filter(val -> !Problem064Cheated.isSquare(val))
-//            .boxed()
-//            .collect(Collectors.toList());
-//
-//    static List<Long> targets = LongStream.iterate(0, value -> value <= 10_000, value -> value + 1)
-//            .map(value -> value * value)
-//            .boxed()
-//            .collect(Collectors.toList());
-
-    static List<BigInteger> factorsBI = Stream.iterate(BigInteger.TWO,
+    static List<BigInteger> factors = Stream.iterate(BigInteger.TWO,
             bi -> bi.compareTo(BigInteger.valueOf(1_000)) < 0, bi -> bi.add(BigInteger.ONE))
-            .filter(bi -> !Problem064Cheated.isSquare(bi))
+            .filter(bi -> !isSquare(bi))
             .collect(Collectors.toList());
 
-    static List<BigInteger> targetsBI = Stream.iterate(BigInteger.TWO,
+    static List<BigInteger> targets = Stream.iterate(BigInteger.TWO,
             bi -> bi.compareTo(BigInteger.valueOf(100_000)) < 0, bi -> bi.add(BigInteger.ONE))
             .map(value -> value.multiply(value))
             .collect(Collectors.toList());
 
-//    static Set<Long> targetSet = new HashSet<>(targets);
+    public Triple initialTriple(BigInteger D) {
+        BigInteger min = findMinTarget(targets, D, BigInteger.ONE);
+        return new Triple(sqrt(min), BigInteger.ONE, min.add(D.negate()));
+    }
 
-    static Set<BigInteger> targetSetBI = new HashSet<>(targetsBI);
+    public Triple solve(BigInteger D) {
+        return doSolveRecursive(D, initialTriple(D));
+    }
 
-//    public static void mapSolutions(int idx, Map<Integer, Long> mapping) {
-//        for (int i = 0; i < idx; i++) {
-//            Long targetMinusOne = targets.get(idx) - 1;
-//            for (Integer actualFactor: factors) {
-//                if (mapping.containsKey(actualFactor)) {
-//                    continue;
-//                }
-//                if ((targetMinusOne) % actualFactor != 0) {
-//                    continue;
-//                }
-//                long dividend = (targetMinusOne) / actualFactor;
-//                if (dividend <= 0) {
-//                    break;
-//                }
-//                if (targetSet.contains(dividend)) {
-//                    mapping.put(actualFactor, targetMinusOne + 1);
-//                }
-//            }
-//        }
-//    }
-
-    public static void mapSolutionsBI(int idx, Map<BigInteger, BigInteger> mapping) {
-        for (int i = 0; i < idx; i++) {
-            BigInteger targetMinusOne = targetsBI.get(idx).add(BigInteger.valueOf(-1)) ;
-            for (BigInteger actualFactor: factorsBI) {
-                if(mapping.size() == factorsBI.size()) {
-                    return;
-                }
-                if (mapping.containsKey(actualFactor)) {
-                    continue;
-                }
-                BigInteger[] parts = targetMinusOne.divideAndRemainder(actualFactor);
-//                System.out.println(targetMinusOne + "/" + actualFactor);
-//                System.out.println(parts[0] + "," + parts[1]);
-                if (parts[1].compareTo(BigInteger.ZERO) != 0) {
-                    continue;
-                }
-                BigInteger quotient = parts[0];
-                if (quotient.signum() <= 0) {
-                    break;
-                }
-                if (targetSetBI.contains(quotient)) {
-                    BigInteger value = targetMinusOne.add(BigInteger.ONE);
-                    mapping.put(actualFactor, value);
-//                    System.out.println(String.format("mapping %d : %d", actualFactor, value));
-                    System.out.println(String.format("mapping size %d ", mapping.size()));
-                }
-            }
+    private Triple doSolveRecursive(BigInteger D, Triple target) {
+        BigInteger x = target.x();
+        BigInteger y = target.y();
+        BigInteger k = target.k();
+        if (k.compareTo(BigInteger.ONE) == 0) {
+            return target;
         }
+
+        BigInteger below = Stream.iterate(BigInteger.ONE, bi -> bi.add(BigInteger.ONE))
+                .filter(bi -> x.add(bi.multiply(y)).divideAndRemainder(k)[1].compareTo(BigInteger.ZERO) == 0)
+                .takeWhile(bi -> bi.multiply(bi).compareTo(D) <= 0)
+                .max(BigInteger::compareTo).orElse(BigInteger.TWO);
+        BigInteger above = below.add(k.abs());
+        List<BigInteger> belowAndAbove = Arrays.asList(below.multiply(below), above.multiply(above));
+        BigInteger m = sqrt(findMinTarget(belowAndAbove, D, k.abs()));
+        BigInteger newX = x.multiply(m).add(D.multiply(y)).divide(k.abs());
+        BigInteger newY = x.add(m.multiply(y)).divide(k.abs());
+        BigInteger newK = m.multiply(m).add(D.negate()).divide(k);
+        return doSolveRecursive(D, new Triple(newX, newY, newK));
+    }
+
+    private BigInteger findMinTarget(List<BigInteger> bis, BigInteger D, BigInteger toAdd) {
+        BigInteger below = bis.stream()
+                .takeWhile(bi -> bi.compareTo(D) <= 0)
+                .max(BigInteger::compareTo).orElse(bis.get(0));
+        BigInteger sqrtAbove = sqrt(below).add(toAdd);
+        BigInteger above = sqrtAbove.multiply(sqrtAbove);
+        if (above.add(D.negate()).compareTo(D.add(below.negate())) < 0) {
+            return above;
+        }
+        return below;
     }
 
     public static void main(String[] args) {
-//        HashMap<Integer, Long> mapping = new HashMap<>();
-//        for (int i = 0; i < 10_000; i++) {
-//            mapSolutions(i, mapping);
-//        }
-//        System.out.println("size: " + mapping.size());
-//        Long max = mapping.values().stream().max(Long::compare).orElse(-1L);
-//        System.out.println("max: " + max);
-//        mapping.entrySet().stream().filter(e -> e.getValue() == max)
-//                .forEach(System.out::println);
-//        size: 439
-//        max: 96059601
-//        29=96059601
-
-//        System.out.println(factorsBI.size());
-//        System.out.println(factorsBI.subList(0,100));
-//        System.out.println(targetsBI.size());
-//        System.out.println(targetsBI.subList(0,100));
-        HashMap<BigInteger, BigInteger> mappingBI = new HashMap<>();
-        System.out.println(String.format("factor count: %d", factorsBI.size()));
-        for (int i = 0; i < targetsBI.size(); i++) {
-            mapSolutionsBI(i, mappingBI);
-        }
-        System.out.println("size: " + mappingBI.size());
-        BigInteger max = mappingBI.values().stream().max(BigInteger::compareTo).orElse(BigInteger.valueOf(-1));
-        System.out.println("max: " + max);
-        mappingBI.entrySet().stream().filter(e -> e.getValue() == max)
-                .forEach(System.out::println);
+        Problem066 solver = new Problem066();
+        Pair<BigInteger, BigInteger> res = factors.stream()
+                .map(t -> Pair.of(t, solver.solve(t).x()))
+                .max(Map.Entry.comparingByValue())
+                .orElseThrow(IllegalArgumentException::new);
+        System.out.println("(D, maximal minimal solution in x): " + res);
     }
 }
