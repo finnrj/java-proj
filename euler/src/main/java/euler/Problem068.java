@@ -70,7 +70,7 @@ package euler;
 public class Problem068 {
 
 public static void main(String[] args) {
-
+    // well this one I actually just solved with pen an paper....
 }
 
 }

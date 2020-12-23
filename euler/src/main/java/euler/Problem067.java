@@ -20,7 +20,7 @@ package euler;
 public class Problem067 {
 
 public static void main(String[] args) {
-
+    // this one "fell off" from Problem 018
 }
 
 }
