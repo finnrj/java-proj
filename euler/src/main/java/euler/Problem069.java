@@ -115,55 +115,8 @@ public class Problem069 {
         .reduce(1.0, (a,b) -> a * b);
     }
 
-    static long phi(long n)
-    {
-        // Initialize result as n
-        long result = n;
-
-        // Consider all prime factors
-        // of n and subtract their
-        // multiples from result
-        for (long p = 2; p * p <= n; ++p)
-        {
-
-            // Check if p is
-            // a prime factor.
-            if (n % p == 0)
-            {
-
-                // If yes, then update
-                // n and result
-                while (n % p == 0)
-                    n /= p;
-                result -= result / p;
-            }
-        }
-
-        // If n has a prime factor
-        // greater than sqrt(n)
-        // (There can be at-most
-        // one such prime factor)
-        if (n > 1)
-            result -= result / n;
-        return result;
-    }
-
     public static void main(String[] args) {
         Instant start = Instant.now();
-//        LongStream.rangeClosed(2L, END_INCLUSIVE)
-//                .boxed()
-//                .map(l -> Pair.of(l, l / eulerTotientPrimeFactors(l)))
-////                .peek(System.out::println)
-//                .max(Comparator.comparing(Pair::getValue))
-//                .ifPresentOrElse(System.out::println, () -> System.out.println("too bad"));
-//        System.out.println(String.format("%-20s: %s", "totientPrimeFactors", Duration.between(start, start = Instant.now())));
-//        LongStream.rangeClosed(2L, END_INCLUSIVE)
-//                .boxed()
-//                .map(l -> Pair.of(l, (l * 1.0) / eulerTotient(l)))
-////                .peek(System.out::println)
-//                .max(Comparator.comparing(Pair::getValue))
-//                .ifPresentOrElse(System.out::println, () -> System.out.println("too bad"));
-//        System.out.println(String.format("%-20s: %s", "gcd", Duration.between(start, start = Instant.now())));
         LongStream.rangeClosed(2L, END_INCLUSIVE)
                 .boxed()
                 .map(l -> Pair.of(l, (l * 1.0) / phi(l)))
@@ -186,3 +139,18 @@ public class Problem069 {
         System.out.println(primeFactors(510510L).boxed().collect(Collectors.toList()));
     }
 }
+
+//        LongStream.rangeClosed(2L, END_INCLUSIVE)
+//                .boxed()
+//                .map(l -> Pair.of(l, l / eulerTotientPrimeFactors(l)))
+////                .peek(System.out::println)
+//                .max(Comparator.comparing(Pair::getValue))
+//                .ifPresentOrElse(System.out::println, () -> System.out.println("too bad"));
+//        System.out.println(String.format("%-20s: %s", "totientPrimeFactors", Duration.between(start, start = Instant.now())));
+//        LongStream.rangeClosed(2L, END_INCLUSIVE)
+//                .boxed()
+//                .map(l -> Pair.of(l, (l * 1.0) / eulerTotient(l)))
+////                .peek(System.out::println)
+//                .max(Comparator.comparing(Pair::getValue))
+//                .ifPresentOrElse(System.out::println, () -> System.out.println("too bad"));
+//        System.out.println(String.format("%-20s: %s", "gcd", Duration.between(start, start = Instant.now())));

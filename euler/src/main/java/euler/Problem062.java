@@ -1,13 +1,10 @@
 package euler;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import utils.Utils;
+
 import java.util.function.LongUnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 /**
  * </div>
@@ -25,14 +22,10 @@ import java.util.stream.Stream;
  */
 public class Problem062 {
 
-    public static String tag(long target) {
-        return String.valueOf(target).chars().sorted().mapToObj(c -> String.valueOf((char) c)).collect(Collectors.joining());
-    }
-
     public static void main(String[] args) {
         LongUnaryOperator cubes = n -> n * n * n;
         LongStream.range(5000L, 8500L).map(cubes)
-                .boxed().collect(Collectors.groupingBy(Problem062::tag))
+                .boxed().collect(Collectors.groupingBy(Utils::tagAsOrderedString))
                 .entrySet().stream().filter(e -> e.getValue().size() >= 5)
 //                .flatMap(e -> e.getValue().stream().map(d -> Math.pow(d, 0.3333333333333)))
         .forEach(System.out::println);
