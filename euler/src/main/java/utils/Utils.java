@@ -273,6 +273,10 @@ public class Utils {
         return sumOfDigits(parts[0], accumulator.add(parts[1]));
     }
 
+    /**
+     *
+     * stolen from https://www.geeksforgeeks.org/eulers-totient-function/
+     */
     public static long phi(long n)
     {
         // Initialize result as n
