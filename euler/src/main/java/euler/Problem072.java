@@ -1,5 +1,10 @@
 package euler;
 
+import utils.Utils;
+
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
+
 /**
 *</div> 
 <h2>Counting fractions</h2>
@@ -20,6 +25,10 @@ package euler;
 public class Problem072 {
 
 public static void main(String[] args) {
+    System.out.println(LongStream.rangeClosed(2, 1_000_000).boxed()
+            .mapToLong(Utils::phi)
+            .sum());
+
 
 }
 
