@@ -39,6 +39,10 @@ public class Permutations {
 		return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
 	}
 
+	public static long factorial(long n) {
+		return LongStream.rangeClosed(2, n).reduce(1, (a, b) -> a * b);
+	}
+
 	public static <T> List<T> permutation(long no, List<T> items) {
 		return permutationHelper(no,
 				new LinkedList<>(Objects.requireNonNull(items)), new ArrayList<>());
