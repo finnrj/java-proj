@@ -4,6 +4,7 @@ import utils.Combinations;
 import utils.Permutations;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -31,18 +32,27 @@ import java.util.stream.LongStream;
  * <br>
  */
 public class Problem074 {
-    static Map<String, Long> factorials = new HashMap<>();
+    static Map<String, Long> factorials = LongStream.rangeClosed(0, 9)
+            .boxed().collect(Collectors.toMap(String::valueOf, Permutations::factorial));
 
     static Long next(Long target) {
         return target.toString().chars().mapToObj(c -> String.valueOf((char) c))
                 .collect(Collectors.summingLong(d -> Long.valueOf(factorials.get(d))));
     }
 
-    public static void main(String[] args) {
-        factorials = LongStream.rangeClosed(0, 9)
-                .boxed().collect(Collectors.toMap(String::valueOf, Permutations::factorial));
-        System.out.println(factorials);
+    private static long findChain(Long target, HashSet<Long> chain) {
+        if (chain.contains(target)) {
+            return chain.size();
+        }
+        chain.add(target);
+        return findChain(next(target), chain);
+    }
 
+    public static void main(String[] args) {
+        System.out.println(LongStream.range(1, 1_000_000).boxed()
+                .mapToLong(l -> findChain(l, new HashSet<>()))
+                .filter(l -> l == 60)
+                .count());
     }
 
 }
