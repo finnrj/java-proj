@@ -23,7 +23,7 @@ public class ProblemDownloader {
 			"main", "docs");
 
 	public static void main(String[] args) {
-		for (int i = 53; i <= 75; i++) {
+		for (int i = 76; i <= 88; i++) {
 			ProblemDownloader.createProblemFile(i);
 		}
 	}

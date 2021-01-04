@@ -1,0 +1,30 @@
+package euler;
+
+/**
+*</div> 
+<h2>Path sum: four ways</h2>
+<div id="problem_icons" class="noprint">
+ <a href="minimal=83"><img src="images/icons/file_html.png" title="Show HTML problem content" class="icon"></a>&nbsp;
+ <span class="tooltip"><img src="images/icons/info.png" class="icon"><span class="tooltiptext_right">Published on Friday, 19th November 2004, 06:00 pm; Solved by 17608;<br>Difficulty rating: 25%</span></span>
+</div>
+<div id="problem_info">
+ <h3>Problem 83</h3>
+</div> 
+<div class="problem_content" role="problem"> 
+ <p class="small_notice">NOTE: This problem is a significantly more challenging version of <a href="problem=81">Problem 81</a>.</p> 
+ <p>In the 5 by 5 matrix below, the minimal path sum from the top left to the bottom right, by moving left, right, up, and down, is indicated in bold red and is equal to 2297.</p> 
+ <div class="center">
+   $$ \begin{pmatrix} \color{red}{131} &amp; 673 &amp; \color{red}{234} &amp; \color{red}{103} &amp; \color{red}{18}\\ \color{red}{201} &amp; \color{red}{96} &amp; \color{red}{342} &amp; 965 &amp; \color{red}{150}\\ 630 &amp; 803 &amp; 746 &amp; \color{red}{422} &amp; \color{red}{111}\\ 537 &amp; 699 &amp; 497 &amp; \color{red}{121} &amp; 956\\ 805 &amp; 732 &amp; 524 &amp; \color{red}{37} &amp; \color{red}{331} \end{pmatrix} $$ 
+ </div> 
+ <p>Find the minimal path sum from the top left to the bottom right by moving left, right, up, and down in <a href="project/resources/p083_matrix.txt">matrix.txt</a> (right click and "Save Link/Target As..."), a 31K text file containing an 80 by 80 matrix.</p> 
+</div>
+<br> 
+<br>
+*/
+public class Problem083 {
+
+public static void main(String[] args) {
+
+}
+
+}
