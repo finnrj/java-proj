@@ -26,22 +26,20 @@ import java.util.stream.IntStream;
 public class Problem076 {
 
     public static void main(String[] args) {
-        int cellCount = 10;
+        int cellCount = 100;
         Map<Integer, Integer> table = IntStream.rangeClosed(1, cellCount).boxed()
                 .collect(Collectors.toMap(Function.identity(), (k) -> 0));
-        System.out.println(table.size());
+
         for (int toAdd = 1; toAdd < cellCount; toAdd++) {
             for (int tableCell = toAdd + 1; tableCell <= cellCount; tableCell++) {
                 int previous = tableCell - toAdd;
-                int newAddition = previous >= toAdd ? 1 : 0;
-                System.out.println(String.format("%d, %d:%d, %d", tableCell, previous, table.get(previous), newAddition));
+                int newAddition = previous > toAdd ? 0 : 1;
                 table.put(tableCell, table.get(tableCell)
                         + table.get(previous)
                         + newAddition);
             }
-            System.out.println("after " + toAdd + ":" +table);
         }
-        System.out.println(table);
+        System.out.println(table.get(100));
     }
 
 }
