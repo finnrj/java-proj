@@ -1,5 +1,11 @@
 package euler;
 
+import java.util.Comparator;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 /**
 *</div> 
 <h2>Coin partitions</h2>
@@ -29,7 +35,22 @@ package euler;
 public class Problem078 {
 
 public static void main(String[] args) {
+    int cellCount = 1_000_000;
+    Map<Integer, Integer> table = IntStream.rangeClosed(1, cellCount).boxed()
+            .collect(Collectors.toMap(Function.identity(), (k) -> 1));
 
+    for (int toAdd = 1; toAdd < cellCount; toAdd++) {
+        for (int tableCell = toAdd + 1; tableCell <= cellCount; tableCell++) {
+            int previous = tableCell - toAdd;
+            int newAddition = previous > toAdd ? 0 : 1;
+            table.put(tableCell, table.get(tableCell)
+                    + table.get(previous)
+                    + newAddition);
+        }
+    }
+    System.out.println(table.entrySet().stream().filter(e -> e.getValue() % 1_000_000 == 0)
+            .min(Comparator.comparing(Map.Entry::getKey)));
 }
 
 }
+

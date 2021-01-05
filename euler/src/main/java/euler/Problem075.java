@@ -77,8 +77,8 @@ public class Problem075 {
             double largest = middle + (step * 0.25);
             double inBetween = middle - (step * 0.25);
             if(largest % 0.5 == 0 && inBetween % 0.5 == 0) {
-//                System.out.println(
-//                        String.format("smallest, inbetween, largest: %d, %.0f, %.0f", smallest, inBetween, largest));
+                System.out.println(
+                        String.format("smallest, inbetween, largest: %d, %.0f, %.0f", smallest, inBetween, largest));
                 long newLength = (long) (smallest + inBetween + largest);
                 found2count.putIfAbsent(newLength, 0);
                 found2count.compute(newLength, (k, v) -> v + 1);
@@ -101,7 +101,7 @@ public class Problem075 {
 //        .ifPresent(System.out::println);
 
         HashMap<Long, Integer> counter = new HashMap<>();
-        for (long i = 3; i < 500_000; i++) {
+        for (long i = 3; i < 101; i++) {
             if (i % 100_000 == 0) {
                 System.out.println(i);
             }
@@ -111,11 +111,11 @@ public class Problem075 {
 //        findTriangleUsingSmallestSideIterative(counter,7L);
 //        findTriangleUsingSmallestSideIterative(counter,8L);
 
-//        System.out.println(counter);
-        System.out.println(counter.size());
-        System.out.println(counter.entrySet().stream()
-                .filter(e -> e.getValue() == 1)
-                .count());
+        System.out.println(counter);
+//        System.out.println(counter.size());
+//        System.out.println(counter.entrySet().stream()
+//                .filter(e -> e.getValue() == 1)
+//                .count());
 
 
     }
