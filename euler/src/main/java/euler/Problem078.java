@@ -1,5 +1,8 @@
 package euler;
 
+import java.math.BigInteger;
+import java.util.Arrays;
+
 /**
  * </div>
  * <h2>Coin partitions</h2>
@@ -31,28 +34,35 @@ public class Problem078 {
     public static void main(String[] args) {
         int cellCount = 1_000_000;
 
-        long[] tableList = new long[cellCount+1];
+        BigInteger[] tableList = new BigInteger[cellCount+1];
         for (int i = 0; i < tableList.length; i++) {
-            tableList[i] = 0;
+            tableList[i] = BigInteger.valueOf(0);
         }
 
+        ext(cellCount, tableList);
+        System.out.println("are we there yet?");
+        for (int i = 0; i < 100; i++) {
+            System.out.println(String.format("%d : %d", i, tableList[i].add(BigInteger.ONE)));
+        }
+    }
+
+    private static void ext(int cellCount, BigInteger[] tableList) {
         for (int toAdd = 1; toAdd < cellCount; toAdd++) {
             if (toAdd % 10_000 == 0) {
                 System.out.println(toAdd);
             }
             for (int tableCell = toAdd + 1; tableCell < cellCount; tableCell++) {
                 int previous = tableCell - toAdd;
-                int newAddition = previous > toAdd ? 0 : 1;
-                tableList[tableCell] = tableList[tableCell] + tableList[previous] + newAddition;
+                BigInteger newAddition = previous > toAdd ? BigInteger.ZERO : BigInteger.ONE;
+                tableList[tableCell] = tableList[tableCell].add(tableList[previous]).add(newAddition);
+                if ((tableList[tableCell].add(BigInteger.ONE)
+                        .divideAndRemainder(BigInteger.valueOf(1_000_000)))[1]  == BigInteger.ZERO) {
+                    System.out.println(
+                            String.format("found: %d : %d", tableCell, tableList[tableCell].add(BigInteger.ONE)));
+                    return;
+                }
             }
         }
-        for (int i = 0; i < tableList.length; i++) {
-            long l = tableList[i];
-            if (l > 0 && (l+1) % 1_000_000 == 0) {
-                System.out.println(String.format("found: %d:%d", i, l));
-            }
-        }
-        System.out.println("are we there yet?");
     }
 }
 

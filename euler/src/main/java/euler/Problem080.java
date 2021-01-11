@@ -1,5 +1,8 @@
 package euler;
 
+import javax.swing.plaf.synth.SynthOptionPaneUI;
+import java.math.BigInteger;
+
 /**
 *</div> 
 <h2>Square root digital expansion</h2>
@@ -20,8 +23,39 @@ package euler;
 */
 public class Problem080 {
 
-public static void main(String[] args) {
 
+    /*Returns the square root of n.
+    Note that the function */
+    static float squareRoot(float n)
+    {
+
+        /*We are using n itself as
+        initial approximation This
+        can definitely be improved */
+        float x = n;
+        float y = 1;
+
+        // e decides the accuracy level
+        double e = 0.000000000000000001;
+        while (x - y > e) {
+            x = (x + y) / 2;
+            y = n / x;
+        }
+        return x;
+    }
+
+
+    public static void main(String[] args) {
+//    System.out.println(Math.sqrt(2.0));
+    String sqrt_99 = "9.94987437106619954734479821001206005178" +
+            "1265636768060791176046438349453927827131" +
+            "54012653019738487195";
+    System.out.println(sqrt_99.substring(2).length());
+
+    int n = 99;
+
+    System.out.printf("Square root of "
+            + n + " is " + squareRoot(n));
 }
 
 }

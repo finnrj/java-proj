@@ -21,7 +21,7 @@ package euler;
 public class Problem079 {
 
 public static void main(String[] args) {
-
+//73162890 : map the middle number to sets of its predecessors and successors. The solution drops sort of automatic out
 }
 
 }
