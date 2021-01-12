@@ -1,7 +1,6 @@
 package euler;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
 /**
  * </div>
@@ -31,21 +30,6 @@ import java.util.Arrays;
  */
 public class Problem078 {
 
-    public static void main(String[] args) {
-        int cellCount = 1_000_000;
-
-        BigInteger[] tableList = new BigInteger[cellCount+1];
-        for (int i = 0; i < tableList.length; i++) {
-            tableList[i] = BigInteger.valueOf(0);
-        }
-
-        ext(cellCount, tableList);
-        System.out.println("are we there yet?");
-        for (int i = 0; i < 100; i++) {
-            System.out.println(String.format("%d : %d", i, tableList[i].add(BigInteger.ONE)));
-        }
-    }
-
     private static void ext(int cellCount, BigInteger[] tableList) {
         for (int toAdd = 1; toAdd < cellCount; toAdd++) {
             if (toAdd % 10_000 == 0) {
@@ -62,6 +46,32 @@ public class Problem078 {
                     return;
                 }
             }
+        }
+    }
+
+    public static void main(String[] args) {
+        int cellCount = 200_0;
+
+        BigInteger[] tableList = new BigInteger[(cellCount+1)];
+        for (int i = 0; i < tableList.length; i++) {
+            tableList[i] = BigInteger.ZERO;
+        }
+//        print(tableList);
+
+        ext(cellCount, tableList);
+        System.out.println("are we there yet?");
+//        print(tableList, BigInteger.ONE);
+    }
+
+    private static void print(BigInteger[] tableList) {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(String.format("%d : %d, %s", i, tableList[i], tableList[i]));
+        }
+    }
+
+    private static void print(BigInteger[] tableList, BigInteger toAdd) {
+        for (int i = 0; i < 100; i++) {
+            System.out.println(String.format("%d : %d", i, tableList[i].add(toAdd)));
         }
     }
 }
