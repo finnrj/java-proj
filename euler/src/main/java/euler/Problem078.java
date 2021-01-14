@@ -1,6 +1,12 @@
 package euler;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.stream.LongStream;
 
 /**
  * </div>
@@ -33,35 +39,39 @@ public class Problem078 {
     private static void ext(int cellCount, BigInteger[] tableList) {
         for (int toAdd = 1; toAdd < cellCount; toAdd++) {
             if (toAdd % 10_000 == 0) {
-                System.out.println(toAdd);
+//                System.out.println(toAdd);
             }
             for (int tableCell = toAdd + 1; tableCell < cellCount; tableCell++) {
                 int previous = tableCell - toAdd;
                 BigInteger newAddition = previous > toAdd ? BigInteger.ZERO : BigInteger.ONE;
                 tableList[tableCell] = tableList[tableCell].add(tableList[previous]).add(newAddition);
-                if ((tableList[tableCell].add(BigInteger.ONE)
-                        .divideAndRemainder(BigInteger.valueOf(1_000_000)))[1]  == BigInteger.ZERO) {
-                    System.out.println(
-                            String.format("found: %d : %d", tableCell, tableList[tableCell].add(BigInteger.ONE)));
-                    return;
-                }
             }
+            if ((tableList[toAdd - 1].add(BigInteger.ONE)
+                    .divideAndRemainder(BigInteger.valueOf(1_000_000)))[1] == BigInteger.ZERO) {
+                System.out.println(
+                        String.format("found: %d : %d", toAdd - 1, tableList[toAdd - 1].add(BigInteger.ONE)));
+                return;
+            }
+
         }
     }
 
     public static void main(String[] args) {
-        int cellCount = 200_0;
+        int cellCount = 60_000;
+        Instant start = Instant.now();
 
-        BigInteger[] tableList = new BigInteger[(cellCount+1)];
-        for (int i = 0; i < tableList.length; i++) {
-            tableList[i] = BigInteger.ZERO;
+        System.out.println("cellcount: " + cellCount);
+        BigInteger[] tableList = new BigInteger[(cellCount + 1)];
+        for (int j = 0; j < tableList.length; j++) {
+            tableList[j] = BigInteger.ZERO;
         }
-//        print(tableList);
 
         ext(cellCount, tableList);
         System.out.println("are we there yet?");
-//        print(tableList, BigInteger.ONE);
+        System.out.println("it took       " + Duration.between(start, Instant.now()));
+        print(tableList, BigInteger.ONE);
     }
+
 
     private static void print(BigInteger[] tableList) {
         for (int i = 0; i < 100; i++) {
@@ -70,8 +80,15 @@ public class Problem078 {
     }
 
     private static void print(BigInteger[] tableList, BigInteger toAdd) {
-        for (int i = 0; i < 100; i++) {
-            System.out.println(String.format("%d : %d", i, tableList[i].add(toAdd)));
+        try (PrintWriter writer = new PrintWriter(
+                new FileWriter(
+                        String.format("/home/finn/tablelists/tablelist_%08d.txt", tableList.length)))) {
+            for (int i = 0; i < 100; i++) {
+//                System.out.println(String.format("%d : %d", i, tableList[i].add(toAdd)));
+                writer.println(String.format("%02d : %10d", i, tableList[i].add(toAdd)));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
