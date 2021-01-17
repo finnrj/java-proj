@@ -6,9 +6,12 @@ public class Coordinate {
 	private int row;
 
 	public Coordinate(int row, int column) {
-		super();
 		this.column = column;
 		this.row = row;
+	}
+
+	public static Coordinate of(int row, int column) {
+		return new Coordinate(row, column);
 	}
 
 	public int getColumn() {
