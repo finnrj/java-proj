@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import utils.Utils;
 
 import java.math.BigInteger;
+import java.util.stream.LongStream;
 
 /**
  * </div>
@@ -24,51 +25,29 @@ import java.math.BigInteger;
  * <br>
  */
 public class Problem080 {
-
-
-    /*Returns the square root of n.
-    Note that the function */
-    static float squareRoot(float n) {
-
-        /*We are using n itself as
-        initial approximation This
-        can definitely be improved */
-        float x = n;
-        float y = 1;
-
-        // e decides the accuracy level
-        double e = 0.000000000000000001;
-        while (x - y > e) {
-            x = (x + y) / 2;
-            y = n / x;
-        }
-        return x;
-    }
-
     private static BigInteger determineX(BigInteger result, BigInteger currentValue) {
-//        System.out.println("determineX with result: "+ result + " and current value: " + currentValue);
         if (result.compareTo(BigInteger.ZERO) == 0) {
             return currentValue.sqrt();
         }
         BigInteger doubledAndShifted = result.multiply(BigInteger.valueOf(20));
-//        System.out.println("doubled and shifted = " + doubledAndShifted);
-        BigInteger candidate = currentValue.divide(doubledAndShifted);
-//        System.out.println("candidate = " + candidate);
+        BigInteger candidate = currentValue.divide(doubledAndShifted).min(BigInteger.valueOf(9));
         BigInteger plusOne = candidate.add(BigInteger.ONE);
-        BigInteger plusTwo = candidate.add(BigInteger.TWO);
-        BigInteger minusOne = candidate.add(BigInteger.valueOf(-1));
+
+        while (getMultiply(doubledAndShifted, candidate).compareTo(currentValue) > 0) {
+            plusOne = candidate;
+            candidate = candidate.subtract(BigInteger.ONE);
+        }
+
+        while (getMultiply(doubledAndShifted, plusOne).compareTo(currentValue) <= 0) {
+            candidate = plusOne;
+            plusOne = plusOne.add(BigInteger.ONE);
+        }
+
         if (getMultiply(doubledAndShifted, candidate).compareTo(currentValue) <= 0
                 && getMultiply(doubledAndShifted, plusOne).compareTo(currentValue) > 0) {
             return candidate;
         }
-        if (getMultiply(doubledAndShifted, minusOne).compareTo(currentValue) <= 0
-                && getMultiply(doubledAndShifted, candidate).compareTo(currentValue) > 0) {
-            return minusOne;
-        }
-        if (getMultiply(doubledAndShifted, plusOne).compareTo(currentValue) <= 0
-                && getMultiply(doubledAndShifted, plusTwo).compareTo(currentValue) > 0) {
-            return plusOne;
-        }
+
         throw new IllegalArgumentException(
                 String.format("no value found for: result: %s, currentvalue: %s, candidate: %s",
                         result, currentValue, candidate));
@@ -86,10 +65,12 @@ public class Problem080 {
             BigInteger x = determineX(
                     new BigInteger(StringUtils.defaultIfBlank(result, "0")),
                     currentValue);
-            BigInteger toSubtract = BigInteger.valueOf(-1).multiply(
-                    getMultiply(new BigInteger(StringUtils.defaultIfBlank(result, "0")).multiply(BigInteger.valueOf(20)), x));
+            BigInteger toSubtract =
+                    getMultiply(
+                            new BigInteger(StringUtils.defaultIfBlank(result, "0"))
+                                    .multiply(BigInteger.valueOf(20)), x);
             result += x;
-            remainder = currentValue.add(toSubtract);
+            remainder = currentValue.subtract(toSubtract);
             currentValue = remainder.multiply(BigInteger.valueOf(100));
         }
         return result;
@@ -97,25 +78,17 @@ public class Problem080 {
 
 
     public static void main(String[] args) {
-        String wolfram = "1.4142135623730950488016887242096980785696718753769480731766797379907324784621070388503875343276415727350138462309122970249248360";
-        System.out.println(Math.sqrt(2.0));
-        String decimals = squareRootDecimals(BigInteger.TWO);
-        System.out.println(decimals);
-        System.out.println(decimals.substring(0, 1) + "." + decimals.substring(1));
-        System.out.println(wolfram.substring(0, 101));
-        System.out.println(decimals.length());
-        System.out.println(Utils.sumOfDigits(new BigInteger(decimals)));
+//        String wolfram = "1.4142135623730950488016887242096980785696718753769480731766797379907324784621070388503875343276415727350138462309122970249248360";
+//        System.out.println(Math.sqrt(2.0));
+//        String decimals = squareRootDecimals(BigInteger.TWO);
+//        System.out.println(decimals);
 
-        String sqrt_99 = "9.94987437106619954734479821001206005178" +
-                "1265636768060791176046438349453927827131" +
-                "54012653019738487195";
-        String decimals99 = squareRootDecimals(BigInteger.valueOf(99));
-        System.out.println(decimals99.substring(0,1) + "." + decimals99.substring(1));
-        System.out.println(sqrt_99);
-//        System.out.println(sqrt_99.substring(2).length());
-//        int n = 99;
-//        System.out.printf("Square root of "
-//                + n + " is " + squareRoot(n));
+        System.out.println(LongStream.range(1, 100).boxed()
+                .map(BigInteger::valueOf)
+                .filter(bi -> ! Problem064Cheated.isSquare(bi))
+                .peek(System.out::println)
+                .map(Problem080::squareRootDecimals)
+                .map(str -> Utils.sumOfDigits(new BigInteger(str)))
+                .mapToLong(BigInteger::longValue).sum());
     }
-
 }
