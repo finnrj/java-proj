@@ -5,12 +5,13 @@ import utils.Coordinate;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 /**
  * </div>
@@ -34,30 +35,67 @@ import java.util.stream.Collectors;
  */
 public class Problem081 {
 
-    public static List<Coordinate> neighbours (Coordinate target) {
-        return null;
+    public static Coordinate[] fetchNeighbours(Coordinate target, int maxIndex) {
+        int resultRow = target.getRow();
+        int resultColumn = target.getColumn();
+        if (resultRow == maxIndex && resultColumn == maxIndex) {
+            return new Coordinate[0];
+        }
+        Coordinate right = Coordinate.of(resultRow, resultColumn + 1);
+        if (resultRow == maxIndex) {
+            return new Coordinate[] {right};
+        }
+        Coordinate down = Coordinate.of(resultRow + 1, resultColumn);
+        if (resultColumn == maxIndex) {
+            return new Coordinate[] {down};
+        }
+        return new Coordinate[] {right, down};
+    }
+
+    private static Integer getValueFor(List<List<Integer>> matrix, Coordinate coordinate) {
+        return matrix.get(coordinate.getRow()).get(coordinate.getColumn());
     }
 
     public static int shortestMatrixPath(List<List<Integer>> matrix) {
         Map<Coordinate, Integer> shortestPaths = new HashMap();
-        shortestPaths.put(Coordinate.of(0,0), matrix.get(0).get(0));
         int maxIndex = matrix.size() - 1;
-//        for (int row = 0; row < matrix.size(); row++) {
-//            for (int column = 0; column < matrix.size(); column++) {
-//
-//            }
-//        }
-
-        return 0;
+        Coordinate start = Coordinate.of(0, 0);
+        Coordinate end = Coordinate.of(maxIndex, maxIndex);
+        shortestPaths.put(start, getValueFor(matrix, start));
+        List<Coordinate> neighbours = new ArrayList<>();
+        neighbours.add(start);
+        while (neighbours.size() > 0) {
+            System.out.println(String.format("size: %04d", neighbours.size()));
+            Coordinate actual = neighbours.remove(0);
+            Coordinate[] newNeighbours = fetchNeighbours(actual, maxIndex);
+            for (Coordinate coordinate: newNeighbours) {
+                shortestPaths.merge(coordinate,
+                        shortestPaths.get(actual) + getValueFor(matrix, coordinate),
+                        Math::min);
+                if(!neighbours.contains(coordinate)) {
+                    neighbours.add(coordinate);
+                }
+            }
+        }
+//        shortestPaths.forEach((k,v) -> System.out.println(String.format("%-15s: %d", k, v)));
+        return shortestPaths.get(end);
     }
 
     public static void main(String[] args) throws IOException {
-        List<List<Integer>> result = Files.lines(Paths.get("src", "main", "docs", "matrix_small.txt"))
+//        List<List<Integer>> result = Files.lines(Paths.get("src", "main", "docs", "matrix_small.txt"))
+
+        Path path = Paths.get("src", "main", "docs", "matrix.txt");
+//        Path path = Paths.get("src", "main", "docs", "matrix_small.txt");
+        List<List<Integer>> result = Files.lines(path)
                 .map(line -> line.split(","))
                 .map(Arrays::asList)
                 .map(lst -> lst.stream().map(Integer::valueOf).collect(Collectors.toList()))
                 .collect(Collectors.toList());
         System.out.println(result);
+        Instant start = Instant.now();
+        System.out.println(shortestMatrixPath(result));
+        System.out.println("shortest path " + Duration.between(start, Instant.now()));
+
     }
 
 }
