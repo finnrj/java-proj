@@ -1,6 +1,6 @@
 package utils;
 
-public class Coordinate {
+public class Coordinate implements Comparable<Coordinate> {
 
 	private int column;
 	private int row;
@@ -47,8 +47,28 @@ public class Coordinate {
 		return true;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "Coordinate [row=" + row + ", column=" + column + "]";
+	}
+
+	@Override
+	public int compareTo(Coordinate o) {
+		if (row < o.row) {
+			return -1;
+		}
+		if (row > o.row) {
+			return 1;
+		}
+
+		if (column < o.column) {
+			return -1;
+		}
+		if (column > o.column) {
+			return 1;
+		}
+		return 0;
 	}
 }

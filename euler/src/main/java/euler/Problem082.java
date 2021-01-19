@@ -59,45 +59,62 @@ public class Problem082 {
     }
 
     public static int shortestMatrixPath(List<List<Integer>> matrix) {
-        Map<Coordinate, Integer> shortestPaths = new HashMap<>();
+        Map<Coordinate, Integer> shortestPaths;
+        Set<Coordinate> handled;
         int maxIndex = matrix.size() - 1;
         Coordinate start;
+        int result = Integer.MAX_VALUE;
         for (int i = 0; i <= maxIndex; i++) {
+            shortestPaths = new TreeMap<>();
+            handled = new TreeSet<>();
             start = Coordinate.of(i, 0);
             shortestPaths.put(start, getValueFor(matrix, start));
             List<Coordinate> neighbours = new ArrayList<>();
             neighbours.add(start);
             while (neighbours.size() > 0) {
-                System.out.println(String.format("size: %04d", neighbours.size()));
+//                System.out.println(String.format("size: %04d", neighbours.size()));
                 Coordinate actual = neighbours.remove(0);
                 Coordinate[] newNeighbours = fetchNeighbours(actual, maxIndex);
+                handled.add(actual);
                 for (Coordinate coordinate : newNeighbours) {
+                    if (handled.contains(coordinate)) {
+                        continue;
+                    }
                     shortestPaths.merge(coordinate,
                             shortestPaths.get(actual) + getValueFor(matrix, coordinate),
                             Math::min);
-                    if (!neighbours.contains(coordinate)) {
+                    if (!(neighbours.contains(coordinate))) {
                         neighbours.add(coordinate);
                     }
                 }
             }
+            int newResult = shortestPaths.entrySet().stream()
+                    .filter(e -> e.getKey().getColumn() == maxIndex)
+//                    .peek(System.out::print)
+                    .mapToInt(Map.Entry::getValue)
+//                    .peek(val -> System.out.println(", value:" + val))
+                    .min().orElse(-1);
+            if (newResult == 994) {
+                System.out.println(String.format("start: %s - result: %04d", start, newResult));
+//                System.out.println(handled);
+                System.out.println(shortestPaths);
+            }
+            result = Math.min(result, newResult);
         }
 //        shortestPaths.forEach((k,v) -> System.out.println(String.format("%-15s: %d", k, v)));
-        return shortestPaths.entrySet().stream()
-                .filter(e -> e.getKey().getColumn() == maxIndex)
-                .mapToInt(Map.Entry::getValue)
-                .min().orElse(-1);
+        return result;
     }
 
-
     public static void main(String[] args) throws IOException {
-//    Path path = Paths.get("src", "main", "docs", "matrix.txt");
+//        Path path = Paths.get("src", "main", "docs", "matrix.txt");
         Path path = Paths.get("src", "main", "docs", "matrix_small.txt");
         List<List<Integer>> result = Files.lines(path)
                 .map(line -> line.split(","))
                 .map(Arrays::asList)
                 .map(lst -> lst.stream().map(Integer::valueOf).collect(Collectors.toList()))
                 .collect(Collectors.toList());
-        System.out.println(result);
+//        System.out.println(result);
+        System.out.println(result.size());
         Instant start = Instant.now();
         System.out.println(shortestMatrixPath(result));
         System.out.println("shortest path " + Duration.between(start, Instant.now()));
