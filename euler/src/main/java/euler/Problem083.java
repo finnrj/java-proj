@@ -1,5 +1,15 @@
 package euler;
 
+import utils.Coordinate;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
 *</div> 
 <h2>Path sum: four ways</h2>
@@ -22,8 +32,79 @@ package euler;
 <br>
 */
 public class Problem083 {
+    public static Coordinate[] fetchNeighbours(Coordinate target, int maxIndex) {
+        int resultRow = target.getRow();
+        int resultColumn = target.getColumn();
+        if (resultColumn == maxIndex) {
+            return new Coordinate[0];
+        }
+        Coordinate right = Coordinate.of(resultRow, resultColumn + 1);
+        if (resultColumn == 0) {
+            return new Coordinate[]{right};
+        }
+        Coordinate down = Coordinate.of(resultRow + 1, resultColumn);
+        if (resultRow == 0) {
+            return new Coordinate[]{right, down};
+        }
+        Coordinate up = Coordinate.of(resultRow - 1, resultColumn);
+        if (resultRow == maxIndex) {
+            return new Coordinate[]{right, up};
+        }
+        return new Coordinate[]{right, down, up};
+    }
+
+    private static Integer getValueFor(List<List<Integer>> matrix, Coordinate coordinate) {
+        return matrix.get(coordinate.getRow()).get(coordinate.getColumn());
+    }
+
+    private static boolean isImprovement(Map<Coordinate, Integer> shortestPaths, Coordinate coordinate, int candidateValue) {
+        return (shortestPaths.containsKey(coordinate)
+                && shortestPaths.get(coordinate) > candidateValue)
+                || !shortestPaths.containsKey(coordinate);
+    }
+
+    public static int shortestMatrixPath(List<List<Integer>> matrix) {
+        Map<Coordinate, Integer> shortestPaths;
+        int maxIndex = matrix.size() - 1;
+        Coordinate start;
+        int result = Integer.MAX_VALUE;
+        for (int i = 0; i <= maxIndex; i++) {
+            shortestPaths = new TreeMap<>();
+            start = Coordinate.of(i, 0);
+            shortestPaths.put(start, getValueFor(matrix, start));
+            List<Coordinate> neighbours = new ArrayList<>();
+            neighbours.add(start);
+            while (neighbours.size() > 0) {
+                Coordinate actual = neighbours.remove(0);
+                Coordinate[] newNeighbours = fetchNeighbours(actual, maxIndex);
+                for (Coordinate coordinate : newNeighbours) {
+                    int candidateValue = shortestPaths.get(actual) + getValueFor(matrix, coordinate);
+                    if (isImprovement(shortestPaths, coordinate, candidateValue)) {
+                        shortestPaths.put(coordinate, candidateValue);
+                        neighbours.add(coordinate);
+                    }
+                }
+            }
+            int newResult = shortestPaths.entrySet().stream()
+                    .filter(e -> e.getKey().getColumn() == maxIndex)
+                    .mapToInt(Map.Entry::getValue)
+                    .min().orElse(-1);
+            result = Math.min(result, newResult);
+        }
+        return result;
+    }
 
 public static void main(String[] args) {
+    Path path = Paths.get("src", "main", "docs", "matrix.txt");
+//        Path path = Paths.get("src", "main", "docs", "matrix_small.txt");
+    List<List<Integer>> result = Files.lines(path)
+            .map(line -> line.split(","))
+            .map(Arrays::asList)
+            .map(lst -> lst.stream().map(Integer::valueOf).collect(Collectors.toList()))
+            .collect(Collectors.toList());
+    Instant start = Instant.now();
+    System.out.println("shortest path is: " + shortestMatrixPath(result));
+    System.out.println("it took " + Duration.between(start, Instant.now()));
 
 }
 
