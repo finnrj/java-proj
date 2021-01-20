@@ -59,9 +59,7 @@ public class Problem082 {
     }
 
     private static boolean isImprovement(Map<Coordinate, Integer> shortestPaths, Coordinate coordinate, int candidateValue) {
-        return (shortestPaths.containsKey(coordinate)
-                && shortestPaths.get(coordinate) > candidateValue)
-                || !shortestPaths.containsKey(coordinate);
+        return !shortestPaths.containsKey(coordinate) || shortestPaths.get(coordinate) > candidateValue;
     }
 
     public static int shortestMatrixPath(List<List<Integer>> matrix) {
