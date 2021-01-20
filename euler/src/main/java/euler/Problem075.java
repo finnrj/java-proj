@@ -1,9 +1,6 @@
 package euler;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * </div>
@@ -24,46 +21,6 @@ import java.util.Set;
  */
 public class Problem075 {
 
-    static boolean numberOfRightAngleTriangles(int sum) {
-        int minC = sum / 3 + 1;
-        int maxC = sum - 3;
-        int count = 0;
-        for (int i = 3; i < minC; i++) {
-            for (int j = i + 1; j <= maxC - (i + 1); j++) {
-                int candidate = sum - (i + j);
-                if (i * i + j * j == candidate * candidate) {
-                    if (count == 1) {
-                        return false;
-                    }
-                    count += 1;
-                }
-            }
-        }
-        return count == 1;
-    }
-
-    static Set<Long> findTriangleUsingSmallestSide(Long smallest) {
-        int firstStep = smallest % 2 == 0 ? 4 : 2;
-        return doFindTriangles(smallest, firstStep, new HashSet<>());
-    }
-
-    private static Set<Long> doFindTriangles(long smallest, long step, HashSet<Long> lengthFound) {
-        double middle = (smallest * smallest * 1.0) / step;
-        if (middle <= smallest) {
-            return lengthFound;
-        }
-        lengthFound.add((long) (smallest + (middle + (step * 0.5) + (middle - (step * 0.5)))));
-        return doFindTriangles(smallest, step + 4, lengthFound);
-    }
-
-    static Set<Long> assembleSets(Set<Long> untilNow, Set<Long> justFound) {
-        HashSet<Long> copy = new HashSet<>(untilNow);
-        untilNow.removeAll(justFound);
-        justFound.removeAll(copy);
-        untilNow.addAll(justFound);
-        return untilNow;
-    }
-
     static Map<Long, Integer> findTriangleUsingSmallestSideIterative(Map<Long, Integer> found2count, Long smallest) {
         int firstStep = smallest % 2 == 0 ? 4 : 2;
         doFindTriangles(found2count, smallest, firstStep);
@@ -77,9 +34,10 @@ public class Problem075 {
             double largest = middle + (step * 0.25);
             double inBetween = middle - (step * 0.25);
             if(largest % 0.5 == 0 && inBetween % 0.5 == 0) {
+                double sum = smallest + inBetween + largest;
                 System.out.println(
-                        String.format("smallest, inbetween, largest: %d, %.0f, %.0f", smallest, inBetween, largest));
-                long newLength = (long) (smallest + inBetween + largest);
+                        String.format("smallest, inbetween, largest: %8d, %8.0f, %8.0f = %8.0f", smallest, inBetween, largest, sum));
+                long newLength = (long) sum;
                 found2count.putIfAbsent(newLength, 0);
                 found2count.compute(newLength, (k, v) -> v + 1);
             }
@@ -89,36 +47,13 @@ public class Problem075 {
     }
 
     public static void main(String[] args) {
-//        LongStream.range(3, 500_000).boxed()
-//                .peek((aLong) -> {
-//                    if (aLong % 10_000 == 0) {
-//                        System.out.println(aLong);
-//                    }
-//                })
-//                .map(Problem075::findTriangleUsingSmallestSide)
-//                .reduce(Problem075::assembleSets)
-//                .map(Collection::size)
-//        .ifPresent(System.out::println);
-
-        HashMap<Long, Integer> counter = new HashMap<>();
+        Map<Long, Integer> counter = new TreeMap<>();
         for (long i = 3; i < 101; i++) {
             if (i % 100_000 == 0) {
                 System.out.println(i);
             }
             findTriangleUsingSmallestSideIterative(counter, i);
         }
-//        findTriangleUsingSmallestSideIterative(counter,6L);
-//        findTriangleUsingSmallestSideIterative(counter,7L);
-//        findTriangleUsingSmallestSideIterative(counter,8L);
-
         System.out.println(counter);
-//        System.out.println(counter.size());
-//        System.out.println(counter.entrySet().stream()
-//                .filter(e -> e.getValue() == 1)
-//                .count());
-
-
     }
-
-
 }
