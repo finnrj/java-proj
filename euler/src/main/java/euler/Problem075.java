@@ -1,5 +1,7 @@
 package euler;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -33,11 +35,10 @@ public class Problem075 {
         while (middle - (step * 0.25) > smallest) {
             double largest = middle + (step * 0.25);
             double inBetween = middle - (step * 0.25);
+            long newLength = (long) (smallest + inBetween + largest);
             if(largest % 0.5 == 0 && inBetween % 0.5 == 0) {
-                double sum = smallest + inBetween + largest;
-                System.out.println(
-                        String.format("smallest, inbetween, largest: %8d, %8.0f, %8.0f = %8.0f", smallest, inBetween, largest, sum));
-                long newLength = (long) sum;
+//                System.out.println(
+//                        String.format("smallest, inbetween, largest: %8d, %8.0f, %8.0f = %8.0f", smallest, inBetween, largest, newLength));
                 found2count.putIfAbsent(newLength, 0);
                 found2count.compute(newLength, (k, v) -> v + 1);
             }
@@ -47,13 +48,18 @@ public class Problem075 {
     }
 
     public static void main(String[] args) {
+        Instant start = Instant.now();
         Map<Long, Integer> counter = new TreeMap<>();
-        for (long i = 3; i < 101; i++) {
+        for (long i = 3; i < 500_001; i++) {
             if (i % 100_000 == 0) {
                 System.out.println(i);
             }
             findTriangleUsingSmallestSideIterative(counter, i);
         }
-        System.out.println(counter);
+        System.out.println("singular right triangles:" + counter.values().stream().filter(integer -> integer == 1).count());
+//        System.out.println(counter);
+//        System.out.println("shortest path is: " + shortestMatrixPath(result));
+        System.out.println("it took " + Duration.between(start, Instant.now()));
+// 7354126
     }
 }
