@@ -2,8 +2,11 @@ package euler;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
+
+import static java.util.Collections.shuffle;
 
 /**
  * </div>
@@ -58,6 +61,7 @@ public class Problem084 {
     public static int roll() {
         return rand.nextInt(6) + rand.nextInt(6) + 2;
     }
+
     public static int utilRoll() {
         return utilRand.nextInt(6) + utilRand.nextInt(6) + 2;
     }
@@ -98,8 +102,98 @@ public class Problem084 {
         }
     }
 
+    private enum Square {
+        GO(0),
+        JAIL(10),
+        C1(11),
+        E3(24),
+        H2(39),
+        R1(5),
+        R_1(-1),
+        R_2(-2),
+        U(-1),
+        BACK(3),
+        NONE_1(0),
+        NONE_2(0),
+        NONE_3(0),
+        NONE_4(0),
+        NONE_5(0),
+        NONE_6(0);
+
+        private int index;
+
+        Square(int index) {
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+
+        private static List<Square> stack = shuffled();
+
+        public static Square nextCard(int idx) {
+            return stack.get(idx);
+        }
+
+        public static List<Square> shuffled() {
+            List<Square> result = Arrays.asList(values());
+            shuffle(result);
+            return result;
+        }
+    }
+
+    private static int ccIdx = 0;
+
+    private static int handleCC(int rollSquare) {
+        Square drawn = Square.nextCard(ccIdx);
+        ccIdx = (ccIdx + 1) % 18;
+        return switch (drawn) {
+            case GO, JAIL, C1, E3, H2, R1 -> drawn.getIndex();
+            case R_1, R_2 -> {
+                if (rollSquare == 7) {
+                    yield 15;
+                }
+                if (rollSquare == 22)
+                    yield 25;
+                yield 5;
+            }
+            case U -> {
+                if (rollSquare == 22)
+                    yield 28;
+                yield 12;
+            }
+            case BACK -> rollSquare - 3;
+            default -> rollSquare;
+        };
+    }
+
+    private static int handleSquare(int rollSquare) {
+        // case G2J
+        if (rollSquare == 30) {
+            return 10;
+        }
+        //   community chest
+        if (rollSquare == 2 || rollSquare == 17 || rollSquare == 33) {
+            handleCC(rollSquare);
+        }
+        return 0;
+    }
+
     public static void main(String[] args) {
-        utilVsSecure(100_000_000);
+//        utilVsSecure(100_000_000);
+        int max = 1_000_000;
+        int[] squares = new int[40];
+        int actual = 0;
+//        for (int i = 0; i <= max; i++) {
+//            squares[actual] += 1;
+//            actual = handleSquare(rollActual.apply(actual));
+//        }
+        for (int i = 0; i < 8; i++) {
+            System.out.println(Square.shuffled());
+        }
+
     }
 
 }
