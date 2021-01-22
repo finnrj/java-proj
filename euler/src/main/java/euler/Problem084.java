@@ -1,6 +1,9 @@
 package euler;
 
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Random;
+import java.util.function.Function;
 
 /**
  * </div>
@@ -49,19 +52,54 @@ import java.util.Random;
  * <br>
  */
 public class Problem084 {
-    final static Random rand = new Random();
+    final static SecureRandom rand = new SecureRandom();
+    final static Random utilRand = new Random();
 
     public static int roll() {
         return rand.nextInt(6) + rand.nextInt(6) + 2;
     }
+    public static int utilRoll() {
+        return utilRand.nextInt(6) + utilRand.nextInt(6) + 2;
+    }
+
+    public static Function<Integer, Integer> rollActual = (actual -> (actual + roll()) % 40);
+    public static Function<Integer, Integer> utilRollActual = (actual -> (actual + utilRoll()) % 40);
+
+
+    private static void makeSomeStats(int max, Function<Integer, Integer> roll) {
+        int[] squares = new int[40];
+        int actual = 0;
+        for (int i = 0; i < max; i++) {
+            squares[actual] += 1;
+            actual = roll.apply(actual);
+        }
+//        String format = "square: %02d: %2.4f";
+//        for (int i = 0; i < squares.length; i++) {
+//            System.out.println(String.format(format, i, 1.0 * squares[i] / max));
+//        }
+        double[] doubles = new double[40];
+        for (int i = 0; i < squares.length; i++) {
+            doubles[i] = Double.valueOf(1.0 * squares[i] / max);
+        }
+        System.out.println(String.format("max    : %2.4f", Arrays.stream(doubles).max().orElse(-1)));
+        System.out.println(String.format("min    : %2.4f", Arrays.stream(doubles).min().orElse(-1)));
+        System.out.println(String.format("average: %2.4f\n", Arrays.stream(doubles).average().orElse(-1)));
+    }
+
+    private static void utilVsSecure(int reallyMax) {
+        int max = 1_000;
+        for (int i = max; i <= reallyMax; i *= 10) {
+            System.out.println(String.format("Max: %10d", i));
+
+            System.out.println("secure random:");
+            makeSomeStats(i, rollActual);
+            System.out.println("util random:");
+            makeSomeStats(i, utilRollActual);
+        }
+    }
 
     public static void main(String[] args) {
-        int actual = 0;
-
-        for (int i = 0; i < 100; i++) {
-            actual = (actual + roll()) % 40;
-            System.out.println(String.format(" %02d ", actual));
-        }
+        utilVsSecure(100_000_000);
     }
 
 }
