@@ -1,9 +1,10 @@
 package euler;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static java.util.Collections.shuffle;
@@ -58,24 +59,26 @@ public class Problem084 {
     final static SecureRandom rand = new SecureRandom();
     final static Random utilRand = new Random();
 
-    public static int roll() {
-        return rand.nextInt(6) + rand.nextInt(6) + 2;
+    public static Pair<Integer, Integer> roll(int sides) {
+        return Pair.of(rand.nextInt(sides) + 1, rand.nextInt(sides) + 1);
     }
 
-    public static int utilRoll() {
-        return utilRand.nextInt(6) + utilRand.nextInt(6) + 2;
+    public static Pair<Integer, Integer> utilRoll(int sides) {
+        return Pair.of(utilRand.nextInt(sides) + 1, utilRand.nextInt(sides) + 1);
     }
 
-    public static Function<Integer, Integer> rollActual = (actual -> (actual + roll()) % 40);
-    public static Function<Integer, Integer> utilRollActual = (actual -> (actual + utilRoll()) % 40);
+    public static Function<Integer,Pair<Integer, Integer>> rollActual = (sides -> roll(sides));
+    public static Function<Integer ,Pair<Integer, Integer>> utilRollActual = (sides -> utilRoll(sides));
 
 
-    private static void makeSomeStats(int max, Function<Integer, Integer> roll) {
+    private static void makeSomeStats(int max, Function<Integer, Pair<Integer, Integer>> roll) {
         int[] squares = new int[40];
         int actual = 0;
+        int sides = 6;
         for (int i = 0; i < max; i++) {
             squares[actual] += 1;
-            actual = roll.apply(actual);
+            Pair<Integer, Integer> dice = roll.apply(sides);
+            actual = (dice.getLeft() + dice.getRight() + actual) % 40;
         }
 //        String format = "square: %02d: %2.4f";
 //        for (int i = 0; i < squares.length; i++) {
@@ -102,7 +105,7 @@ public class Problem084 {
         }
     }
 
-    private enum Square {
+    private enum Card {
         GO(0),
         JAIL(10),
         C1(11),
@@ -113,16 +116,11 @@ public class Problem084 {
         R_2(-2),
         U(-1),
         BACK(3),
-        NONE_1(0),
-        NONE_2(0),
-        NONE_3(0),
-        NONE_4(0),
-        NONE_5(0),
-        NONE_6(0);
+        NONE(0);
 
         private int index;
 
-        Square(int index) {
+        Card(int index) {
             this.index = index;
         }
 
@@ -130,25 +128,44 @@ public class Problem084 {
             return index;
         }
 
+        private static List<Card> chStack = shuffled(values(), 16);
+        private static List<Card> ccStack = shuffled(new Card[]{JAIL, GO}, 16);
+        private static int ccIdx = 0;
+        private static int chIdx = 0;
 
-        private static List<Square> stack = shuffled();
-
-        public static Square nextCard(int idx) {
-            return stack.get(idx);
+        public static Card chCard() {
+            Card result = chStack.get(chIdx);
+            chIdx = (chIdx + 1) % 16;
+            return result;
         }
 
-        public static List<Square> shuffled() {
-            List<Square> result = Arrays.asList(values());
+        public static Card ccCard() {
+            Card result = ccStack.get(ccIdx);
+            ccIdx = (ccIdx + 1) % 16;
+            return result;
+        }
+
+        public static List<Card> shuffled(Card[] values, int stackSize) {
+            ArrayList<Card> result = new ArrayList<>(Arrays.asList(values));
+            while (result.size() < stackSize) {
+                result.add(NONE);
+            }
             shuffle(result);
             return result;
         }
     }
 
-    private static int ccIdx = 0;
 
     private static int handleCC(int rollSquare) {
-        Square drawn = Square.nextCard(ccIdx);
-        ccIdx = (ccIdx + 1) % 18;
+        Card drawn = Card.ccCard();
+        return switch (drawn) {
+            case GO, JAIL -> drawn.getIndex();
+            default -> rollSquare;
+        };
+    }
+
+    private static int handleCH(int rollSquare) {
+        Card drawn = Card.chCard();
         return switch (drawn) {
             case GO, JAIL, C1, E3, H2, R1 -> drawn.getIndex();
             case R_1, R_2 -> {
@@ -164,7 +181,13 @@ public class Problem084 {
                     yield 28;
                 yield 12;
             }
-            case BACK -> rollSquare - 3;
+            case BACK -> {
+                int result = rollSquare - 3;
+                if(result == 33) {
+                    yield handleCC(result);
+                }
+                yield result;
+            }
             default -> rollSquare;
         };
     }
@@ -176,24 +199,48 @@ public class Problem084 {
         }
         //   community chest
         if (rollSquare == 2 || rollSquare == 17 || rollSquare == 33) {
-            handleCC(rollSquare);
+            return handleCC(rollSquare);
         }
-        return 0;
+        // chance
+        if (rollSquare == 7 || rollSquare == 22 || rollSquare == 36) {
+            return handleCH(rollSquare);
+        }
+        return rollSquare;
     }
 
     public static void main(String[] args) {
 //        utilVsSecure(100_000_000);
-        int max = 1_000_000;
-        int[] squares = new int[40];
-        int actual = 0;
-//        for (int i = 0; i <= max; i++) {
-//            squares[actual] += 1;
-//            actual = handleSquare(rollActual.apply(actual));
-//        }
-        for (int i = 0; i < 8; i++) {
-            System.out.println(Square.shuffled());
+        int max = 10_000_000;
+        int sides = 4;
+//        int[] squares = new int[40];
+        Map<Integer, Integer> squares = new HashMap();
+        for (int i = 0; i < 40; i++) {
+            squares.put(i, 0);
         }
-
+        int actual = 0;
+        int doublesCount = 0;
+        int doubleJailing = 0;
+        for (int i = 0; i <= max; i++) {
+            squares.merge(actual, 1, Integer::sum);
+            Pair<Integer, Integer> dice = rollActual.apply(sides);
+            if (dice.getLeft() == dice.getRight()) {
+                doublesCount +=1;
+            } else {
+                doublesCount = 0;
+            }
+            if (doublesCount == 3) {
+                doubleJailing++;
+                doublesCount = 0;
+                actual = 10;
+            } else {
+                actual = handleSquare((dice.getLeft() + dice.getRight() + actual) % 40);
+            }
+        }
+        Comparator<Map.Entry<Integer, Integer>> valueComparator = Comparator.comparingInt(Map.Entry::getValue);
+        squares.entrySet().stream()
+                .sorted(valueComparator.reversed())
+                .forEach(e -> System.out.println(String.format("%02d : %1.2f %%", e.getKey(), 100.0 * e.getValue() /max)));
+        System.out.println(String.format("double jailed %d times", doubleJailing));
     }
 
 }
