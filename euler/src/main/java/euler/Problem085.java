@@ -23,6 +23,24 @@ package euler;
 public class Problem085 {
 
 public static void main(String[] args) {
+    int rowParent = 2;
+    int colParent = 3;
+
+    int rectangles = 0;
+    for (int row = 1; row <= rowParent; row++) {
+        for (int col = 1; col < row && col <= colParent; col++) {
+            rectangles++;
+        }
+        for (int col = row; col < colParent; col++) {
+            rectangles++;
+        }
+        for (int col = 1; col > row; col++) {
+            rectangles++;
+        }
+    }
+
+    System.out.println(String.format("row: %03d, col: %03d => %06d rectangles",
+            rowParent, colParent, rectangles));
 
 }
 
