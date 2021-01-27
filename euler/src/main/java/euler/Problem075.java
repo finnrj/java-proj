@@ -2,7 +2,10 @@ package euler;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * </div>
@@ -23,24 +26,34 @@ import java.util.*;
  */
 public class Problem075 {
 
-    static Map<Long, Integer> findTriangleUsingSmallestSideIterative(Map<Long, Integer> found2count, Long smallest) {
+    record Measure(long length, long width, long height) {
+    }
+
+    public static final int MAX_LENGTH = 1_500_000;
+
+    static Map<Long, List<Measure>> findTriangleUsingSmallestSideIterative(Map<Long, List<Measure>> found2count, Long smallest) {
         int firstStep = smallest % 2 == 0 ? 4 : 2;
         doFindTriangles(found2count, smallest, firstStep);
         return found2count;
     }
 
-    private static void doFindTriangles(Map<Long, Integer> found2count, long smallest, long step) {
+    private static void doFindTriangles(Map<Long, List<Measure>> found2count, long smallest, long step) {
         double square = smallest * smallest * 1.0;
         double middle = square / step;
         while (middle - (step * 0.25) > smallest) {
             double largest = middle + (step * 0.25);
             double inBetween = middle - (step * 0.25);
-            long newLength = (long) (smallest + inBetween + largest);
-            if(largest % 0.5 == 0 && inBetween % 0.5 == 0) {
+            long largestLong = (long) largest;
+            long inBetweenLong = (long) inBetween;
+            long newLength = smallest + inBetweenLong + largestLong;
+            if (newLength <= MAX_LENGTH && (!(largest > largestLong || inBetween > inBetweenLong))) {
 //                System.out.println(
-//                        String.format("smallest, inbetween, largest: %8d, %8.0f, %8.0f = %8.0f", smallest, inBetween, largest, newLength));
-                found2count.putIfAbsent(newLength, 0);
-                found2count.compute(newLength, (k, v) -> v + 1);
+//                        String.format("smallest, inbetween, largest: %8d, %8.0f, %8.0f = %8d", smallest, inBetween, largest, newLength));
+                found2count.putIfAbsent(newLength, new ArrayList<>());
+                found2count.compute(newLength, (k, v) -> {
+                    v.add(new Measure(smallest, (long) inBetween, (long) largest));
+                    return v;
+                });
             }
             step += 4;
             middle = square / step;
@@ -49,17 +62,24 @@ public class Problem075 {
 
     public static void main(String[] args) {
         Instant start = Instant.now();
-        Map<Long, Integer> counter = new TreeMap<>();
-        for (long i = 3; i < 500_001; i++) {
+        Map<Long, List<Measure>> counter = new TreeMap<>();
+        int maxShortestSide = MAX_LENGTH / 3;
+//        int maxShortestSide = 100;
+        for (long i = 3; i < maxShortestSide; i++) {
             if (i % 100_000 == 0) {
                 System.out.println(i);
             }
             findTriangleUsingSmallestSideIterative(counter, i);
         }
-        System.out.println("singular right triangles:" + counter.values().stream().filter(integer -> integer == 1).count());
+//        for (Map.Entry<Long, List<Measure>> entry: counter.entrySet()) {
+//            System.out.println(String.format("%4d: %s", entry.getKey(), entry.getValue()));
+//        }
+        System.out.println(counter.size());
+        System.out.println("singular right triangles:" + counter.values().stream().filter(list -> list.size() == 1).count());
 //        System.out.println(counter);
 //        System.out.println("shortest path is: " + shortestMatrixPath(result));
         System.out.println("it took " + Duration.between(start, Instant.now()));
-// 7354126
+// singular right triangles:161667
+//it took PT3M37.718629S
     }
 }
