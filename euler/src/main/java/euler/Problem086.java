@@ -2,8 +2,9 @@ package euler;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * </div>
@@ -33,7 +34,26 @@ public class Problem086 {
     public static final int MAX_SHORTEST_SIDE = 100;
 
     record Measure(long length, long width, long height) {
+        public Measure(List<Long> sorted) {
+            this(sorted.get(0), sorted.get(1), sorted.get(2));
+        }
     }
+
+    static Comparator<Measure> MeasureComparator = ((m1,m2) -> {
+        if (m1.length != m2.length) {
+            return (int) (m1.length - m2.length);
+        }
+        if (m1.width != m2.width) {
+            return (int) (m1.width - m2.width);
+        }
+        if (m1.height != m2.height) {
+            return (int) (m1.height - m2.height);
+        }
+        System.out.println();
+        System.out.println(m1);
+        System.out.println(m2);
+        return 0;
+    });
 
     static List<Measure> findTriangleUsingSmallestSideIterative(List<Measure> found2count, Long smallest) {
         int firstStep = smallest % 2 == 0 ? 4 : 2;
@@ -52,9 +72,10 @@ public class Problem086 {
             if (inBetweenLong <= 2 * MAX_SHORTEST_SIDE
                     && (!(largest > largestLong || inBetween > inBetweenLong))) {
                 for (long i = Math.max(inBetweenLong - 100, 1); i <= inBetweenLong / 2; i++) {
-                    foundCuboid.add(new Measure(smallest, i, inBetweenLong - i));
-                    System.out.println(
-                            String.format("length, width, height: %8d, %8d, %8d", smallest, i, inBetweenLong - i));
+                    foundCuboid.add(new Measure(Stream.of(smallest, i, inBetweenLong - i).sorted()
+                            .collect(Collectors.toList())));
+//                    System.out.println(
+//                            String.format("length, width, height: %8d, %8d, %8d", smallest, i, inBetweenLong - i));
                 }
             }
             step += 4;
@@ -76,7 +97,9 @@ public class Problem086 {
 //        System.out.println(counter);
 //        System.out.println("shortest path is: " + shortestMatrixPath(result));
         System.out.println("it took " + Duration.between(start, Instant.now()));
-        counter.stream().filter(measure -> measure.length() == measure.width() && measure.width() == measure.height())
-                .forEach(System.out::println);
+        Stream<Measure> filtered = counter.stream()
+                .filter(m -> m.length != m.width && m.length != m.height & m.width != m.height);
+        System.out.println(new HashSet<>(counter).size());
+        System.out.println(new HashSet<>(filtered.collect(Collectors.toList())).size());
     }
 }
