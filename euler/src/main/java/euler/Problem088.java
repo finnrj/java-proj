@@ -5,6 +5,7 @@ import utils.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -33,6 +34,24 @@ import java.util.stream.Stream;
  * <br>
  */
 public class Problem088 {
+
+    record NumberFactors (long number, long sum, List<Long> factors) {
+        public NumberFactors(long number, List<Long> factors) {
+            this(number, factors.stream().reduce(0L, Long::sum), factors);
+        }
+    }
+
+    public static void adjustForNumber(Map<Long, Long> minima, NumberFactors target) {
+        long product = 1;
+        long accumulatedSum = target.sum;
+        long rest = 0;
+        for (int i = 0; i < target.factors.size() - 1; i++) {
+            product *= target.factors.get(i);
+            rest = target.number / product;
+            accumulatedSum -= target.factors.get(i);
+        }
+    }
+
 
     public static void main(String[] args) {
         LongStream.rangeClosed(4, 100)
