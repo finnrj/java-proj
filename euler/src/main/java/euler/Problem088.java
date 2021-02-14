@@ -2,14 +2,11 @@ package euler;
 
 import utils.Utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 /**
  * </div>
@@ -35,34 +32,45 @@ import java.util.stream.Stream;
  */
 public class Problem088 {
 
-    record NumberFactors (long number, long sum, List<Long> factors) {
-        public NumberFactors(long number, List<Long> factors) {
-            this(number, factors.stream().reduce(0L, Long::sum), factors);
-        }
+    record NumberFactors(long number, List<Long> factors) {
     }
 
     public static void adjustForNumber(Map<Long, Long> minima, NumberFactors target) {
-        long product = 1;
-        long accumulatedSum = target.sum;
-        long rest = 0;
-        for (int i = 0; i < target.factors.size() - 1; i++) {
-            product *= target.factors.get(i);
-            rest = target.number / product;
-            accumulatedSum -= target.factors.get(i);
+        long productAccumulated = 1;
+        long sumAccumulated = 0;
+        for (int i = 0; i < target.factors.size()-1; i++) {
+            productAccumulated *= target.factors.get(i);
+            sumAccumulated += target.factors.get(i);
+            int usedFactors = i + 2;
+            long targetCount = target.number - (target.number / productAccumulated + sumAccumulated) + usedFactors;
+            minima.putIfAbsent(targetCount, target.number);
+            minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
         }
     }
 
 
+    private static void printSummedValues(Map<Long, Long> minima, long maxSetSize) {
+        Long summed = minima.entrySet().stream().filter(e -> e.getKey() <= maxSetSize)
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toSet())
+                .stream()
+                .peek(System.out::println)
+                .reduce(Long::sum)
+                .orElse(-1L);
+        System.out.println(String.format("max set length: %d, summed: %d", maxSetSize, summed));
+    }
+
     public static void main(String[] args) {
-        LongStream.rangeClosed(4, 100)
-                .filter(l -> ! Utils.isPrime(l))
+        int maxLength = 100;
+        Map<Long, Long> minima = new HashMap<>();
+        LongStream.rangeClosed(4, maxLength)
+                .filter(l -> !Utils.isPrime(l))
                 .boxed()
-                .peek(np -> System.out.print(String.format("%3d: ", np)))
-                .map(Utils::primeFactors)
-                .map(is -> is.boxed().collect(Collectors.toList()))
-//                .map(is -> is.boxed().collect(Collectors::toList))
-        .forEach(System.out::println);
-//        ;
+                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
+                .forEach(nf -> adjustForNumber(minima, nf));
+        System.out.println(minima);
+        LongStream.of(6,12, 100).
+                forEach(ml -> printSummedValues(minima, ml));
     }
 
 }
