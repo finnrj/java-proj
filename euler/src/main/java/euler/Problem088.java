@@ -1,5 +1,6 @@
 package euler;
 
+import utils.Combinations;
 import utils.Utils;
 
 import java.util.HashMap;
@@ -38,13 +39,29 @@ public class Problem088 {
     public static void adjustForNumber(Map<Long, Long> minima, NumberFactors target) {
         long productAccumulated = 1;
         long sumAccumulated = 0;
-        for (int i = 0; i < target.factors.size()-1; i++) {
+        for (int i = 0; i < target.factors.size() - 1; i++) {
             productAccumulated *= target.factors.get(i);
             sumAccumulated += target.factors.get(i);
             int usedFactors = i + 2;
             long targetCount = target.number - (target.number / productAccumulated + sumAccumulated) + usedFactors;
             minima.putIfAbsent(targetCount, target.number);
             minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
+        }
+    }
+    public static void adjustForNumberUsingCombinations(Map<Long, Long> minima, NumberFactors target) {
+        int maxFactorCount = (target.factors.size() - 1) / 2 + (target.factors.size() - 1) % 2 == 0 ? 0 : 1;
+        for (int i = 1; i <= maxFactorCount; i++) {
+            List<List<Long>> combis = Combinations.combinations(i, target.factors);
+            for (List<Long> combi : combis) {
+                Long product = combi.stream().reduce(1L, (l1, l2) -> l1 * l2);
+                Long sum = combi.stream().reduce(1L, (l1, l2) -> l1 + l2);
+                System.out.println(product);
+                System.out.println(sum);
+                long targetCount = target.number - (target.number / product + sum) + combi.size() + 1;
+                System.out.println(targetCount);
+                minima.putIfAbsent(targetCount, target.number);
+                minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
+            }
         }
     }
 
@@ -61,16 +78,19 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-        int maxLength = 100;
+        int maxLength = 12;
         Map<Long, Long> minima = new HashMap<>();
         LongStream.rangeClosed(4, maxLength)
                 .filter(l -> !Utils.isPrime(l))
                 .boxed()
                 .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
-                .forEach(nf -> adjustForNumber(minima, nf));
+                .forEach(nf -> adjustForNumberUsingCombinations(minima, nf));
         System.out.println(minima);
-        LongStream.of(6,12, 100).
+//        LongStream.of(6, 12, 100).
+        LongStream.of(6).
                 forEach(ml -> printSummedValues(minima, ml));
+
+//        Combinations.combinations();
     }
 
 }

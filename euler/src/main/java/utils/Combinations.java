@@ -8,7 +8,7 @@ public class Combinations {
 
 	public static <T> List<List<T>> combinations(Integer elementCount,
 			List<T> target) {
-		ArrayList<List<T>> accumulator = new ArrayList<List<T>>();
+		ArrayList<List<T>> accumulator = new ArrayList();
 		if (elementCount >= target.size()) {
 			accumulator.add(target);
 			return accumulator;
