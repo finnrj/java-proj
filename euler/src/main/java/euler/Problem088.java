@@ -49,16 +49,14 @@ public class Problem088 {
         }
     }
     public static void adjustForNumberUsingCombinations(Map<Long, Long> minima, NumberFactors target) {
-        int maxFactorCount = (target.factors.size() - 1) / 2 + (target.factors.size() - 1) % 2 == 0 ? 0 : 1;
+//        int maxFactorCount = (target.factors.size() - 1) / 2 + (target.factors.size() - 1) % 2 == 0 ? 0 : 1;
+        int maxFactorCount = (target.factors.size() - 1);
         for (int i = 1; i <= maxFactorCount; i++) {
             List<List<Long>> combis = Combinations.combinations(i, target.factors);
             for (List<Long> combi : combis) {
                 Long product = combi.stream().reduce(1L, (l1, l2) -> l1 * l2);
-                Long sum = combi.stream().reduce(1L, (l1, l2) -> l1 + l2);
-                System.out.println(product);
-                System.out.println(sum);
+                Long sum = combi.stream().reduce(0L, (l1, l2) -> l1 + l2);
                 long targetCount = target.number - (target.number / product + sum) + combi.size() + 1;
-                System.out.println(targetCount);
                 minima.putIfAbsent(targetCount, target.number);
                 minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
             }
@@ -78,7 +76,7 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-        int maxLength = 12;
+        int maxLength = 24;
         Map<Long, Long> minima = new HashMap<>();
         LongStream.rangeClosed(4, maxLength)
                 .filter(l -> !Utils.isPrime(l))
@@ -87,7 +85,7 @@ public class Problem088 {
                 .forEach(nf -> adjustForNumberUsingCombinations(minima, nf));
         System.out.println(minima);
 //        LongStream.of(6, 12, 100).
-        LongStream.of(6).
+        LongStream.of(12).
                 forEach(ml -> printSummedValues(minima, ml));
 
 //        Combinations.combinations();
