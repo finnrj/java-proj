@@ -3,9 +3,7 @@ package euler;
 import utils.Combinations;
 import utils.Utils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -76,17 +74,27 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-        int maxLength = 24;
-        Map<Long, Long> minima = new HashMap<>();
-        LongStream.rangeClosed(4, maxLength)
+//        int maxLength = 24;
+//        Map<Long, Long> minima = new HashMap<>();
+//        LongStream.rangeClosed(4, maxLength)
+//                .filter(l -> !Utils.isPrime(l))
+//                .boxed()
+//                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
+//                .forEach(nf -> adjustForNumberUsingCombinations(minima, nf));
+//        System.out.println(minima);
+////        LongStream.of(6, 12, 100).
+//        LongStream.of(12).
+//                forEach(ml -> printSummedValues(minima, ml));
+
+        System.out.println(LongStream.rangeClosed(4, 24_000)
                 .filter(l -> !Utils.isPrime(l))
                 .boxed()
-                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
-                .forEach(nf -> adjustForNumberUsingCombinations(minima, nf));
-        System.out.println(minima);
-//        LongStream.of(6, 12, 100).
-        LongStream.of(12).
-                forEach(ml -> printSummedValues(minima, ml));
+                .peek(System.out::println)
+                .map(i ->  Utils.primeFactors(i).boxed().collect(Collectors.toList()))
+                .max(Comparator.comparingInt(List::size))
+                .orElse(Collections.emptyList()));
+// 2 ** 14 , Bell number: 14: 190_899_322
+
 
 //        Combinations.combinations();
     }
