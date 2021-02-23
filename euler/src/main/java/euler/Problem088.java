@@ -94,9 +94,6 @@ public class Problem088 {
                 .max(Comparator.comparingInt(List::size))
                 .orElse(Collections.emptyList()));
 // 2 ** 14 , Bell number: 14: 190_899_322
-
-
-//        Combinations.combinations();
+//           Bell number: 13:  27_644_437
     }
-
 }

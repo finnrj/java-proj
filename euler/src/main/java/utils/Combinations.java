@@ -1,8 +1,6 @@
 package utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Combinations {
 
@@ -33,11 +31,38 @@ public class Combinations {
 		return accumulator;
 	}
 
+	public static Map<Integer, List<int[][]>> partitions (int maxSize) {
+		TreeMap<Integer, List<int[][]>> result = new TreeMap<>();
+		int[] inner = new int[]{0};
+		int[][] outer = new int[][] {inner};
+		result.put(1, Collections.singletonList(outer));
+		for (int i = 2; i <= maxSize ; i++) {
+			int newIndex = i - 1;
+			List<int[][]> newPartition = new ArrayList();
+			for (int[][] ia: result.get(newIndex)) {
+				newPartition.add(Arrays.copyOf(ia, ia.length));
+			}
+			for (int[][] p: newPartition) {
+				int[][] singleAddition = Arrays.copyOf(p, p.length + 1);
+				singleAddition[p.length] = new int []{newIndex};
+				newPartition.add(singleAddition);
+				for (int[] innerP: p) {
+					int[] extended = Arrays.copyOf(innerP, inner.length + 1);
+					extended[p.length] = newIndex;
+				}
+			}
+			result.put(i, newPartition);
+		}
+		return result;
+	}
+
 	public static void main(String[] args) {
 		System.out.println(combinations(3, Arrays.asList(1, 2, 3, 4, 5)));
 		System.out.println(combinations(5, Arrays.asList(1, 2, 3, 4, 5)));
 		System.out.println(combinations(1, Arrays.asList(1, 2, 3, 4, 5)));
 		System.out.println(combinations(3, Arrays.asList(1, 2, 3, 4, 5, 6, 7))
 				.size());
+
+		System.out.println(partitions(3));
 	}
 }

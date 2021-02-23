@@ -2,6 +2,7 @@ package euler;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import utils.Permutations;
 
@@ -21,6 +22,12 @@ public class Problem024 {
 				.skip(999_999).limit(1).map(integerStream -> integerStream
 						.map(String::valueOf).collect(Collectors.joining()))
 				.forEach(System.out::print);
-
+		System.out.println();
+		IntStream.rangeClosed(1,10)
+				.boxed()
+				.peek(System.out::println)
+				.map(i -> Permutations
+						.permutation(i,	Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)))
+				.forEach(System.out::println);
 	}
 }
