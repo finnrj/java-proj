@@ -31,24 +31,27 @@ public class Combinations {
 		return accumulator;
 	}
 
-	public static Map<Integer, List<int[][]>> partitions (int maxSize) {
-		TreeMap<Integer, List<int[][]>> result = new TreeMap<>();
-		int[] inner = new int[]{0};
-		int[][] outer = new int[][] {inner};
-		result.put(1, Collections.singletonList(outer));
+	public final static String SEPARATOR = ";";
+
+	public static Map<Integer, List<String>> partitions (int maxSize) {
+		TreeMap<Integer, List<String>> result = new TreeMap<>();
+		result.put(1, Collections.singletonList("0"));
 		for (int i = 2; i <= maxSize ; i++) {
 			int newIndex = i - 1;
-			List<int[][]> newPartition = new ArrayList();
-			for (int[][] ia: result.get(newIndex)) {
-				newPartition.add(Arrays.copyOf(ia, ia.length));
+			String newIndexStr = String.valueOf(newIndex);
+			List<String> newPartition = new ArrayList();
+			for (String partition: result.get(newIndex)) {
+				newPartition.add(partition + SEPARATOR + newIndexStr);
 			}
-			for (int[][] p: newPartition) {
-				int[][] singleAddition = Arrays.copyOf(p, p.length + 1);
-				singleAddition[p.length] = new int []{newIndex};
-				newPartition.add(singleAddition);
-				for (int[] innerP: p) {
-					int[] extended = Arrays.copyOf(innerP, inner.length + 1);
-					extended[p.length] = newIndex;
+			for (String partition: result.get(newIndex)) {
+				StringBuilder builder = new StringBuilder();
+				for (String partPartition: partition.split(SEPARATOR)) {
+					int idx = partition.indexOf(partPartition);
+					builder.append(partition, 0, idx);
+					builder.append(partPartition + newIndexStr);
+					builder.append(partition.substring(idx + partPartition.length()));
+					newPartition.add(builder.toString());
+					builder.delete(0,builder.length());
 				}
 			}
 			result.put(i, newPartition);
@@ -63,6 +66,10 @@ public class Combinations {
 		System.out.println(combinations(3, Arrays.asList(1, 2, 3, 4, 5, 6, 7))
 				.size());
 
-		System.out.println(partitions(3));
+		partitions(11).entrySet()
+		.forEach(e -> System.out.println(String.format("""
+                                                       %d: %s
+                                                       length: %d
+                                                       """, e.getKey(), e.getValue(), e.getValue().size())));
 	}
 }
