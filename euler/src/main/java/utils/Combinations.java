@@ -35,6 +35,9 @@ public class Combinations {
     public final static String SEPARATOR = ",";
 
     public static Map<Integer, List<String>> partitions(int targetSize) {
+        if (targetSize >= 13) {
+            throw new IllegalArgumentException("we can not handle target size larger than 12, value:" + targetSize);
+        }
         TreeMap<Integer, List<String>> result = new TreeMap<>();
         result.put(1, Collections.singletonList("0"));
         for (int i = 2; i <= targetSize; i++) {
@@ -56,7 +59,7 @@ public class Combinations {
                 }
             }
             result.put(i, newPartition);
-            result.remove(i - 1);
+//            result.remove(i - 1);
         }
         return result;
     }
@@ -69,7 +72,7 @@ public class Combinations {
         System.out.println(combinations(3, Arrays.asList(1, 2, 3, 4, 5, 6, 7))
                 .size());
 
-        partitions(12).entrySet()
+        partitions(8).entrySet()
                 .forEach(e -> System.out.println(String.format("""
                         %d: %s
                         length: %d
