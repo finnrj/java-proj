@@ -3,7 +3,10 @@ package euler;
 import utils.Combinations;
 import utils.Utils;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
@@ -46,6 +49,7 @@ public class Problem088 {
             minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
         }
     }
+
     public static void adjustForNumberUsingCombinations(Map<Long, Long> minima, NumberFactors target) {
 //        int maxFactorCount = (target.factors.size() - 1) / 2 + (target.factors.size() - 1) % 2 == 0 ? 0 : 1;
         int maxFactorCount = (target.factors.size() - 1);
@@ -58,6 +62,21 @@ public class Problem088 {
                 minima.putIfAbsent(targetCount, target.number);
                 minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
             }
+        }
+    }
+
+    public static void adjustForNumberUsingPartitions(Map<Long, Long> minima, NumberFactors target) {
+        int size = target.factors.size();
+        List<String> partitions = Combinations.partitions(size).get(size);
+        for (String partition : partitions.subList(0, partitions.size() - 1)) {
+            String[] sets = partition.split(Combinations.SET_SEPARATOR);
+            long sum = Arrays.stream(sets).
+                    mapToLong(set -> Arrays.stream(set.split(Combinations.SEPARATOR))
+                            .mapToLong(str -> target.factors.get(Integer.valueOf(str)))
+                            .reduce(1L, (l1, l2) -> l1 * l2))
+                    .reduce(1L, (l1, l2) -> l1 + l2);
+            long targetCount = target.number - sum + sets.length;
+            minima.putIfAbsent(targetCount, target.number);
         }
     }
 
@@ -74,25 +93,25 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-//        int maxLength = 24;
-//        Map<Long, Long> minima = new HashMap<>();
-//        LongStream.rangeClosed(4, maxLength)
-//                .filter(l -> !Utils.isPrime(l))
-//                .boxed()
-//                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
-//                .forEach(nf -> adjustForNumberUsingCombinations(minima, nf));
-//        System.out.println(minima);
-////        LongStream.of(6, 12, 100).
-//        LongStream.of(12).
-//                forEach(ml -> printSummedValues(minima, ml));
-
-        System.out.println(LongStream.rangeClosed(4, 24_000)
+        int maxLength = 24;
+        Map<Long, Long> minima = new HashMap<>();
+        LongStream.rangeClosed(4, maxLength)
                 .filter(l -> !Utils.isPrime(l))
                 .boxed()
-                .peek(System.out::println)
-                .map(i ->  Utils.primeFactors(i).boxed().collect(Collectors.toList()))
-                .max(Comparator.comparingInt(List::size))
-                .orElse(Collections.emptyList()));
+                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
+                .forEach(nf -> adjustForNumberUsingPartitions(minima, nf));
+        System.out.println(minima);
+//        LongStream.of(6, 12, 100).
+        LongStream.of(12).
+                forEach(ml -> printSummedValues(minima, ml));
+
+//        System.out.println(LongStream.rangeClosed(4, 24_000)
+//                .filter(l -> !Utils.isPrime(l))
+//                .boxed()
+//                .peek(System.out::println)
+//                .map(i ->  Utils.primeFactors(i).boxed().collect(Collectors.toList()))
+//                .max(Comparator.comparingInt(List::size))
+//                .orElse(Collections.emptyList()));
 // 2 ** 14 , Bell number: 14: 190_899_322
 //           Bell number: 13:  27_644_437
     }
