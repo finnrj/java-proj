@@ -74,7 +74,7 @@ public class Problem088 {
                     mapToLong(set -> Arrays.stream(set.split(Combinations.SEPARATOR))
                             .mapToLong(str -> target.factors.get(Integer.valueOf(str)))
                             .reduce(1L, (l1, l2) -> l1 * l2))
-                    .reduce(1L, (l1, l2) -> l1 + l2);
+                    .reduce(0L, (l1, l2) -> l1 + l2);
             long targetCount = target.number - sum + sets.length;
             minima.putIfAbsent(targetCount, target.number);
         }
@@ -93,7 +93,7 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-        int maxLength = 24;
+        int maxLength = 24_000;
         Map<Long, Long> minima = new HashMap<>();
         LongStream.rangeClosed(4, maxLength)
                 .filter(l -> !Utils.isPrime(l))
@@ -102,7 +102,7 @@ public class Problem088 {
                 .forEach(nf -> adjustForNumberUsingPartitions(minima, nf));
         System.out.println(minima);
 //        LongStream.of(6, 12, 100).
-        LongStream.of(12).
+        LongStream.of(12_000).
                 forEach(ml -> printSummedValues(minima, ml));
 
 //        System.out.println(LongStream.rangeClosed(4, 24_000)
