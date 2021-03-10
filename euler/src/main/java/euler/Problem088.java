@@ -67,16 +67,33 @@ public class Problem088 {
 
     public static void adjustForNumberUsingPartitions(Map<Long, Long> minima, NumberFactors target) {
         int size = target.factors.size();
+        if(size >= 13) {
+            System.out.println("giving up...");
+            System.out.println(String.format("target: %s", target));
+            System.out.println();
+            return;
+        }
         List<String> partitions = Combinations.partitions(size).get(size);
         for (String partition : partitions.subList(0, partitions.size() - 1)) {
             String[] sets = partition.split(Combinations.SET_SEPARATOR);
             long sum = Arrays.stream(sets).
                     mapToLong(set -> Arrays.stream(set.split(Combinations.SEPARATOR))
+                            .peek(str -> {
+                                if (Integer.valueOf(str) > size) {
+                                    System.out.println(set);
+                                    System.out.println(partitions.size());
+                                }
+                            })
                             .mapToLong(str -> target.factors.get(Integer.valueOf(str)))
                             .reduce(1L, (l1, l2) -> l1 * l2))
                     .reduce(0L, (l1, l2) -> l1 + l2);
             long targetCount = target.number - sum + sets.length;
-            minima.putIfAbsent(targetCount, target.number);
+            if (targetCount <= 12_000) {
+                minima.putIfAbsent(targetCount, target.number);
+                if (minima.size() == 12_000 - 1) {
+                    return;
+                }
+            }
         }
     }
 
@@ -93,7 +110,7 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-        int maxLength = 24_000;
+        int maxLength = 12_096;
         Map<Long, Long> minima = new HashMap<>();
         LongStream.rangeClosed(4, maxLength)
                 .filter(l -> !Utils.isPrime(l))
@@ -101,6 +118,7 @@ public class Problem088 {
                 .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
                 .forEach(nf -> adjustForNumberUsingPartitions(minima, nf));
         System.out.println(minima);
+        System.out.println("size: " + minima.size());
 //        LongStream.of(6, 12, 100).
         LongStream.of(12_000).
                 forEach(ml -> printSummedValues(minima, ml));
@@ -114,5 +132,6 @@ public class Problem088 {
 //                .orElse(Collections.emptyList()));
 // 2 ** 14 , Bell number: 14: 190_899_322
 //           Bell number: 13:  27_644_437
+//        System.out.println(Utils.primeFactors(12096L).boxed().collect(Collectors.toList()));
     }
 }

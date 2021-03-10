@@ -36,7 +36,7 @@ public class Combinations {
 
     public static Map<Integer, List<String>> partitions(int targetSize) {
         if (targetSize >= 13) {
-            throw new IllegalArgumentException("we can not handle target size larger than 12, value:" + targetSize);
+            throw new IllegalArgumentException("we cannot handle target size larger than 12, value:" + targetSize);
         }
         TreeMap<Integer, List<String>> result = new TreeMap<>();
         result.put(1, Collections.singletonList("0"));
@@ -50,7 +50,15 @@ public class Combinations {
             for (String partition : result.get(newIndex)) {
                 StringBuilder builder = new StringBuilder();
                 for (String partPartition : partition.split(SET_SEPARATOR)) {
-                    int idx = partition.indexOf(partPartition);
+                    int idx;
+                    if (targetSize > 10 && partPartition.equals("1")) {
+                        idx =  partition.indexOf(partPartition + SET_SEPARATOR);
+                        if (idx == - 1) {
+                            idx =  partition.indexOf(SET_SEPARATOR + partPartition) + 1;
+                        }
+                    } else {
+                        idx = partition.indexOf(partPartition);
+                    }
                     builder.append(partition, 0, idx);
                     builder.append(partPartition + SEPARATOR + newIndexStr);
                     builder.append(partition.substring(idx + partPartition.length()));
@@ -72,7 +80,7 @@ public class Combinations {
         System.out.println(combinations(3, Arrays.asList(1, 2, 3, 4, 5, 6, 7))
                 .size());
 
-        partitions(8).entrySet()
+        partitions(12).entrySet()
                 .forEach(e -> System.out.println(String.format("""
                         %d: %s
                         length: %d
