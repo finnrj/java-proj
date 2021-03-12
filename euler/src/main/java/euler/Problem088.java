@@ -78,12 +78,6 @@ public class Problem088 {
             String[] sets = partition.split(Combinations.SET_SEPARATOR);
             long sum = Arrays.stream(sets).
                     mapToLong(set -> Arrays.stream(set.split(Combinations.SEPARATOR))
-                            .peek(str -> {
-                                if (Integer.valueOf(str) > size) {
-                                    System.out.println(set);
-                                    System.out.println(partitions.size());
-                                }
-                            })
                             .mapToLong(str -> target.factors.get(Integer.valueOf(str)))
                             .reduce(1L, (l1, l2) -> l1 * l2))
                     .reduce(0L, (l1, l2) -> l1 + l2);
