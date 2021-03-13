@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 /**
@@ -71,6 +72,7 @@ public class Problem088 {
             System.out.println("giving up...");
             System.out.println(String.format("target: %s", target));
             System.out.println();
+            adjustFor8192(minima);
             return;
         }
         List<String> partitions = Combinations.partitions(size).get(size);
@@ -88,6 +90,12 @@ public class Problem088 {
                     return;
                 }
             }
+        }
+    }
+
+    public static void adjustFor8192(Map<Long, Long> minima) {
+        for (int setCount = 2; setCount <= 13 ; setCount++) {
+            // something clever some day ....
         }
     }
 
