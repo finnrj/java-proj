@@ -3,10 +3,7 @@ package euler;
 import utils.Combinations;
 import utils.Utils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -94,10 +91,29 @@ public class Problem088 {
     }
 
     public static void adjustFor8192(Map<Long, Long> minima) {
-        for (int setCount = 2; setCount <= 13 ; setCount++) {
-            // something clever some day ....
+
+        List<List<Long>> result = new ArrayList<>();
+        for (int setCount = 2; setCount <= 14 ; setCount++) {
+            List<List<Long>> accumulator = new ArrayList<>();
+            accumulator.add(new ArrayList<>());
+//            doAdjust(setCount, 0, accumulator);
+            result.addAll(accumulator);
         }
+        System.out.println(result);
     }
+
+//    private static void doAdjust(int setCount, int startIndex, List<List<Long>> accumulator) {
+//        if (setCount ==  0) {
+//            return;
+//        }
+//        int maxIndex = (14 - startIndex) / setCount;
+//        for (int i = startIndex; i < maxIndex; i++) {
+//            List<List<Long>> inner = new ArrayList<>();
+//            inner.add(Math.round(Math.pow(2.0, i - startIndex + 1)));
+//            doAdjust(setCount - 1, i + 1, inner);
+//            accumulator.add(inner);
+//        }
+//    }
 
 
     private static void printSummedValues(Map<Long, Long> minima, long maxSetSize) {
@@ -112,18 +128,20 @@ public class Problem088 {
     }
 
     public static void main(String[] args) {
-        int maxLength = 12_096;
-        Map<Long, Long> minima = new HashMap<>();
-        LongStream.rangeClosed(4, maxLength)
-                .filter(l -> !Utils.isPrime(l))
-                .boxed()
-                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
-                .forEach(nf -> adjustForNumberUsingPartitions(minima, nf));
-        System.out.println(minima);
-        System.out.println("size: " + minima.size());
-//        LongStream.of(6, 12, 100).
-        LongStream.of(12_000).
-                forEach(ml -> printSummedValues(minima, ml));
+//        int maxLength = 12_096;
+//        Map<Long, Long> minima = new HashMap<>();
+//        LongStream.rangeClosed(4, maxLength)
+//                .filter(l -> !Utils.isPrime(l))
+//                .boxed()
+//                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
+//                .forEach(nf -> adjustForNumberUsingPartitions(minima, nf));
+//        System.out.println(minima);
+//        System.out.println("size: " + minima.size());
+////        LongStream.of(6, 12, 100).
+//        LongStream.of(12_000).
+//                forEach(ml -> printSummedValues(minima, ml));
+
+        adjustFor8192(null);
 
 //        System.out.println(LongStream.rangeClosed(4, 24_000)
 //                .filter(l -> !Utils.isPrime(l))
