@@ -1,12 +1,9 @@
 package euler;
 
 import utils.Combinations;
-import utils.Utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
 
 /**
  * </div>
@@ -65,7 +62,7 @@ public class Problem088 {
 
     public static void adjustForNumberUsingPartitions(Map<Long, Long> minima, NumberFactors target) {
         int size = target.factors.size();
-        if(size >= 13) {
+        if (size >= 13) {
             System.out.println("giving up...");
             System.out.println(String.format("target: %s", target));
             System.out.println();
@@ -91,29 +88,30 @@ public class Problem088 {
     }
 
     public static void adjustFor8192(Map<Long, Long> minima) {
-
         List<List<Long>> result = new ArrayList<>();
-        for (int setCount = 2; setCount <= 14 ; setCount++) {
-            List<List<Long>> accumulator = new ArrayList<>();
-            accumulator.add(new ArrayList<>());
-//            doAdjust(setCount, 0, accumulator);
+        for (int setCount = 3; setCount <= 3; setCount++) {
+            LinkedList<List<Long>> accumulator = new LinkedList<>();
+            doAdjust(setCount, 0, accumulator);
             result.addAll(accumulator);
         }
         System.out.println(result);
     }
 
-//    private static void doAdjust(int setCount, int startIndex, List<List<Long>> accumulator) {
-//        if (setCount ==  0) {
-//            return;
-//        }
-//        int maxIndex = (14 - startIndex) / setCount;
-//        for (int i = startIndex; i < maxIndex; i++) {
-//            List<List<Long>> inner = new ArrayList<>();
-//            inner.add(Math.round(Math.pow(2.0, i - startIndex + 1)));
-//            doAdjust(setCount - 1, i + 1, inner);
-//            accumulator.add(inner);
-//        }
-//    }
+    private static void doAdjust(int setCount, int startIndex, LinkedList<List<Long>> accumulator) {
+        if (setCount == 1) {
+            accumulator.getLast().add(Math.round(Math.pow(2.0, 13 - startIndex)));
+            return;
+        }
+        int maxIndex = (13 - startIndex) / setCount;
+        for (int i = startIndex; i < maxIndex; i++) {
+            List<Long> inner = startIndex == 0 ? new ArrayList<>() : accumulator.getLast();
+            inner.add(Math.round(Math.pow(2.0, i - startIndex + 1)));
+            if (startIndex == 0) {
+                accumulator.add(inner);
+            }
+            doAdjust(setCount - 1, i + 1, accumulator);
+        }
+    }
 
 
     private static void printSummedValues(Map<Long, Long> minima, long maxSetSize) {
