@@ -18,8 +18,7 @@ public class Problem023 {
 
 	private static Predicate<Integer> isAbundantPairSum = candidate -> abundantNumbers
 			.stream()
-			.filter(n -> candidate > n && abundantNumbers.contains(candidate - n))
-			.findAny().isPresent();
+			.anyMatch(n -> candidate > n && abundantNumbers.contains(candidate - n));
 
 	public static void main(String[] args) {
 		// Instant start = Instant.now();
@@ -31,6 +30,6 @@ public class Problem023 {
 		System.out.println(
 				"size:" + nonAbundantPairSum.size() + ", " + nonAbundantPairSum);
 		System.out
-				.println(nonAbundantPairSum.stream().mapToInt(Integer::new).sum());
+				.println(nonAbundantPairSum.stream().mapToInt(Integer::valueOf).sum());
 	}
 }

@@ -15,13 +15,10 @@ import utils.Utils;
 public class Problem051 {
 
 	public static void main(String[] args) {
-		Long maximum = 1_000_000L;
+		long maximum = 1_000_000L;
 		int familySize = 8;
 
-		Set<Long> candidateSet = new HashSet<Long>(
-				Utils.getPrimes(p -> p > 10 && p < maximum).filter(hasRepeatedDigits())
-						// .peek(System.out::println)
-						.collect(Collectors.toList()));
+		Set<Long> candidateSet = Utils.getPrimes(p -> p > 10 && p < maximum).filter(hasRepeatedDigits()).collect(Collectors.toSet());
 		System.out
 				.println(
 						candidateSet.stream()
@@ -31,7 +28,7 @@ public class Problem051 {
 														Collectors.toList()))
 								.filter(l -> l.size() == familySize && l.stream()
 										.allMatch(p -> p.toString()
-												.length() == maximum.toString().length() - 1))
+												.length() == String.valueOf(maximum).length() - 1))
 				.collect(Collectors.toSet()));
 
 	}
@@ -40,23 +37,23 @@ public class Problem051 {
 		return p -> {
 			String lastDigitChopped = p.toString().substring(0,
 					p.toString().length() - 1);
-			return new HashSet<String>(Arrays.asList(lastDigitChopped.split("")))
+			return new HashSet<>(Arrays.asList(lastDigitChopped.split("")))
 					.size() != lastDigitChopped.length();
 		};
 	}
 
 	public static Collection<Long> makeFamily(Long candidate) {
 		Map<Integer, Long> digitByCount = candidate.toString().chars().boxed()
-				.collect(Collectors.groupingBy(c -> Character.getNumericValue(c),
+				.collect(Collectors.groupingBy(Character::getNumericValue,
 						Collectors.counting()));
-		ArrayList<Long> result = new ArrayList<Long>();
+		ArrayList<Long> result = new ArrayList<>();
 		for (Map.Entry<Integer, Long> entry : digitByCount.entrySet()) {
 			if (entry.getValue() > 1) {
-				ArrayList<Long> newList = new ArrayList<Long>();
+				ArrayList<Long> newList = new ArrayList<>();
 				for (String replacement : "0123456789".split("")) {
 					String newCandidate = candidate.toString()
 							.replaceAll(entry.getKey().toString(), replacement);
-					newList.add(new Long(newCandidate));
+					newList.add(Long.valueOf(newCandidate));
 				}
 				result = (newList.size() > result.size()) ? newList : result;
 			}

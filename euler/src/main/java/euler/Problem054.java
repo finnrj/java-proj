@@ -4,12 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.IntSummaryStatistics;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -148,7 +143,7 @@ public class Problem054 {
 
 	private static final int MAX_SHIFT = 20;
 
-	static Map<String, Integer> colors = new HashMap<String, Integer>();
+	static Map<String, Integer> colors = new HashMap<>();
 
 	static {
 		colors.put("S", 3);
@@ -157,7 +152,7 @@ public class Problem054 {
 		colors.put("C", 0);
 	}
 
-	static Map<String, Integer> rangs = new HashMap<String, Integer>();
+	static Map<String, Integer> rangs = new HashMap<>();
 
 	static {
 		rangs.put("A", 14);
@@ -178,7 +173,7 @@ public class Problem054 {
 	};
 
 	static Predicate<List<Integer>> containsAce = is -> is.stream()
-			.mapToInt(i -> i / 10).max().getAsInt() == 14;
+			.mapToInt(i -> i / 10).max().orElse(-1) == 14;
 
 	static Predicate<List<Integer>> royalFlush = sameColor.and(sequential)
 			.and(containsAce);
@@ -188,7 +183,7 @@ public class Problem054 {
 
 	static Predicate<List<Integer>> fourOfAKind = is -> {
 		Map<Integer, Long> countMap = mapToCounts(is);
-		return countMap.values().stream().max(Long::compareTo).get() == 4;
+		return countMap.values().stream().max(Long::compareTo).orElse(-1L) == 4;
 	};
 
 	static Predicate<List<Integer>> flush = sameColor.and(sequential.negate());
@@ -223,7 +218,7 @@ public class Problem054 {
 				Collectors.groupingBy(Function.identity(), Collectors.counting()));
 	}
 
-	static Map<Predicate<List<Integer>>, Integer> scores = new HashMap();
+	static Map<Predicate<List<Integer>>, Integer> scores = new HashMap<>();
 
 	/* @formatter:off */
 	static {
@@ -239,7 +234,7 @@ public class Problem054 {
 	}
 	/* @formatter:on */
 
-	static Map<Integer, String> scores2hand = new HashMap();
+	static Map<Integer, String> scores2hand = new HashMap<>();
 
 	static {
 		scores2hand.put(0, "highest card");
@@ -265,8 +260,7 @@ public class Problem054 {
 				playerOneScore++;
 			}
 		}
-		System.out
-				.println(String.format("player one wins %d hands", playerOneScore));
+		System.out.printf("player one wins %d hands%n", playerOneScore);
 	}
 
 	private static final Path POKER_PATH = Paths.get("src", "main", "docs",
@@ -279,7 +273,7 @@ public class Problem054 {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return Collections.emptyList();
 	}
 
 	public static Stream<List<Integer>> convert(String hands) {
@@ -291,20 +285,19 @@ public class Problem054 {
 				.stream(Arrays.copyOfRange(split, 5, split.length))
 				.mapToInt(Problem054::card2Int).sorted().boxed()
 				.collect(Collectors.toList());
-		return Stream.<List<Integer>> of(first, second);
+		return Stream.of(first, second);
 	}
 
 	private static Integer card2Int(String card) {
 		String first = card.substring(0, 1);
-		Integer rang = rangs.containsKey(first) ? rangs.get(first)
+		int rang = rangs.containsKey(first) ? rangs.get(first)
 				: Integer.parseInt(first);
-		int result = 10 * rang + colors.get(card.substring(1));
-		return result;
+		return 10 * rang + colors.get(card.substring(1));
 	}
 
 	private static Integer hand2Score(List<Integer> hand) {
 		return scores.getOrDefault(scores.keySet().stream()
-				.filter(p -> p.test(hand) == true).findFirst().orElse(null), 0);
+				.filter(p -> p.test(hand)).findFirst().orElse(null), 0);
 	}
 
 	private static Integer cardScores(List<Integer> hand) {
@@ -314,7 +307,7 @@ public class Problem054 {
 		Comparator<? super Integer> handComparator = (o1, o2) -> {
 			Long count1 = mapToCounts.get(o1);
 			Long count2 = mapToCounts.get(o2);
-			if (count1 != count2)
+			if (!count1.equals(count2))
 				return count1.intValue() - count2.intValue();
 			return o1 - o2;
 		};
@@ -327,7 +320,7 @@ public class Problem054 {
 
 	public static List<Integer> convert2Score(List<List<Integer>> hands) {
 		return hands.stream()
-				.map(hand -> new Integer(hand2Score(hand) + cardScores(hand)))
+				.map(hand -> hand2Score(hand) + cardScores(hand))
 				.collect(Collectors.toList());
 	}
 }
