@@ -80,10 +80,12 @@ public class Combinations {
         System.out.println(combinations(3, Arrays.asList(1, 2, 3, 4, 5, 6, 7))
                 .size());
 
+/*
         partitions(12).entrySet()
                 .forEach(e -> System.out.println(String.format("""
                         %d: %s
                         length: %d
                         """, e.getKey(), e.getValue(), e.getValue().size())));
+*/
     }
 }
