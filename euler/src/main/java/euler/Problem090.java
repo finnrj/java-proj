@@ -39,13 +39,23 @@ import java.util.stream.Stream;
  */
 public class Problem090 {
     record DicePair(List<Integer> first, List<Integer> second) {
+        public boolean areEquivalent(DicePair other) {
+            if (! (other.first.containsAll(first) || other.second.containsAll(first))) {
+                return false;
+            }
+            return other.second.containsAll(second) || other.first.containsAll(second);
+        }
     }
 
     ;
 
     public static boolean fullfillRequirement(DicePair candidate) {
-        return fullfill25(candidate) && fullfill81(candidate) && fullfillSmallSquares(candidate) && fullfillLargerSquares(candidate);
+        return fullfill25(candidate)
+                && fullfill81(candidate)
+                && fullfillSmallSquares(candidate)
+                && fullfillLargerSquares(candidate);
     }
+
 
     static boolean fullfill25(DicePair candidate) {
         return candidate.first.contains(2) && candidate.second.contains(5)
@@ -71,11 +81,10 @@ public class Problem090 {
     static boolean fullfillLargerSquares(DicePair candidate) {
         List<Integer> both = new ArrayList<>(candidate.first);
         both.addAll(candidate.second);
-        return (candidate.first.contains(6) || candidate.first.contains(9)) && candidate.second.containsAll(List.of(1, 3, 4))
-                || candidate.first.containsAll(List.of(1, 3, 4)) && (candidate.second.contains(6) || candidate.second.contains(9))
-                || (candidate.first.contains(6) || candidate.first.contains(9)) &&
-                (candidate.second.contains(6) || candidate.second.contains(9)) &&
-                both.containsAll(List.of(1, 3, 4));
+        return (candidate.first.contains(6) || candidate.first.contains(9)) && candidate.second.containsAll(List.of(1, 3, 4)) ||
+                candidate.first.containsAll(List.of(1, 3, 4)) && (candidate.second.contains(6) || candidate.second.contains(9)) ||
+                (candidate.first.contains(6) || candidate.first.contains(9)) && (candidate.second.contains(6) || candidate.second.contains(9)) &&
+                        both.containsAll(List.of(1, 3, 4));
     }
 
 
@@ -94,18 +103,35 @@ public class Problem090 {
     public static void main(String[] args) {
         List<DicePair> combis = makeCombos();
         System.out.println(combis.size());
-//        for (DicePair dp : combis) {
-//            System.out.println(dp);
-//        }
         List<DicePair> solutions = combis.stream().filter(Problem090::fullfillRequirement).collect(Collectors.toList());
+        System.out.println(solutions);
         System.out.println(solutions.size());
-//        int extras = combis.stream().mapToInt(dp -> {
-//            if (dp.first.contains(6) && dp.second.contains(6)) return 4;
-//            if (dp.first.contains(6) || dp.second.contains(6)) return 1;
-//            return 0;
-//        }).sum();
-//        System.out.println(solutions.size() + extras);
 
+        List<DicePair> extendedSolutions = solutions.stream().map(dicePair -> {
+            if (dicePair.first.contains(6) && !dicePair.first.contains(9)) {
+                dicePair.first.add(9);
+            } else if (dicePair.first.contains(9) && !dicePair.first.contains(6)) {
+                dicePair.first.add(6);
+            }
+            if (dicePair.second.contains(6) && !dicePair.second.contains(9)) {
+                dicePair.second.add(9);
+            } else if (dicePair.second.contains(9) && !dicePair.second.contains(6)) {
+                dicePair.second.add(6);
+            }
+            return dicePair;
+        }).collect(Collectors.toList());
+        System.out.println(extendedSolutions);
+
+        System.out.println(extendedSolutions.size());
+        for (int i = extendedSolutions.size(); i < 0; i--) {
+            for (int j = i - 1; j <= 0; j--) {
+                if (extendedSolutions.get(i).areEquivalent(extendedSolutions.get(j))) {
+                    System.out.println("removing index: " + j);
+                    extendedSolutions.remove(j);
+                }
+            }
+        }
+        System.out.println(extendedSolutions.size());
     }
 
 }

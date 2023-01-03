@@ -41,6 +41,17 @@ class Problem090Test {
         assertThat(fullfillSmallSquares(noZero), Matchers.is(false));
     }
     @Test
+    public void testEqiuvalent() {
+        DicePair equivalent = new DicePair(List.of(1, 2, 3, 4, 6, 7), List.of(1, 2, 3, 4, 7, 9));
+        DicePair alsoEquivalent = new DicePair(List.of(1, 2, 3, 4, 7, 9), List.of(1, 2, 3, 4, 6, 7));
+        DicePair notEquivalent = new DicePair(List.of(0, 1, 2, 3, 4, 6), List.of(0, 1, 2, 3, 5, 9));
+
+        assertThat(equivalent.areEquivalent(notEquivalent), Matchers.is(false));
+        assertThat(alsoEquivalent.areEquivalent(notEquivalent), Matchers.is(false));
+        assertThat(alsoEquivalent.areEquivalent(equivalent), Matchers.is(true));
+        assertThat(equivalent.areEquivalent(alsoEquivalent), Matchers.is(true));
+    }
+    @Test
     public void testLastSquares() {
         DicePair doFit = new DicePair(List.of(1, 2, 3, 4, 7, 8), List.of(0, 1, 2, 3, 6, 7));
         DicePair alsoFit = new DicePair(List.of(2, 3, 4, 5, 6, 7), List.of(0, 1, 5, 6, 7, 8));
