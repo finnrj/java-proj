@@ -2,12 +2,7 @@ package euler;
 
 import utils.Combinations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 /**
  * </div>
@@ -39,61 +34,35 @@ import java.util.stream.Stream;
  */
 public class Problem090 {
     record DicePair(List<Integer> first, List<Integer> second) {
-        public boolean areEquivalent(DicePair other) {
-            if (! (other.first.containsAll(first) || other.second.containsAll(first))) {
-                return false;
+        private boolean doFit(List<Integer> candidate, Integer toFit) {
+            if(toFit == 6 || toFit == 9) {
+                return candidate.contains(6) || candidate.contains(9);
             }
-            return other.second.containsAll(second) || other.first.containsAll(second);
+            return candidate.contains(toFit);
+        }
+
+        public boolean matches(Integer tens, Integer ones) {
+            return doFit(first, tens) && doFit(second,ones)
+                    || doFit(second, tens) && doFit(first,ones);
         }
     }
 
-    ;
-
     public static boolean fullfillRequirement(DicePair candidate) {
-        return fullfill25(candidate)
-                && fullfill81(candidate)
-                && fullfillSmallSquares(candidate)
-                && fullfillLargerSquares(candidate);
+        return  candidate.matches(0,1) &&
+                candidate.matches(0,4) &&
+                candidate.matches(0,9) &&
+                candidate.matches(1,6) &&
+                candidate.matches(2,5) &&
+                candidate.matches(3,6) &&
+                candidate.matches(4,9) &&
+                candidate.matches(8,1);
     }
-
-
-    static boolean fullfill25(DicePair candidate) {
-        return candidate.first.contains(2) && candidate.second.contains(5)
-                || candidate.first.contains(5) && candidate.second.contains(2);
-    }
-
-    static boolean fullfill81(DicePair candidate) {
-        return candidate.first.contains(1) && candidate.second.contains(8)
-                || candidate.first.contains(1) && candidate.second.contains(8);
-    }
-
-    static boolean fullfillSmallSquares(DicePair candidate) {
-        List<Integer> both = new ArrayList<>(candidate.first);
-        both.addAll(candidate.second);
-        return candidate.first.contains(0) && candidate.second.containsAll(List.of(1, 4)) &&
-                (candidate.second.contains(6) || candidate.second.contains(9))
-                || candidate.second.contains(0) && candidate.first.containsAll(List.of(1, 4)) &&
-                (candidate.first.contains(6) || candidate.first.contains(9))
-                || candidate.first.contains(0) && candidate.second.contains(0) && both.containsAll(List.of(1, 4)) &&
-                (both.contains(6) || both.contains(9));
-    }
-
-    static boolean fullfillLargerSquares(DicePair candidate) {
-        List<Integer> both = new ArrayList<>(candidate.first);
-        both.addAll(candidate.second);
-        return (candidate.first.contains(6) || candidate.first.contains(9)) && candidate.second.containsAll(List.of(1, 3, 4)) ||
-                candidate.first.containsAll(List.of(1, 3, 4)) && (candidate.second.contains(6) || candidate.second.contains(9)) ||
-                (candidate.first.contains(6) || candidate.first.contains(9)) && (candidate.second.contains(6) || candidate.second.contains(9)) &&
-                        both.containsAll(List.of(1, 3, 4));
-    }
-
 
     static List<DicePair> makeCombos() {
         List<List<Integer>> first = Combinations.combinations(6, Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
-//    System.out.println(first);
         List<DicePair> combis = new ArrayList<>();
         for (int i = 0; i < first.size(); i++) {
-            for (int j = i; j < first.size(); j++) {
+            for (int j = i+1; j < first.size(); j++) {
                 combis.add(new DicePair(first.get(i), first.get(j)));
             }
         }
@@ -103,35 +72,8 @@ public class Problem090 {
     public static void main(String[] args) {
         List<DicePair> combis = makeCombos();
         System.out.println(combis.size());
-        List<DicePair> solutions = combis.stream().filter(Problem090::fullfillRequirement).collect(Collectors.toList());
-        System.out.println(solutions);
+        List<DicePair> solutions = combis.stream().filter(Problem090::fullfillRequirement).toList();
         System.out.println(solutions.size());
-
-        List<DicePair> extendedSolutions = solutions.stream().map(dicePair -> {
-            if (dicePair.first.contains(6) && !dicePair.first.contains(9)) {
-                dicePair.first.add(9);
-            } else if (dicePair.first.contains(9) && !dicePair.first.contains(6)) {
-                dicePair.first.add(6);
-            }
-            if (dicePair.second.contains(6) && !dicePair.second.contains(9)) {
-                dicePair.second.add(9);
-            } else if (dicePair.second.contains(9) && !dicePair.second.contains(6)) {
-                dicePair.second.add(6);
-            }
-            return dicePair;
-        }).collect(Collectors.toList());
-        System.out.println(extendedSolutions);
-
-        System.out.println(extendedSolutions.size());
-        for (int i = extendedSolutions.size(); i < 0; i--) {
-            for (int j = i - 1; j <= 0; j--) {
-                if (extendedSolutions.get(i).areEquivalent(extendedSolutions.get(j))) {
-                    System.out.println("removing index: " + j);
-                    extendedSolutions.remove(j);
-                }
-            }
-        }
-        System.out.println(extendedSolutions.size());
     }
 
 }
