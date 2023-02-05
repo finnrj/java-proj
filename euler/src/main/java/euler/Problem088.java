@@ -1,9 +1,11 @@
 package euler;
 
 import utils.Combinations;
+import utils.Utils;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * </div>
@@ -32,124 +34,23 @@ public class Problem088 {
     record NumberFactors(long number, List<Long> factors) {
     }
 
-    public static void adjustForNumber(Map<Long, Long> minima, NumberFactors target) {
-        long productAccumulated = 1;
-        long sumAccumulated = 0;
-        for (int i = 0; i < target.factors.size() - 1; i++) {
-            productAccumulated *= target.factors.get(i);
-            sumAccumulated += target.factors.get(i);
-            int usedFactors = i + 2;
-            long targetCount = target.number - (target.number / productAccumulated + sumAccumulated) + usedFactors;
-            minima.putIfAbsent(targetCount, target.number);
-            minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
-        }
-    }
-
-    public static void adjustForNumberUsingCombinations(Map<Long, Long> minima, NumberFactors target) {
-//        int maxFactorCount = (target.factors.size() - 1) / 2 + (target.factors.size() - 1) % 2 == 0 ? 0 : 1;
-        int maxFactorCount = (target.factors.size() - 1);
-        for (int i = 1; i <= maxFactorCount; i++) {
-            List<List<Long>> combis = Combinations.combinations(i, target.factors);
-            for (List<Long> combi : combis) {
-                Long product = combi.stream().reduce(1L, (l1, l2) -> l1 * l2);
-                Long sum = combi.stream().reduce(0L, (l1, l2) -> l1 + l2);
-                long targetCount = target.number - (target.number / product + sum) + combi.size() + 1;
-                minima.putIfAbsent(targetCount, target.number);
-                minima.compute(targetCount, (k, v) -> Long.min(v, target.number));
-            }
-        }
-    }
-
-    public static void adjustForNumberUsingPartitions(Map<Long, Long> minima, NumberFactors target) {
-        int size = target.factors.size();
-        if (size >= 13) {
-            System.out.println("giving up...");
-            System.out.println(String.format("target: %s", target));
-            System.out.println();
-            adjustFor8192(minima);
-            return;
-        }
-        List<String> partitions = Combinations.partitions(size).get(size);
-        for (String partition : partitions.subList(0, partitions.size() - 1)) {
-            String[] sets = partition.split(Combinations.SET_SEPARATOR);
-            long sum = Arrays.stream(sets).
-                    mapToLong(set -> Arrays.stream(set.split(Combinations.SEPARATOR))
-                            .mapToLong(str -> target.factors.get(Integer.valueOf(str)))
-                            .reduce(1L, (l1, l2) -> l1 * l2))
-                    .reduce(0L, (l1, l2) -> l1 + l2);
-            long targetCount = target.number - sum + sets.length;
-            if (targetCount <= 12_000) {
-                minima.putIfAbsent(targetCount, target.number);
-                if (minima.size() == 12_000 - 1) {
-                    return;
-                }
-            }
-        }
-    }
-
-    public static void adjustFor8192(Map<Long, Long> minima) {
-        List<List<Long>> result = new ArrayList<>();
-        for (int setCount = 3; setCount <= 3; setCount++) {
-            LinkedList<List<Long>> accumulator = new LinkedList<>();
-            doAdjust(setCount, 0, accumulator);
-            result.addAll(accumulator);
-        }
-        System.out.println(result);
-    }
-
-    private static void doAdjust(int setCount, int startIndex, LinkedList<List<Long>> accumulator) {
-        if (setCount == 1) {
-            accumulator.getLast().add(Math.round(Math.pow(2.0, 13 - startIndex)));
-            return;
-        }
-        int maxIndex = (13 - startIndex) / setCount;
-        for (int i = startIndex; i < maxIndex; i++) {
-            List<Long> inner = startIndex == 0 ? new ArrayList<>() : accumulator.getLast();
-            inner.add(Math.round(Math.pow(2.0, i - startIndex + 1)));
-            if (startIndex == 0) {
-                accumulator.add(inner);
-            }
-            doAdjust(setCount - 1, i + 1, accumulator);
-        }
-    }
-
-
-    private static void printSummedValues(Map<Long, Long> minima, long maxSetSize) {
-        Long summed = minima.entrySet().stream().filter(e -> e.getKey() <= maxSetSize)
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toSet())
-                .stream()
-                .peek(System.out::println)
-                .reduce(Long::sum)
-                .orElse(-1L);
-        System.out.println(String.format("max set length: %d, summed: %d", maxSetSize, summed));
-    }
 
     public static void main(String[] args) {
-//        int maxLength = 12_096;
-//        Map<Long, Long> minima = new HashMap<>();
-//        LongStream.rangeClosed(4, maxLength)
-//                .filter(l -> !Utils.isPrime(l))
-//                .boxed()
-//                .map(i -> new NumberFactors(i, Utils.primeFactors(i).boxed().collect(Collectors.toList())))
-//                .forEach(nf -> adjustForNumberUsingPartitions(minima, nf));
-//        System.out.println(minima);
-//        System.out.println("size: " + minima.size());
-////        LongStream.of(6, 12, 100).
-//        LongStream.of(12_000).
-//                forEach(ml -> printSummedValues(minima, ml));
-
-        adjustFor8192(null);
-
-//        System.out.println(LongStream.rangeClosed(4, 24_000)
-//                .filter(l -> !Utils.isPrime(l))
-//                .boxed()
-//                .peek(System.out::println)
-//                .map(i ->  Utils.primeFactors(i).boxed().collect(Collectors.toList()))
-//                .max(Comparator.comparingInt(List::size))
-//                .orElse(Collections.emptyList()));
-// 2 ** 14 , Bell number: 14: 190_899_322
-//           Bell number: 13:  27_644_437
-//        System.out.println(Utils.primeFactors(12096L).boxed().collect(Collectors.toList()));
+        List<Long> ps = Utils.getPrimes(p -> p < 6_000).collect(Collectors.toList());
+        ArrayList<NumberFactors> simplePrimeProducts = new ArrayList();
+        for (Long p_1: ps) {
+            if (p_1 > Math.sqrt(12_000)) {
+                break;
+            }
+            for (Long p_2: ps) {
+                if (p_2 < p_1) {
+                    continue;
+                }
+                simplePrimeProducts.add(new NumberFactors(p_1 * p_2, List.of(p_1, p_2)));
+            }
+        }
+        for (NumberFactors nf: simplePrimeProducts) {
+            System.out.println( nf);
+        }
     }
 }
