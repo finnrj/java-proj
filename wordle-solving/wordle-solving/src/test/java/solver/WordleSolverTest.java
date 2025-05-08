@@ -2,7 +2,11 @@ package solver;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import solver.WordleSolver.BuildResult;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,30 +25,44 @@ class WordleSolverTest {
 
     @Test
     void noMatchAtAll() {
+        String target    = "jetty";
         String candidate = "rossa";
-        String target = "jetty";
-        assertEquals((short) 0, solver.compare(candidate, target));
+        assertEquals( 0, solver.compare(candidate, target));
     }
 
     @Test
     void oneCorrectPosition() {
+        String target    = "cuppa";
         String candidate = "rossa";
-        String target = "cuppa";
-        assertEquals((short)2, solver.compare(candidate, target));
+        assertEquals(2, solver.compare(candidate, target));
     }
 
     @Test
-    void oneCorrectLetters() {
+    void twoCorrectLetters() {
+        String target    = "array";
         String candidate = "rossa";
-        String target = "array";
-        assertEquals((short)10001, solver.compare(candidate, target)  );
+        assertEquals(10001, solver.compare(candidate, target)  );
     }
 
     @Test
     void mixedResult() {
+        String target    = "graze";
         String candidate = "rossa";
-        String target = "graze";
-        assertEquals((short)1100, solver.compare(candidate, target) );
+        assertEquals(10001, solver.compare(candidate, target) );
+    }
+
+    @Test
+    void mixedResult2() {
+        String target    = "surge";
+        String candidate = "rossa";
+        assertEquals(10100, solver.compare(candidate, target) );
+    }
+
+    @Test
+    void mixedResult3() {
+        String target    = "slots";
+        String candidate = "rossa";
+        assertEquals(1110, solver.compare(candidate, target) );
     }
 
     @Test
@@ -54,10 +72,10 @@ class WordleSolverTest {
                         "squad", "beisa", "shrug", "fossa", "fluyt")
                 .collect(Collectors.toList());
         String candidate = "rossa";  //0,1000,2,2000, 10110, 111, 122, 10110, 2222, 0
-        Map<Short, List<String>> result = solver.build(candidate, words);
+        Map<Integer, List<String>> result = solver.build(candidate, words).results();
         assertEquals(8, result.size() );
-        assertTrue(result.containsKey((short) 0));
-        assertEquals(2, result.get((short)0).size());
+        assertTrue(result.containsKey(0));
+        assertEquals(2, result.get(0).size());
     }
 
     @Test
@@ -71,6 +89,11 @@ class WordleSolverTest {
                         "queck", "twink", "graze", "crock", "almud")
                 .collect(Collectors.toList());
         String candidate = "rossa";
-        Map<Short, List<String>> result = solver.build(candidate, words);
+        Map<Integer, List<String>> result = solver.build(candidate, words).results();
+        assertEquals(14, result.size() );
+        assertTrue(result.containsKey(0));
+        assertEquals(5, result.get(0).size());
     }
+
+
 }
