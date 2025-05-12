@@ -1,6 +1,7 @@
 package solver;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -60,34 +61,22 @@ public class WordleSolver {
     public static void main(String[] args) throws IOException {
         try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", "words"))) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
-//            System.out.println(words.size());
             WordleSolver solver = new WordleSolver();
             words.sort(Comparator.comparingInt(String::length));
-//            System.out.println(words.get(0) + " " + words.get(words.size() - 2) + " " + words.get(words.size() - 1));
-//
 //            build01(words, solver);
-
-//            tares 20
-            List<String> words01 = solver.build("tares", words).results().get(20);
-//            words01.forEach(System.out::println);
-
-//            Stream<BuildResult> r = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, words01)).sorted();
-////            r.forEach(br -> System.out.println(br.word() + " " + br.results().size()));
-//            r.map(br -> String.format("%s - %04d", br.word(), br.results().size())).forEach(System.out::println);
-
-
-//            lownd  12201
-            List<String> words02 = solver.build("lownd", words).results().get(12201);
-//            words02.forEach(System.out::println);
-
-//            Stream<BuildResult> r = words02.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, words02)).sorted();
-//            r.forEach(br -> System.out.println(br.word() + " " + br.results().size()));
-//            r.map(br -> String.format("%s - %04d", br.word(), br.results().size())).forEach(System.out::println);
-
-//             dowle 22211
-            List<String> words03 = solver.build("dowle", words02).results().get(22211);
-            words03.forEach(System.out::println);
-
+            List<String> wordsLeft = words;
+            String bestCandidate = "tares";
+            Scanner input = new Scanner(System.in);
+            while (wordsLeft.size() > 1) {
+                System.out.println("Please enter result for '" + bestCandidate + "' :");
+                String strippedInput = input.nextLine().strip();
+                Integer result = NumberUtils.isDigits(strippedInput) ? Integer.parseInt(strippedInput) : 0;
+                wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(result);
+                final List<String> wordsLeftFinal = wordsLeft;
+                bestCandidate = wordsLeft.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
+                        .map(BuildResult::word).reduce((first, second) -> second).orElse("NO RESULT FOUND!!");
+            }
+            System.out.println("The solution must be " + wordsLeft.get(0));
         }
     }
 
