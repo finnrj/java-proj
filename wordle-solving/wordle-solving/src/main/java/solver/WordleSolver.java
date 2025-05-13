@@ -18,7 +18,8 @@ public class WordleSolver {
     public record BuildResult(String word, Map<Integer, List<String>> results) implements Comparable<BuildResult> {
         @Override
         public int compareTo(BuildResult buildResult) {
-            return this.results().size() - buildResult.results().size();
+            // reversed order
+            return buildResult.results().size() - this.results().size();
         }
     }
 
@@ -27,7 +28,7 @@ public class WordleSolver {
         int result = 0;
         for (int i = candidate.length() - 1; i >= 0; i--) {
             if (target.charAt(i) == candidate.charAt(i)) {
-                result += 2 * Math.pow(10, (4 - i));
+                result += (int) (2 * Math.pow(10, (4 - i)));
                 freeIndices.remove(i);
             }
         }
@@ -36,7 +37,7 @@ public class WordleSolver {
                 Integer freeIndex = freeIndices.get(j);
                 if (candidate.charAt(i) == target.charAt(freeIndex)
                         && candidate.charAt(i) != target.charAt(i)) {
-                    result += 1 * Math.pow(10, (4 - i));
+                    result += (int) (1 * Math.pow(10, (4 - i)));
                     freeIndices.remove(j);
                     break;
                 }
@@ -68,13 +69,16 @@ public class WordleSolver {
             String bestCandidate = "tares";
             Scanner input = new Scanner(System.in);
             while (wordsLeft.size() > 1) {
-                System.out.println("Please enter result for '" + bestCandidate + "' :");
-                String strippedInput = input.nextLine().strip();
-                Integer result = NumberUtils.isDigits(strippedInput) ? Integer.parseInt(strippedInput) : 0;
-                wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(result);
+                String strippedInput;
+                do {
+                    System.out.println("Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position");
+                    System.out.println("Please enter result for '" + bestCandidate + "' :");
+                    strippedInput = input.nextLine().strip();
+                } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
+                wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(Integer.parseInt(strippedInput));
                 final List<String> wordsLeftFinal = wordsLeft;
-                bestCandidate = wordsLeft.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
-                        .map(BuildResult::word).reduce((first, second) -> second).orElse("NO RESULT FOUND!!");
+                bestCandidate = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
+                        .map(BuildResult::word).findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
             }
             System.out.println("The solution must be " + wordsLeft.get(0));
         }
