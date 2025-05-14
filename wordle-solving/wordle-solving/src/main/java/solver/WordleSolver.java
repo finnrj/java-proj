@@ -14,6 +14,34 @@ import java.util.stream.Stream;
 
 public class WordleSolver {
 
+    private static final Map<String, LanguageValues> LANGUAGES = new HashMap<>();
+    private static Scanner input;
+
+    static {
+        LANGUAGES.put("EN",
+                new LanguageValues("words",
+                        "tares",
+                        "Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position",
+                        "Please enter result for '%s' :",
+                        "The solution must be ",
+                        new ArrayList<>()));
+        LANGUAGES.put("DE",
+                new LanguageValues("words-german",
+                        "seilt",
+                        "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
+                        "Bitte taste Ergebniss fur '%s' :",
+                        "Die Losung ist ",
+                        List.of("Alkyl")));
+        LANGUAGES.put("DA",
+                new LanguageValues("words-danish",
+                        "silet",
+                        "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
+                        "Indtast resultat for '%s' :",
+                        "Løsningen må være ",
+                        new ArrayList<>()));
+    };
+
+
     public record BuildResult(String word, Map<Integer, List<String>> results) implements Comparable<BuildResult> {
         @Override
         public int compareTo(BuildResult buildResult) {
@@ -63,37 +91,45 @@ public class WordleSolver {
     }
 
     public static void main(String[] args) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", "words-german"))) {
+        input = new Scanner(System.in);
+        LanguageValues actualLanguage = chooseLanguage();
+
+        try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", actualLanguage.filename()))) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
-            words.sort(Comparator.comparingInt(String::length));
-//            words.stream().filter(str -> str.length() == 5).forEach(System.out::println);
-//            build01(words, solver, "german-words.txt");
             runWordleGuessing(words.stream()
                     .map(String::trim)
-                    .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList()), solver);
+                    .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList()),
+                    solver,
+                    actualLanguage);
         }
     }
 
-    private static void runWordleGuessing(List<String> words, WordleSolver solver) {
+    private static LanguageValues chooseLanguage() {
+        String strippedInput = "";
+        do {
+            System.out.println("Please select language among: " + LANGUAGES.keySet() + ": ");
+            strippedInput = input.nextLine().strip().toUpperCase();
+        } while (!LANGUAGES.containsKey(strippedInput));
+        return LANGUAGES.get(strippedInput);
+    }
+
+    private static void runWordleGuessing(List<String> words, WordleSolver solver, LanguageValues actualLanguage) {
         List<String> wordsLeft = words;
-//        String bestCandidate = "tares";
-//        String bestCandidate = "silet";
-        String bestCandidate = "seilt";
-        Scanner input = new Scanner(System.in);
+        String bestCandidate = actualLanguage.bestCandidate();
         while (wordsLeft.size() > 1) {
             String strippedInput;
+            System.out.println(actualLanguage.formatPattern());
             do {
-                System.out.println("Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position");
-                System.out.println("Please enter result for '" + bestCandidate + "' :");
+                System.out.println(String.format(actualLanguage.enterPrompt(), bestCandidate));
                 strippedInput = input.nextLine().strip();
             } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(Integer.parseInt(strippedInput));
             final List<String> wordsLeftFinal = wordsLeft;
             bestCandidate = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
-                    .map(BuildResult::word).dropWhile(word-> word.equalsIgnoreCase("Alkyl")).findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
+                    .map(BuildResult::word).dropWhile(actualLanguage.excludedWords()::contains).findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
         }
-        System.out.println("The solution must be " + wordsLeft.get(0));
+        System.out.println( actualLanguage.solutionFound() + wordsLeft.getFirst());
     }
 
     private static void build01(List<String> words, WordleSolver solver, String filename) throws IOException {
@@ -101,7 +137,6 @@ public class WordleSolver {
         List<String> r = words.stream()
                 .map(String::trim)
                 .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList());
-//            r.forEach(br -> System.out.println(br.word() + " " + br.results().size()));
         r.stream().map(word -> solver.build(word, r)).sorted()
                 .map(br -> String.format("%s - %04d", br.word(), br.results().size())).peek(System.out::println)
                 .forEach(pw::println);
