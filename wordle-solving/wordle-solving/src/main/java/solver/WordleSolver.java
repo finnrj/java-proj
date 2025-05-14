@@ -7,10 +7,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.spi.FileTypeDetector;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class WordleSolver {
@@ -24,6 +23,10 @@ public class WordleSolver {
     }
 
     public Integer compare(String candidate, String target) {
+        if (target.length() < candidate.length()) {
+            System.out.println("Target word is shorter than candidate word'" + target + "'");
+            return -1;
+        }
         List<Integer> freeIndices = new ArrayList<>(Arrays.asList(0, 1, 2, 3, 4));
         int result = 0;
         for (int i = candidate.length() - 1; i >= 0; i--) {
@@ -60,35 +63,47 @@ public class WordleSolver {
     }
 
     public static void main(String[] args) throws IOException {
-        try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", "words"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", "words-german"))) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
             words.sort(Comparator.comparingInt(String::length));
-//            build01(words, solver);
-            List<String> wordsLeft = words;
-            String bestCandidate = "tares";
-            Scanner input = new Scanner(System.in);
-            while (wordsLeft.size() > 1) {
-                String strippedInput;
-                do {
-                    System.out.println("Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position");
-                    System.out.println("Please enter result for '" + bestCandidate + "' :");
-                    strippedInput = input.nextLine().strip();
-                } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
-                wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(Integer.parseInt(strippedInput));
-                final List<String> wordsLeftFinal = wordsLeft;
-                bestCandidate = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
-                        .map(BuildResult::word).findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
-            }
-            System.out.println("The solution must be " + wordsLeft.get(0));
+//            words.stream().filter(str -> str.length() == 5).forEach(System.out::println);
+//            build01(words, solver, "german-words.txt");
+            runWordleGuessing(words.stream()
+                    .map(String::trim)
+                    .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList()), solver);
         }
     }
 
-    private static void build01(List<String> words, WordleSolver solver) throws IOException {
-        PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/build_01.txt"));
-        Stream<BuildResult> r = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, words)).sorted();
+    private static void runWordleGuessing(List<String> words, WordleSolver solver) {
+        List<String> wordsLeft = words;
+//        String bestCandidate = "tares";
+//        String bestCandidate = "silet";
+        String bestCandidate = "seilt";
+        Scanner input = new Scanner(System.in);
+        while (wordsLeft.size() > 1) {
+            String strippedInput;
+            do {
+                System.out.println("Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position");
+                System.out.println("Please enter result for '" + bestCandidate + "' :");
+                strippedInput = input.nextLine().strip();
+            } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
+            wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(Integer.parseInt(strippedInput));
+            final List<String> wordsLeftFinal = wordsLeft;
+            bestCandidate = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
+                    .map(BuildResult::word).dropWhile(word-> word.equalsIgnoreCase("Alkyl")).findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
+        }
+        System.out.println("The solution must be " + wordsLeft.get(0));
+    }
+
+    private static void build01(List<String> words, WordleSolver solver, String filename) throws IOException {
+        PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/" + filename));
+        List<String> r = words.stream()
+                .map(String::trim)
+                .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList());
 //            r.forEach(br -> System.out.println(br.word() + " " + br.results().size()));
-        r.map(br -> String.format("%s - %04d", br.word(), br.results().size())).peek(System.out::println)
+        r.stream().map(word -> solver.build(word, r)).sorted()
+                .map(br -> String.format("%s - %04d", br.word(), br.results().size())).peek(System.out::println)
                 .forEach(pw::println);
         pw.close();
     }
