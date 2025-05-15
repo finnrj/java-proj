@@ -125,9 +125,7 @@ public class WordleSolver {
 
     private static void runWordleGuessing(List<String> words, WordleSolver solver, LanguageValues actualLanguage) {
         List<String> wordsLeft = words;
-        List<String> usedCandidates = new ArrayList<>();
         String bestCandidate = actualLanguage.bestCandidate();
-        usedCandidates.add(bestCandidate);
         System.out.println(actualLanguage.formatPattern());
         while (wordsLeft.size() > 1) {
             String strippedInput;
@@ -142,9 +140,8 @@ public class WordleSolver {
                             && !actualLanguage.excludedWords().contains(str))
                     .map(word -> solver.build(word, wordsLeftFinal)).sorted()
                     .map(BuildResult::word)
-                    .dropWhile(word -> actualLanguage.excludedWords().contains(word) || usedCandidates.contains(word))
+                    .dropWhile(word -> actualLanguage.excludedWords().contains(word))
                     .findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
-            usedCandidates.add(bestCandidate);
         }
         if (wordsLeft.isEmpty()) {
             System.out.println(actualLanguage.noSolution() + wordsLeft.get(0));
