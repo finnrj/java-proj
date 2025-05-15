@@ -29,8 +29,8 @@ public class WordleSolver {
                 new LanguageValues("words-german",
                         "seilt",
                         "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
-                        "Bitte taste Ergebniss fur '%s' :",
-                        "Die Losung ist ",
+                        "Bitte taste Ergebnis fur '%s' :",
+                        "Die Lösung ist ",
                         List.of("Alkyl")));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
@@ -38,7 +38,10 @@ public class WordleSolver {
                         "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
                         "Indtast resultat for '%s' :",
                         "Løsningen må være ",
-                        new ArrayList<>()));
+                        List.of("karno", "korna", "marno","gutte", "gutti", "aadel","aagot",
+                                "aanis", "aanya", "aaqil", "aaron", "aarup", "aayan", "abbas", "abbie",
+                                "abdel", "abdol", "abdul", "abebe", "abeer", "abida","abild", "abira",
+                                "aborg", "abkær", "abuja", "aboud", "abtin", "accra" )));
     };
 
 
@@ -99,7 +102,10 @@ public class WordleSolver {
             WordleSolver solver = new WordleSolver();
             runWordleGuessing(words.stream()
                     .map(String::trim)
-                    .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList()),
+                    .distinct()
+                    .filter(str -> str.length() == 5
+                            && StringUtils.containsNone(str, "-'.")
+                            && !actualLanguage.excludedWords().contains(str)).collect(Collectors.toList()),
                     solver,
                     actualLanguage);
         }
@@ -116,7 +122,9 @@ public class WordleSolver {
 
     private static void runWordleGuessing(List<String> words, WordleSolver solver, LanguageValues actualLanguage) {
         List<String> wordsLeft = words;
+        List<String> usedCandidates = new ArrayList<>();
         String bestCandidate = actualLanguage.bestCandidate();
+        usedCandidates.add(bestCandidate);
         while (wordsLeft.size() > 1) {
             String strippedInput;
             System.out.println(actualLanguage.formatPattern());
@@ -126,10 +134,17 @@ public class WordleSolver {
             } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(Integer.parseInt(strippedInput));
             final List<String> wordsLeftFinal = wordsLeft;
-            bestCandidate = words.stream().filter(str -> str.length() == 5).map(word -> solver.build(word, wordsLeftFinal)).sorted()
-                    .map(BuildResult::word).dropWhile(actualLanguage.excludedWords()::contains).findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
+            bestCandidate = words.stream().filter(str -> str.length() == 5
+                    && StringUtils.containsNone(str, "-'.")
+                    && !actualLanguage.excludedWords().contains(str))
+                    .map(word -> solver.build(word, wordsLeftFinal)).sorted()
+                    .map(BuildResult::word)
+                    .dropWhile(word ->actualLanguage.excludedWords().contains(word)
+                            || usedCandidates.contains(word))
+                    .findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
+            usedCandidates.add(bestCandidate);
         }
-        System.out.println( actualLanguage.solutionFound() + wordsLeft.getFirst());
+        System.out.println( actualLanguage.solutionFound() + wordsLeft.get(0));
     }
 
     private static void build01(List<String> words, WordleSolver solver, String filename) throws IOException {
