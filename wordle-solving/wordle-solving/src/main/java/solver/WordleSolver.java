@@ -142,7 +142,7 @@ public class WordleSolver {
                     .findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
         }
         if (wordsLeft.isEmpty()) {
-            System.out.println(actualLanguage.noSolution() + wordsLeft.get(0));
+            System.out.println(actualLanguage.noSolution());
         } else {
             System.out.println(actualLanguage.solutionFound() + wordsLeft.get(0));
         }
