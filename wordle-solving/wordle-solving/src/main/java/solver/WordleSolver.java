@@ -25,7 +25,7 @@ public class WordleSolver {
                         "Please enter result for '%s' :",
                         "The solution must be ",
                         "No solution found ",
-                        new ArrayList<>()));
+                        List.of()));
         LANGUAGES.put("DE",
                 new LanguageValues("words-german",
                         "seilt",
@@ -33,7 +33,7 @@ public class WordleSolver {
                         "Bitte taste Ergebnis fur '%s' :",
                         "Die Lösung ist ",
                         "Keine Lösung gefunden",
-                        List.of("Alkyl")));
+                        List.of()));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
                         "silet",
@@ -41,11 +41,7 @@ public class WordleSolver {
                         "Indtast resultat for '%s' :",
                         "Løsningen må være ",
                         "Ingen løsning fundet ",
-                        List.of("karno", "korna", "marno", "gutte", "gutti", "aadel", "aagot",
-                                "aanis", "aanya", "aaqil", "aaron", "aarup", "aayan", "abbas", "abbie",
-                                "abdel", "abdol", "abdul", "abebe", "abeer", "abida", "abild", "abira",
-                                "aborg", "abkær", "abuja", "aboud", "abtin", "accra", "venke", "karin",
-                                "kvong", "achim")));
+                        List.of()));
     };
 
     public record BuildResult(String word, Map<Integer, List<String>> results) implements Comparable<BuildResult> {
