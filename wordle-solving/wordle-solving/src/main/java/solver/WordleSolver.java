@@ -32,7 +32,7 @@ public class WordleSolver {
                         "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
                         "Bitte taste Ergebnis fur '%s' :",
                         "Die Lösung ist ",
-                        "Keine Losung gefunden",
+                        "Keine Lösung gefunden",
                         List.of("Alkyl")));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
@@ -44,7 +44,8 @@ public class WordleSolver {
                         List.of("karno", "korna", "marno", "gutte", "gutti", "aadel", "aagot",
                                 "aanis", "aanya", "aaqil", "aaron", "aarup", "aayan", "abbas", "abbie",
                                 "abdel", "abdol", "abdul", "abebe", "abeer", "abida", "abild", "abira",
-                                "aborg", "abkær", "abuja", "aboud", "abtin", "accra")));
+                                "aborg", "abkær", "abuja", "aboud", "abtin", "accra", "venke", "karin",
+                                "kvong", "achim")));
     };
 
     public record BuildResult(String word, Map<Integer, List<String>> results) implements Comparable<BuildResult> {
@@ -102,6 +103,7 @@ public class WordleSolver {
         try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", actualLanguage.filename()))) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
+//            build01 (words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
             runWordleGuessing(words.stream()
                             .map(String::trim)
                             .distinct()
@@ -133,7 +135,7 @@ public class WordleSolver {
                 System.out.println(String.format(actualLanguage.enterPrompt(), bestCandidate));
                 strippedInput = input.nextLine().strip();
             } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
-            wordsLeft = solver.build(bestCandidate, wordsLeft).results().get(Integer.parseInt(strippedInput));
+            wordsLeft = solver.build(bestCandidate, wordsLeft).results().getOrDefault(Integer.parseInt(strippedInput), Collections.emptyList());
             final List<String> wordsLeftFinal = wordsLeft;
             bestCandidate = words.stream().filter(str -> str.length() == 5
                             && StringUtils.containsNone(str, "-'.")
@@ -150,15 +152,20 @@ public class WordleSolver {
         }
     }
 
-        static void build01 (List < String > words, WordleSolver solver, String filename) throws IOException {
+        static void build01 (List < String > words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
             PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/" + filename));
             List<String> r = words.stream()
                     .map(String::trim)
-                    .filter(str -> str.length() == 5 && StringUtils.containsNone(str, "-'.")).collect(Collectors.toList());
+                    .distinct()
+                    .filter(str -> str.length() == 5
+                            && StringUtils.containsNone(str, "-'.")
+                    &&!excludes.contains(str)).collect(Collectors.toList());
             r.stream().map(word -> solver.build(word, r)).sorted()
-                    .map(br -> String.format("%s - %04d", br.word(), br.results().size())).peek(System.out::println)
+                    .peek(br -> System.out.println(String.format("%s - %04d", br.word(), br.results().size())))
+                    .map(BuildResult::word)
                     .forEach(pw::println);
             pw.close();
+            System.out.println("File src/main/resources/" + filename + " created with " + r.size() + " words");
         }
 
     }
