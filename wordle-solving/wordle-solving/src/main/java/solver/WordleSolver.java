@@ -33,7 +33,7 @@ public class WordleSolver {
                         "Bitte taste Ergebnis fur '%s' :",
                         "Die Lösung ist ",
                         "Keine Lösung gefunden",
-                        List.of()));
+                        List.of("BGHSt", "UNHCR")));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
                         "silet",
@@ -42,7 +42,9 @@ public class WordleSolver {
                         "Løsningen må være ",
                         "Ingen løsning fundet ",
                         List.of()));
-    };
+    }
+
+    ;
 
     public record BuildResult(String word, Map<Integer, List<String>> results) implements Comparable<BuildResult> {
         @Override
@@ -102,6 +104,7 @@ public class WordleSolver {
 //            build01 (words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
             runWordleGuessing(words.stream()
                             .map(String::trim)
+                            .map(String::toLowerCase)
                             .distinct()
                             .filter(str -> str.length() == 5
                                     && StringUtils.containsNone(str, "-'.")
@@ -148,20 +151,20 @@ public class WordleSolver {
         }
     }
 
-        static void build01 (List < String > words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
-            PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/" + filename));
-            List<String> r = words.stream()
-                    .map(String::trim)
-                    .distinct()
-                    .filter(str -> str.length() == 5
-                            && StringUtils.containsNone(str, "-'.")
-                    &&!excludes.contains(str)).collect(Collectors.toList());
-            r.stream().map(word -> solver.build(word, r)).sorted()
-                    .peek(br -> System.out.println(String.format("%s - %04d", br.word(), br.results().size())))
-                    .map(BuildResult::word)
-                    .forEach(pw::println);
-            pw.close();
-            System.out.println("File src/main/resources/" + filename + " created with " + r.size() + " words");
-        }
-
+    static void build01(List<String> words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
+        PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/" + filename));
+        List<String> r = words.stream()
+                .map(String::trim)
+                .distinct()
+                .filter(str -> str.length() == 5
+                        && StringUtils.containsNone(str, "-'.")
+                        && !excludes.contains(str)).collect(Collectors.toList());
+        r.stream().map(word -> solver.build(word, r)).sorted()
+                .peek(br -> System.out.println(String.format("%s - %04d", br.word(), br.results().size())))
+                .map(BuildResult::word)
+                .forEach(pw::println);
+        pw.close();
+        System.out.println("File src/main/resources/" + filename + " created with " + r.size() + " words");
     }
+
+}
