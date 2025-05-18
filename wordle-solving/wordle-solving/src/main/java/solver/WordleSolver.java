@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 public class WordleSolver {
 
     private static final Map<String, LanguageValues> LANGUAGES = new HashMap<>();
+    public static final int GAMBLE_POSSIBLE_SOLUTION_RANGE = 0;
     private static Scanner input;
 
     static {
@@ -58,7 +59,11 @@ public class WordleSolver {
         @Override
         public int compareTo(BuildResult buildResult) {
             // reversed order
-            return buildResult.results().size() - this.results().size();
+            return  - difference(buildResult);
+        }
+
+        public int difference(BuildResult other) {
+            return this.results().size() - other.results().size();
         }
     }
 
@@ -111,13 +116,14 @@ public class WordleSolver {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
 //            build01 (words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
-            runWordleGuessing(words.stream()
+            runWordleGuessing(
+                    words.stream()
                             .map(String::trim)
                             .distinct()
                             .filter(str -> str.length() == 5
                                     && StringUtils.containsNone(str, "-'.")
                                     && !actualLanguage.excludedWords().contains(str))
-                            .collect(Collectors.toList()),
+                            .toList(),
                     solver,
                     actualLanguage);
         }
@@ -136,18 +142,37 @@ public class WordleSolver {
         List<String> wordsLeft = words;
         String bestCandidate = actualLanguage.bestStartingCandidate();
         System.out.println(actualLanguage.promptValues().format());
-        while (wordsLeft.size() > 1) {
+
+        wordsLeft = doGuessWordle(words, solver, actualLanguage, wordsLeft, bestCandidate);
+        handleResult(actualLanguage, wordsLeft);
+    }
+
+    private static List<String> doGuessWordle(List<String> words, WordleSolver solver, LanguageValues actualLanguage, List<String> wordsLeft, String bestCandidate) {
+        while (notFinishedGuessing(wordsLeft)) {
             String strippedInput = fetchGuessResult(actualLanguage.promptValues(), bestCandidate);
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().getOrDefault(Integer.parseInt(strippedInput), Collections.emptyList());
             final List<String> wordsLeftFinal = wordsLeft;
-            bestCandidate = words.stream().filter(str -> str.length() == 5
+            List<BuildResult> buildResults = words.stream().filter(str -> str.length() == 5
                             && StringUtils.containsNone(str, "-'.")
                             && !actualLanguage.excludedWords().contains(str))
-                    .map(word -> solver.build(word, wordsLeftFinal)).sorted()
+                    .map(word1 -> solver.build(word1, wordsLeftFinal)).sorted().toList();
+            BuildResult firstElement = buildResults.get(0);
+            bestCandidate = buildResults.stream()
+                    .takeWhile(br -> firstElement.difference(br) <= GAMBLE_POSSIBLE_SOLUTION_RANGE)
                     .map(BuildResult::word)
                     .dropWhile(word -> actualLanguage.excludedWords().contains(word))
-                    .findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
+                    .filter(wordsLeftFinal::contains)
+                    .findFirst()
+                    .orElse(firstElement.word());
         }
+        return wordsLeft;
+    }
+
+    private static boolean notFinishedGuessing(List<String> wordsLeft) {
+        return wordsLeft.size() > 1;
+    }
+
+    private static void handleResult(LanguageValues actualLanguage, List<String> wordsLeft) {
         if (wordsLeft.isEmpty()) {
             System.out.println(actualLanguage.solutionValues().noSolution());
         } else {
