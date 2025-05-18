@@ -66,6 +66,13 @@ class WordleSolverTest {
     }
 
     @Test
+    void testIgnoreCase() {
+        String target    = "sLOtS";
+        String candidate = "rossa";
+        assertEquals(1110, solver.compare(candidate, target) );
+    }
+
+    @Test
     public void testBuild10() {
         List<String> words = Stream.of(
                 "jetty", "wizzo", "cuppa", "cohoe", "gurks", 

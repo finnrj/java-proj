@@ -1,5 +1,6 @@
 package solver;
 
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -21,26 +22,33 @@ public class WordleSolver {
         LANGUAGES.put("EN",
                 new LanguageValues("words",
                         "tares",
-                        "Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position",
-                        "Please enter result for '%s' :",
-                        "The solution must be ",
-                        "No solution found ",
+                        new LanguageValues.PromptValues(
+                                "Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position",
+                                "Please enter result for '%s' :",
+                                "invalid input: '%s'"
+                        ),
+                        new LanguageValues.SolutionValues("The solution must be ", "No solution found "),
                         List.of()));
+
         LANGUAGES.put("DE",
                 new LanguageValues("words-german",
                         "seilt",
-                        "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
-                        "Bitte taste Ergebnis fur '%s' :",
-                        "Die Lösung ist ",
-                        "Keine Lösung gefunden",
+                        new LanguageValues.PromptValues(
+                                "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
+                                "Bitte taste Ergebnis fur '%s' :",
+                                "Invalides Input: '%s'"
+                        ),
+                        new LanguageValues.SolutionValues("Die Lösung ist ", "Keine Lösung gefunden"),
                         List.of("BGHSt", "UNHCR")));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
                         "silet",
-                        "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
-                        "Indtast resultat for '%s' :",
-                        "Løsningen må være ",
-                        "Ingen løsning fundet ",
+                        new LanguageValues.PromptValues(
+                                "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
+                                "Indtast resultat for '%s' :",
+                                "Fejlagtigt input: '%s"
+                        ),
+                        new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
                         List.of()));
     }
 
@@ -55,6 +63,7 @@ public class WordleSolver {
     }
 
     public Integer compare(String candidate, String target) {
+        target = target.toLowerCase();
         if (target.length() < candidate.length()) {
             System.out.println("Target word is shorter than candidate word'" + target + "'");
             return -1;
@@ -104,7 +113,6 @@ public class WordleSolver {
 //            build01 (words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
             runWordleGuessing(words.stream()
                             .map(String::trim)
-                            .map(String::toLowerCase)
                             .distinct()
                             .filter(str -> str.length() == 5
                                     && StringUtils.containsNone(str, "-'.")
@@ -126,14 +134,10 @@ public class WordleSolver {
 
     private static void runWordleGuessing(List<String> words, WordleSolver solver, LanguageValues actualLanguage) {
         List<String> wordsLeft = words;
-        String bestCandidate = actualLanguage.bestCandidate();
-        System.out.println(actualLanguage.formatPattern());
+        String bestCandidate = actualLanguage.bestStartingCandidate();
+        System.out.println(actualLanguage.promptValues().format());
         while (wordsLeft.size() > 1) {
-            String strippedInput;
-            do {
-                System.out.println(String.format(actualLanguage.enterPrompt(), bestCandidate));
-                strippedInput = input.nextLine().strip();
-            } while (!(NumberUtils.isDigits(strippedInput) && strippedInput.length() == 5));
+            String strippedInput = fetchGuessResult(actualLanguage.promptValues(), bestCandidate);
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().getOrDefault(Integer.parseInt(strippedInput), Collections.emptyList());
             final List<String> wordsLeftFinal = wordsLeft;
             bestCandidate = words.stream().filter(str -> str.length() == 5
@@ -145,10 +149,30 @@ public class WordleSolver {
                     .findFirst().orElse("NO RESULT FOUND FOR BEST CANDIDATE!!");
         }
         if (wordsLeft.isEmpty()) {
-            System.out.println(actualLanguage.noSolution());
+            System.out.println(actualLanguage.solutionValues().noSolution());
         } else {
-            System.out.println(actualLanguage.solutionFound() + wordsLeft.get(0));
+            System.out.println(actualLanguage.solutionValues().solutionFound() + wordsLeft.get(0));
         }
+    }
+
+    private static String fetchGuessResult(LanguageValues.PromptValues promptValues, String bestCandidate) {
+        String strippedInput = "no input yet";
+        int round = 0;
+        do {
+            if (round > 0) {
+                System.out.println(String.format(promptValues.invalidInput(), strippedInput));
+            }
+            System.out.println(String.format(promptValues.prompt(), bestCandidate));
+            strippedInput = input.nextLine().strip();
+            round++;
+        } while (!isValidInput(strippedInput));
+        return strippedInput;
+    }
+
+    private static boolean isValidInput(String strippedInput) {
+        return NumberUtils.isDigits(strippedInput)
+                && strippedInput.length() == 5
+                && RegExUtils.dotAllMatcher("[012]{5}", strippedInput).matches();
     }
 
     static void build01(List<String> words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
