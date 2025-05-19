@@ -129,6 +129,7 @@ public class WordleSolver {
             runWordleGuessing(
                     words.stream()
                             .map(String::trim)
+                            .map(String::toLowerCase)
                             .distinct()
                             .filter(str -> str.length() == 5
                                     && StringUtils.containsNone(str, "-'.")
