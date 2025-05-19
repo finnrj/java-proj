@@ -21,7 +21,7 @@ public class WordleSolver {
 
     static {
         LANGUAGES.put("EN",
-                new LanguageValues("words",
+                new LanguageValues("words-english",
                         "tares",
                         new LanguageValues.PromptValues(
                                 "Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position",
@@ -33,7 +33,7 @@ public class WordleSolver {
 
         LANGUAGES.put("DE",
                 new LanguageValues("words-german",
-                        "seilt",
+                        "raste",
                         new LanguageValues.PromptValues(
                                 "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
                                 "Bitte taste Ergebnis fur '%s' :",
@@ -43,11 +43,21 @@ public class WordleSolver {
                         List.of("BGHSt", "UNHCR")));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
-                        "silet",
+                        "marie",
                         new LanguageValues.PromptValues(
                                 "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
                                 "Indtast resultat for '%s' :",
-                                "Fejlagtigt input: '%s"
+                                "Fejlagtigt input: '%s'"
+                        ),
+                        new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
+                        List.of()));
+        LANGUAGES.put("ES",
+                new LanguageValues("words-spanish",
+                        "corea",
+                        new LanguageValues.PromptValues(
+                                "Formato: Número de 5 dígitos, 0 = sin coincidencia, 1 = coincidencia, pero posición incorrecta, 2 = coincidencia y posición correcta",
+                                "Por favor, introduzca el resultado para '%s' :",
+                                "entrada inválida: '%s'"
                         ),
                         new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
                         List.of()));
@@ -115,7 +125,7 @@ public class WordleSolver {
         try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", actualLanguage.filename()))) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
-//            build01 (words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
+//            build01(words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
             runWordleGuessing(
                     words.stream()
                             .map(String::trim)
