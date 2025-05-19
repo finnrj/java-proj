@@ -43,14 +43,14 @@ public class WordleSolver {
                         List.of("BGHSt", "UNHCR")));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
-                        "marie",
+                        "senat",
                         new LanguageValues.PromptValues(
                                 "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
                                 "Indtast resultat for '%s' :",
                                 "Fejlagtigt input: '%s'"
                         ),
                         new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
-                        List.of()));
+                        List.of("ramis", "maria", "talia")));
         LANGUAGES.put("ES",
                 new LanguageValues("words-spanish",
                         "corea",
@@ -59,7 +59,7 @@ public class WordleSolver {
                                 "Por favor, introduzca el resultado para '%s' :",
                                 "entrada inválida: '%s'"
                         ),
-                        new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
+                        new LanguageValues.SolutionValues("La solución debe ser ", "No se ha encontrado solución "),
                         List.of()));
     }
 
@@ -187,7 +187,7 @@ public class WordleSolver {
         if (wordsLeft.isEmpty()) {
             System.out.println(actualLanguage.solutionValues().noSolution());
         } else {
-            System.out.println(actualLanguage.solutionValues().solutionFound() + wordsLeft.get(0));
+            System.out.println(String.format(actualLanguage.solutionValues().solutionFound() + "'%s'", wordsLeft.get(0)));
         }
     }
 
@@ -197,6 +197,7 @@ public class WordleSolver {
         do {
             if (round > 0) {
                 System.out.println(String.format(promptValues.invalidInput(), strippedInput));
+                System.out.println(promptValues.format());
             }
             System.out.println(String.format(promptValues.prompt(), bestCandidate));
             strippedInput = input.nextLine().strip();
