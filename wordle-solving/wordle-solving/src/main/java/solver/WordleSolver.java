@@ -4,11 +4,7 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +13,7 @@ public class WordleSolver {
 
     private static final Map<String, LanguageValues> LANGUAGES = new HashMap<>();
     public static final int GAMBLE_POSSIBLE_SOLUTION_RANGE = 0;
+    public static final String WORD_NOT_RECONIZED = "-1";
     private static Scanner input;
 
     static {
@@ -24,43 +21,51 @@ public class WordleSolver {
                 new LanguageValues("words-english",
                         "tares",
                         new LanguageValues.PromptValues(
-                                "Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position",
+                                """
+                                Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position.
+                                Use -1 for not recognized word""",
                                 "Please enter result for '%s' :",
                                 "invalid input: '%s'"
                         ),
                         new LanguageValues.SolutionValues("The solution must be ", "No solution found "),
-                        List.of()));
+                        new ArrayList<>()));
 
         LANGUAGES.put("DE",
                 new LanguageValues("words-german",
                         "raste",
                         new LanguageValues.PromptValues(
-                                "Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert",
+                                """
+                                Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert.
+                                Nutze -1 fur nicht erkanntes Wort""",
                                 "Bitte taste Ergebnis fur '%s' :",
                                 "Invalides Input: '%s'"
                         ),
                         new LanguageValues.SolutionValues("Die Lösung ist ", "Keine Lösung gefunden"),
-                        List.of("BGHSt", "UNHCR")));
+                        new ArrayList<>(List.of("BGHSt", "UNHCR"))));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
                         "senat",
                         new LanguageValues.PromptValues(
-                                "Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position",
+                                """
+                                Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position.
+                                Benyt -1 for ugyldigt ord""",
                                 "Indtast resultat for '%s' :",
                                 "Fejlagtigt input: '%s'"
                         ),
                         new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
-                        List.of("ramis", "maria", "talia")));
+                        new ArrayList<>(List.of("ramis", "maria", "talia"))));
         LANGUAGES.put("ES",
                 new LanguageValues("words-spanish",
                         "corea",
                         new LanguageValues.PromptValues(
-                                "Formato: Número de 5 dígitos, 0 = sin coincidencia, 1 = coincidencia, pero posición incorrecta, 2 = coincidencia y posición correcta",
+                                """
+                                        Formato: Número de 5 dígitos, 0 = sin coincidencia, 1 = coincidencia, pero posición incorrecta, 2 = coincidencia y posición correcta. 
+                                        Utilizar -1 para palabra no reconocida""",
                                 "Por favor, introduzca el resultado para '%s' :",
                                 "entrada inválida: '%s'"
                         ),
                         new LanguageValues.SolutionValues("La solución debe ser ", "No se ha encontrado solución "),
-                        List.of()));
+                        new ArrayList<>()));
     }
 
     ;
@@ -122,7 +127,10 @@ public class WordleSolver {
         input = new Scanner(System.in);
         LanguageValues actualLanguage = chooseLanguage();
 
-        try (Stream<String> lines = Files.lines(Paths.get("src", "main", "resources", actualLanguage.filename()))) {
+          try( Stream<String> lines = new BufferedReader(
+                    new InputStreamReader(
+                            WordleSolver.class.getClassLoader().getResourceAsStream(actualLanguage.filename())
+                    )).lines()) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
 //            build01(words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
@@ -159,14 +167,24 @@ public class WordleSolver {
     }
 
     private static List<String> doGuessWordle(List<String> words, WordleSolver solver, LanguageValues actualLanguage, List<String> wordsLeft, String bestCandidate) {
+        List<BuildResult> buildResults = new ArrayList<>();
         while (notFinishedGuessing(wordsLeft)) {
             String strippedInput = fetchGuessResult(actualLanguage.promptValues(), bestCandidate);
+            if (WORD_NOT_RECONIZED.equals(strippedInput)) {
+                actualLanguage.excludedWords().add(bestCandidate);
+                buildResults.remove(0);
+                if (buildResults.isEmpty()) {
+                    return Collections.emptyList();
+                }
+                bestCandidate = buildResults.get(0).word();
+                continue;
+            }
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().getOrDefault(Integer.parseInt(strippedInput), Collections.emptyList());
             final List<String> wordsLeftFinal = wordsLeft;
-            List<BuildResult> buildResults = words.stream().filter(str -> str.length() == 5
+            buildResults = new ArrayList<>(words.stream().filter(str -> str.length() == 5
                             && StringUtils.containsNone(str, "-'.")
                             && !actualLanguage.excludedWords().contains(str))
-                    .map(word1 -> solver.build(word1, wordsLeftFinal)).sorted().toList();
+                    .map(word1 -> solver.build(word1, wordsLeftFinal)).sorted().toList());
             BuildResult firstElement = buildResults.get(0);
             bestCandidate = buildResults.stream()
                     .takeWhile(br -> firstElement.difference(br) <= GAMBLE_POSSIBLE_SOLUTION_RANGE)
@@ -192,7 +210,7 @@ public class WordleSolver {
     }
 
     private static String fetchGuessResult(LanguageValues.PromptValues promptValues, String bestCandidate) {
-        String strippedInput = "no input yet";
+        String strippedInput = WORD_NOT_RECONIZED;
         int round = 0;
         do {
             if (round > 0) {
@@ -207,9 +225,10 @@ public class WordleSolver {
     }
 
     private static boolean isValidInput(String strippedInput) {
-        return NumberUtils.isDigits(strippedInput)
+        return (NumberUtils.isDigits(strippedInput)
                 && strippedInput.length() == 5
-                && RegExUtils.dotAllMatcher("[012]{5}", strippedInput).matches();
+                && RegExUtils.dotAllMatcher("[012]{5}", strippedInput).matches())
+                || WORD_NOT_RECONIZED.equals(strippedInput);
     }
 
     static void build01(List<String> words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
