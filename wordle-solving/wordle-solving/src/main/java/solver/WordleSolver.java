@@ -13,7 +13,7 @@ public class WordleSolver {
 
     private static final Map<String, LanguageValues> LANGUAGES = new HashMap<>();
     public static final int GAMBLE_POSSIBLE_SOLUTION_RANGE = 0;
-    public static final String WORD_NOT_RECONIZED = "-1";
+    public static final String WORD_NOT_RECOGNIZED = "-1";
     private static Scanner input;
 
     static {
@@ -158,7 +158,7 @@ public class WordleSolver {
     }
 
     private static void runWordleGuessing(List<String> words, WordleSolver solver, LanguageValues actualLanguage) {
-        List<String> wordsLeft = words;
+        List<String> wordsLeft = new ArrayList<>(words);
         String bestCandidate = actualLanguage.bestStartingCandidate();
         System.out.println(actualLanguage.promptValues().format());
 
@@ -170,7 +170,7 @@ public class WordleSolver {
         List<BuildResult> buildResults = new ArrayList<>();
         while (notFinishedGuessing(wordsLeft)) {
             String strippedInput = fetchGuessResult(actualLanguage.promptValues(), bestCandidate);
-            if (WORD_NOT_RECONIZED.equals(strippedInput)) {
+            if (WORD_NOT_RECOGNIZED.equals(strippedInput)) {
                 actualLanguage.excludedWords().add(bestCandidate);
                 buildResults.remove(0);
                 if (buildResults.isEmpty()) {
@@ -210,7 +210,7 @@ public class WordleSolver {
     }
 
     private static String fetchGuessResult(LanguageValues.PromptValues promptValues, String bestCandidate) {
-        String strippedInput = WORD_NOT_RECONIZED;
+        String strippedInput = WORD_NOT_RECOGNIZED;
         int round = 0;
         do {
             if (round > 0) {
@@ -228,7 +228,7 @@ public class WordleSolver {
         return (NumberUtils.isDigits(strippedInput)
                 && strippedInput.length() == 5
                 && RegExUtils.dotAllMatcher("[012]{5}", strippedInput).matches())
-                || WORD_NOT_RECONIZED.equals(strippedInput);
+                || WORD_NOT_RECOGNIZED.equals(strippedInput);
     }
 
     static void build01(List<String> words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
