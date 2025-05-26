@@ -168,6 +168,7 @@ public class WordleSolver {
 
     private static List<String> doGuessWordle(List<String> words, WordleSolver solver, LanguageValues actualLanguage, List<String> wordsLeft, String bestCandidate) {
         List<BuildResult> buildResults = new ArrayList<>();
+        int acceptablerange = GAMBLE_POSSIBLE_SOLUTION_RANGE;
         while (notFinishedGuessing(wordsLeft)) {
             String strippedInput = fetchGuessResult(actualLanguage.promptValues(), bestCandidate);
             if (WORD_NOT_RECOGNIZED.equals(strippedInput)) {
@@ -179,6 +180,14 @@ public class WordleSolver {
                 bestCandidate = buildResults.get(0).word();
                 continue;
             }
+
+            if(StringUtils.countMatches(strippedInput, '2') == 4) {
+                acceptablerange = GAMBLE_POSSIBLE_SOLUTION_RANGE;
+            } else if ((StringUtils.countMatches(strippedInput, '2') + StringUtils.countMatches(strippedInput, '1')) >= 3) {
+                acceptablerange = 2;
+            }
+            System.out.println(acceptablerange);
+            int finalAcceptablerange = acceptablerange;
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().getOrDefault(Integer.parseInt(strippedInput), Collections.emptyList());
             final List<String> wordsLeftFinal = wordsLeft;
             buildResults = new ArrayList<>(words.stream().filter(str -> str.length() == 5
@@ -187,7 +196,7 @@ public class WordleSolver {
                     .map(word1 -> solver.build(word1, wordsLeftFinal)).sorted().toList());
             BuildResult firstElement = buildResults.get(0);
             bestCandidate = buildResults.stream()
-                    .takeWhile(br -> firstElement.difference(br) <= GAMBLE_POSSIBLE_SOLUTION_RANGE)
+                    .takeWhile(br -> firstElement.difference(br) <= finalAcceptablerange)
                     .map(BuildResult::word)
                     .dropWhile(word -> actualLanguage.excludedWords().contains(word))
                     .filter(wordsLeftFinal::contains)
