@@ -102,5 +102,20 @@ class WordleSolverTest {
         assertEquals(5, result.get(0).size());
     }
 
+    @Test
+    public void testAcceptableRange() {
+        assertEquals(0, solver.decideAcceptableRange(0, "00000", 5));
 
+        assertEquals(2, solver.decideAcceptableRange(2, "02222", 2));
+        assertEquals(0, solver.decideAcceptableRange(2, "02222", 3));
+
+        assertEquals(5, solver.decideAcceptableRange(5, "10201", 2));
+        assertEquals(2, solver.decideAcceptableRange(2, "10201", 3));
+        assertEquals(2, solver.decideAcceptableRange(3, "10201", 3));
+
+        assertEquals(5, solver.decideAcceptableRange(5, "10211", 2));
+        assertEquals(1, solver.decideAcceptableRange(2, "10211", 3));
+        assertEquals(1, solver.decideAcceptableRange(3, "10211", 3));
+
+    }
 }

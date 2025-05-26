@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class WordleSolver {
 
     private static final Map<String, LanguageValues> LANGUAGES = new HashMap<>();
-    public static final int GAMBLE_POSSIBLE_SOLUTION_RANGE = 0;
+    public static final int INITIAL_ACCEPTABLE_RANGE = 0;
     public static final String WORD_NOT_RECOGNIZED = "-1";
     private static Scanner input;
 
@@ -166,9 +166,20 @@ public class WordleSolver {
         handleResult(actualLanguage, wordsLeft);
     }
 
+    public int decideAcceptableRange(int actualValue, String strippedInput, int wordsLeftCount) {
+        int leftToGuess = StringUtils.countMatches(strippedInput, '0');
+        if (wordsLeftCount <= 2 || leftToGuess > 2) {
+            return actualValue;
+        }
+        if (StringUtils.countMatches(strippedInput, '2') == 4) {
+            return INITIAL_ACCEPTABLE_RANGE;
+        }
+        return leftToGuess;
+    }
+
     private static List<String> doGuessWordle(List<String> words, WordleSolver solver, LanguageValues actualLanguage, List<String> wordsLeft, String bestCandidate) {
         List<BuildResult> buildResults = new ArrayList<>();
-        int acceptablerange = GAMBLE_POSSIBLE_SOLUTION_RANGE;
+        int acceptableRange = INITIAL_ACCEPTABLE_RANGE;
         while (notFinishedGuessing(wordsLeft)) {
             String strippedInput = fetchGuessResult(actualLanguage.promptValues(), bestCandidate);
             if (WORD_NOT_RECOGNIZED.equals(strippedInput)) {
@@ -181,14 +192,9 @@ public class WordleSolver {
                 continue;
             }
 
-            if(StringUtils.countMatches(strippedInput, '2') == 4) {
-                acceptablerange = GAMBLE_POSSIBLE_SOLUTION_RANGE;
-            } else if ((StringUtils.countMatches(strippedInput, '2') + StringUtils.countMatches(strippedInput, '1')) >= 3) {
-                acceptablerange = 2;
-            }
-            System.out.println(acceptablerange);
-            int finalAcceptablerange = acceptablerange;
             wordsLeft = solver.build(bestCandidate, wordsLeft).results().getOrDefault(Integer.parseInt(strippedInput), Collections.emptyList());
+            int finalAcceptablerange = solver.decideAcceptableRange(acceptableRange, strippedInput, wordsLeft.size());
+            System.out.println(finalAcceptablerange);
             final List<String> wordsLeftFinal = wordsLeft;
             buildResults = new ArrayList<>(words.stream().filter(str -> str.length() == 5
                             && StringUtils.containsNone(str, "-'.")
