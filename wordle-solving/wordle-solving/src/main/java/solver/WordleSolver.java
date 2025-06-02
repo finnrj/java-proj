@@ -22,8 +22,8 @@ public class WordleSolver {
                         "tares",
                         new LanguageValues.PromptValues(
                                 """
-                                Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position.
-                                Use -1 for not recognized word""",
+                                        Format: 5 digit number, 0 = no match, 1 = match, but wrong position, 2 = match and correct position.
+                                        Use -1 for not recognized word""",
                                 "Please enter result for '%s' :",
                                 "invalid input: '%s'"
                         ),
@@ -35,8 +35,8 @@ public class WordleSolver {
                         "raste",
                         new LanguageValues.PromptValues(
                                 """
-                                Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert.
-                                Nutze -1 fur nicht erkanntes Wort""",
+                                        Format: 5 ziffriger Zahl, 0 = kein Match, 1 = Match aber falsch positioniert, 2 = Match und korrekt positioniert.
+                                        Nutze -1 fur nicht erkanntes Wort""",
                                 "Bitte taste Ergebnis fur '%s' :",
                                 "Invalides Input: '%s'"
                         ),
@@ -47,8 +47,8 @@ public class WordleSolver {
                         "senat",
                         new LanguageValues.PromptValues(
                                 """
-                                Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position.
-                                Benyt -1 for ugyldigt ord""",
+                                        Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position.
+                                        Benyt -1 for ugyldigt ord""",
                                 "Indtast resultat for '%s' :",
                                 "Fejlagtigt input: '%s'"
                         ),
@@ -74,7 +74,7 @@ public class WordleSolver {
         @Override
         public int compareTo(BuildResult buildResult) {
             // reversed order
-            return  - difference(buildResult);
+            return -difference(buildResult);
         }
 
         public int difference(BuildResult other) {
@@ -127,10 +127,10 @@ public class WordleSolver {
         input = new Scanner(System.in);
         LanguageValues actualLanguage = chooseLanguage();
 
-          try( Stream<String> lines = new BufferedReader(
-                    new InputStreamReader(
-                            WordleSolver.class.getClassLoader().getResourceAsStream(actualLanguage.filename())
-                    )).lines()) {
+        try (Stream<String> lines = new BufferedReader(
+                new InputStreamReader(
+                        WordleSolver.class.getClassLoader().getResourceAsStream(actualLanguage.filename())
+                )).lines()) {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
 //            build01(words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
@@ -146,7 +146,8 @@ public class WordleSolver {
                             .toList(),
                     solver,
                     actualLanguage);
-              System.out.println("Exclude words size after: " + actualLanguage.excludedWords().size());
+            System.out.println("Exclude words size after: " + actualLanguage.excludedWords().size());
+            saveFilteredWordList(words, actualLanguage);
         }
     }
 
@@ -246,6 +247,18 @@ public class WordleSolver {
                 && strippedInput.length() == 5
                 && RegExUtils.dotAllMatcher("[012]{5}", strippedInput).matches())
                 || WORD_NOT_RECOGNIZED.equals(strippedInput);
+    }
+
+    static void saveFilteredWordList(List<String> words, LanguageValues actualLanguage ) throws IOException {
+        PrintWriter pw = new PrintWriter(new FileWriter(WordleSolver.class.getClassLoader().getResource(actualLanguage.filename()).getPath() + "-filtered"));
+        words.stream()
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .distinct()
+                .filter(str -> !(str.length() != 5 || actualLanguage.excludedWords().contains(str)))
+                .forEach(pw::println);
+        pw.close();
+        System.out.println(WordleSolver.class.getClassLoader().getResource(actualLanguage.filename()).getPath() + "-filtered" + " created ");
     }
 
     static void build01(List<String> words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
