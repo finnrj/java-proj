@@ -134,6 +134,7 @@ public class WordleSolver {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
 //            build01(words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
+            System.out.println("Exclude words size before: " + actualLanguage.excludedWords().size());
             runWordleGuessing(
                     words.stream()
                             .map(String::trim)
@@ -145,6 +146,7 @@ public class WordleSolver {
                             .toList(),
                     solver,
                     actualLanguage);
+              System.out.println("Exclude words size after: " + actualLanguage.excludedWords().size());
         }
     }
 
