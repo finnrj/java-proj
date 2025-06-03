@@ -146,7 +146,9 @@ public class WordleSolver {
                     solver,
                     actualLanguage);
             System.out.println("Exclude words size after guessing: " + actualLanguage.excludedWords().size());
-            saveFilteredWordList(words, actualLanguage);
+            if (!actualLanguage.excludedWords().isEmpty()) {
+                saveFilteredWordList(words, actualLanguage);
+            }
         }
     }
 
