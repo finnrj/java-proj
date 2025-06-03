@@ -41,7 +41,7 @@ public class WordleSolver {
                                 "Invalides Input: '%s'"
                         ),
                         new LanguageValues.SolutionValues("Die Lösung ist ", "Keine Lösung gefunden"),
-                        new ArrayList<>(List.of("BGHSt", "UNHCR"))));
+                        new ArrayList<>()));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
                         "senat",
@@ -53,7 +53,7 @@ public class WordleSolver {
                                 "Fejlagtigt input: '%s'"
                         ),
                         new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
-                        new ArrayList<>(List.of("ramis", "maria", "talia"))));
+                        new ArrayList<>()));
         LANGUAGES.put("ES",
                 new LanguageValues("words-spanish",
                         "corea",
@@ -134,7 +134,6 @@ public class WordleSolver {
             List<String> words = new ArrayList<>(lines.map(String::trim).toList());
             WordleSolver solver = new WordleSolver();
 //            build01(words, solver, actualLanguage.filename(), actualLanguage.excludedWords());
-            System.out.println("Exclude words size before: " + actualLanguage.excludedWords().size());
             runWordleGuessing(
                     words.stream()
                             .map(String::trim)
@@ -146,7 +145,7 @@ public class WordleSolver {
                             .toList(),
                     solver,
                     actualLanguage);
-            System.out.println("Exclude words size after: " + actualLanguage.excludedWords().size());
+            System.out.println("Exclude words size after guessing: " + actualLanguage.excludedWords().size());
             saveFilteredWordList(words, actualLanguage);
         }
     }
@@ -250,7 +249,8 @@ public class WordleSolver {
     }
 
     static void saveFilteredWordList(List<String> words, LanguageValues actualLanguage ) throws IOException {
-        PrintWriter pw = new PrintWriter(new FileWriter(WordleSolver.class.getClassLoader().getResource(actualLanguage.filename()).getPath() + "-filtered"));
+        PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/" + actualLanguage.filename() + "-filtered"));
+//        PrintWriter pw = new PrintWriter(new FileWriter(WordleSolver.class.getClassLoader().getResource(actualLanguage.filename()).getPath() + "-filtered"));
         words.stream()
                 .map(String::trim)
                 .map(String::toLowerCase)
@@ -258,7 +258,7 @@ public class WordleSolver {
                 .filter(str -> !(str.length() != 5 || actualLanguage.excludedWords().contains(str)))
                 .forEach(pw::println);
         pw.close();
-        System.out.println(WordleSolver.class.getClassLoader().getResource(actualLanguage.filename()).getPath() + "-filtered" + " created ");
+        System.out.println("src/main/resources/" + actualLanguage.filename() + "-filtered created");
     }
 
     static void build01(List<String> words, WordleSolver solver, String filename, List<String> excludes) throws IOException {
