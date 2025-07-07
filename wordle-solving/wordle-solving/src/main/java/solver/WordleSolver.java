@@ -27,7 +27,7 @@ public class WordleSolver {
                                 "Please enter result for '%s' :",
                                 "invalid input: '%s'"
                         ),
-                        new LanguageValues.SolutionValues("The solution must be ", "No solution found "),
+                        new LanguageValues.SolutionValues("The solution must be '%s'", "No solution found "),
                         new ArrayList<>()));
 
         LANGUAGES.put("DE",
@@ -40,11 +40,11 @@ public class WordleSolver {
                                 "Bitte taste Ergebnis fur '%s' :",
                                 "Invalides Input: '%s'"
                         ),
-                        new LanguageValues.SolutionValues("Die Lösung ist ", "Keine Lösung gefunden"),
+                        new LanguageValues.SolutionValues("Die Lösung muss '%s' sein ", "Keine Lösung gefunden"),
                         new ArrayList<>()));
         LANGUAGES.put("DA",
                 new LanguageValues("words-danish",
-                        "senat",
+                        "silet",
                         new LanguageValues.PromptValues(
                                 """
                                         Format: 5 cifret tal, 0 = ingen match, 1 = match, men forkert position, 2 = match og korrekt position.
@@ -52,11 +52,11 @@ public class WordleSolver {
                                 "Indtast resultat for '%s' :",
                                 "Fejlagtigt input: '%s'"
                         ),
-                        new LanguageValues.SolutionValues("Løsningen må være ", "Ingen løsning fundet "),
+                        new LanguageValues.SolutionValues("Løsningen må være '%s'", "Ingen løsning fundet "),
                         new ArrayList<>()));
         LANGUAGES.put("ES",
                 new LanguageValues("words-spanish",
-                        "corea",
+                        "lorca",
                         new LanguageValues.PromptValues(
                                 """
                                         Formato: Número de 5 dígitos, 0 = sin coincidencia, 1 = coincidencia, pero posición incorrecta, 2 = coincidencia y posición correcta. 
@@ -64,11 +64,9 @@ public class WordleSolver {
                                 "Por favor, introduzca el resultado para '%s' :",
                                 "entrada inválida: '%s'"
                         ),
-                        new LanguageValues.SolutionValues("La solución debe ser ", "No se ha encontrado solución "),
+                        new LanguageValues.SolutionValues("La solución debe ser '%s'", "No se ha encontrado solución "),
                         new ArrayList<>()));
     }
-
-    ;
 
     public record BuildResult(String word, Map<Integer, List<String>> results) implements Comparable<BuildResult> {
         @Override
@@ -224,7 +222,7 @@ public class WordleSolver {
         if (wordsLeft.isEmpty()) {
             System.out.println(actualLanguage.solutionValues().noSolution());
         } else {
-            System.out.println(String.format(actualLanguage.solutionValues().solutionFound() + "'%s'", wordsLeft.get(0)));
+            System.out.println(String.format(actualLanguage.solutionValues().solutionFound(), wordsLeft.get(0)));
         }
     }
 
